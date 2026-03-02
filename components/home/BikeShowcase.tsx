@@ -159,7 +159,7 @@ export default function BikeShowcase() {
           key={bike.id}
           ref={(el) => { slideRefs.current[i] = el; }}
           className="relative w-full flex items-center overflow-hidden bg-[#0A0A0A]"
-          style={{ minHeight: "100vh" }}
+          style={{ minHeight: "clamp(600px, 100vh, 100vh)" }}
         >
           {/* BIKE IMAGE — right side */}
           <div className="absolute inset-y-0 right-0 w-full md:w-[65%] lg:w-[62%]">
@@ -180,8 +180,8 @@ export default function BikeShowcase() {
             />
           </div>
 
-          {/* LEFT GRADIENT for text legibility */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0A0A0A] via-[#0A0A0A]/85 to-transparent" />
+          {/* LEFT GRADIENT for text legibility — stronger on mobile */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0A0A0A] via-[#0A0A0A]/90 md:via-[#0A0A0A]/85 to-[#0A0A0A]/60 md:to-transparent" />
 
           {/* TEXT CONTENT */}
           <div className="relative z-10 max-w-[1440px] mx-auto px-6 md:px-12 lg:px-20 w-full py-20 md:py-24">
@@ -199,7 +199,7 @@ export default function BikeShowcase() {
               </div>
 
               {/* Name */}
-              <h2 className="font-display text-[clamp(64px,9vw,120px)] text-white leading-none uppercase tracking-tight mb-5">
+              <h2 className="font-display text-[clamp(40px,9vw,120px)] text-white leading-none uppercase tracking-tight mb-5">
                 {bike.name}
               </h2>
 
@@ -212,7 +212,7 @@ export default function BikeShowcase() {
               <div className="mb-12">
                 <div className="flex items-baseline gap-2 mb-1.5">
                   <span
-                    className="font-display text-[clamp(52px,7vw,84px)] leading-none"
+                    className="font-display text-[clamp(36px,7vw,84px)] leading-none"
                     style={{ color: bike.accent }}
                   >
                     {bike.stat.value}

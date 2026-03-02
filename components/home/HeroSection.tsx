@@ -30,10 +30,10 @@ export default function HeroSection() {
         onLoadedData={() => setVideoLoaded(true)}
       />
 
-      {/* YouTube iframe fallback — active while video loads or if file missing */}
+      {/* YouTube iframe fallback — desktop only (mobile skips iframe for perf) */}
       {!videoLoaded && (
         <iframe
-          className="absolute inset-0 w-full h-full pointer-events-none"
+          className="absolute inset-0 w-full h-full pointer-events-none hidden sm:block"
           style={{ transform: "scale(1.5)", transformOrigin: "center center" }}
           src="https://www.youtube-nocookie.com/embed/vKfU7NPIEI4?autoplay=1&mute=1&loop=1&playlist=vKfU7NPIEI4&controls=0&showinfo=0&rel=0&start=12"
           allow="autoplay; encrypted-media"
@@ -53,7 +53,7 @@ export default function HeroSection() {
             Made in Italy · 100% Electric
           </p>
 
-          <h1 className="font-display text-[clamp(48px,8vw,96px)] text-white leading-none uppercase tracking-tight mb-6">
+          <h1 className="font-display text-[clamp(36px,8vw,96px)] text-white leading-none uppercase tracking-tight mb-6">
             Born Electric.<br />Born Italian.
           </h1>
 

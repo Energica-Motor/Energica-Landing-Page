@@ -85,26 +85,32 @@ export default function ModelHero({ model }: ModelHeroProps) {
       </div>
 
       {/* ── Bike image ──────────────────────────────────────── */}
-      <div className="mh-bike absolute right-0 top-1/2 -translate-y-1/2 w-[55vw] max-w-[860px] h-[72vh] pointer-events-none will-change-transform">
+      <div className="mh-bike absolute right-0 top-1/2 -translate-y-1/2 w-[80vw] sm:w-[65vw] md:w-[55vw] max-w-[860px] h-[60vh] md:h-[72vh] pointer-events-none will-change-transform">
         <Image
           src={model.heroImage}
           alt={`${model.name} motorcycle`}
           fill
           priority
           className="object-contain object-right"
-          sizes="55vw"
+          sizes="(max-width: 640px) 80vw, (max-width: 1024px) 65vw, 55vw"
         />
       </div>
 
-      {/* ── Red vertical accent line (large screens) ────────── */}
+      {/* ── Gradient overlay — protects text on mobile ───────── */}
       <div
         aria-hidden
-        className="absolute left-14 top-1/2 -translate-y-1/2 w-[2px] h-40 bg-[rgb(0,255,0)] hidden xl:block"
+        className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/80 md:via-[#0a0a0a]/50 to-transparent pointer-events-none z-[1]"
+      />
+
+      {/* ── Vertical accent line (large screens) ────────────── */}
+      <div
+        aria-hidden
+        className="absolute left-14 top-1/2 -translate-y-1/2 w-[2px] h-40 bg-[rgb(0,255,0)] hidden xl:block z-[2]"
         style={{ opacity: 0.6 }}
       />
 
       {/* ── Text panel ──────────────────────────────────────── */}
-      <div className="relative z-10 px-[clamp(24px,4vw,64px)] max-w-2xl">
+      <div className="relative z-10 px-[clamp(24px,4vw,64px)] w-full max-w-2xl">
         {/* Eyebrow */}
         <p className="mh-eyebrow inline-flex items-center gap-3 mb-6">
           <span className="w-8 h-px bg-[rgb(0,255,0)]" />
@@ -116,7 +122,7 @@ export default function ModelHero({ model }: ModelHeroProps) {
         {/* Model name */}
         <h1
           className="mh-title font-display text-white leading-none mb-[24px]"
-          style={{ fontSize: "clamp(72px, 11vw, 180px)" }}
+          style={{ fontSize: "clamp(48px, 11vw, 180px)" }}
         >
           {model.name}
         </h1>

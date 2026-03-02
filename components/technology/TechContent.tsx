@@ -242,95 +242,130 @@ function ChargingCurve() {
 }
 
 /* ─────────────────────────────────────────────────────────
-   CSS: Phone app mockup
+   App section — right-side content (header + features)
 ───────────────────────────────────────────────────────── */
-function PhoneMockup() {
+const appFeatures = [
+  { icon: "⟳", label: "Real-time range prediction" },
+  { icon: "◈", label: "Riding mode selector" },
+  { icon: "⌁", label: "Live charging status" },
+  { icon: "◉", label: "Trip & telemetry logs" },
+  { icon: "◷", label: "Scheduled charging timer" },
+];
+
+function AppContent() {
   const ref = useRef<HTMLDivElement>(null);
   useGSAP(() => {
-    gsap.from(".pm-phone", { y: 50, opacity: 0, duration: 1, ease: "power3.out",
+    gsap.from(".app-text", { y: 24, opacity: 0, duration: 0.9, ease: "power3.out",
       scrollTrigger: { trigger: ref.current, start: "top 78%" } });
-    gsap.from(".pm-row", { x: -24, opacity: 0, stagger: 0.1, duration: 0.6, ease: "power3.out",
+    gsap.from(".app-feature", { x: 20, opacity: 0, stagger: 0.08, duration: 0.6, ease: "power3.out",
       scrollTrigger: { trigger: ref.current, start: "top 72%" } });
   }, { scope: ref });
 
-  const features = [
-    { icon: "⟳", label: "Real-time range prediction" },
-    { icon: "◈", label: "Riding mode selector" },
-    { icon: "⌁", label: "Live charging status" },
-    { icon: "◉", label: "Trip & telemetry logs" },
-    { icon: "◷", label: "Scheduled charging timer" },
-  ];
-
   return (
-    <div ref={ref} className="flex flex-col lg:flex-row items-center gap-12">
-      {/* Phone */}
-      <div className="pm-phone flex-shrink-0">
-        <div className="relative w-[200px] h-[400px] rounded-[28px] border border-white/15 bg-[#0d0d0d] overflow-hidden shadow-2xl">
-          {/* Status bar */}
-          <div className="flex justify-between items-center px-4 pt-3.5 pb-2">
-            <span className="text-[8px] text-white/35 font-mono">9:41</span>
-            <div className="w-12 h-2.5 bg-white/10 rounded-full" />
-            <span className="text-[8px] text-white/35 font-mono">■■■</span>
-          </div>
-          {/* App header */}
-          <div className="px-4 pt-1 pb-3 border-b border-white/[0.06]">
-            <p className="text-[7px] uppercase tracking-[0.3em] text-white/25 mb-0.5">MY ENERGICA</p>
-            <p className="font-display text-white text-lg leading-none">Experia</p>
-          </div>
-          {/* Battery circle */}
-          <div className="flex flex-col items-center py-5">
-            <div className="relative w-20 h-20">
-              <svg viewBox="0 0 80 80" className="w-full h-full -rotate-90">
-                <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="5" />
-                <circle cx="40" cy="40" r="34" fill="none" stroke="rgb(0,255,0)" strokeWidth="5"
-                  strokeDasharray="160" strokeDashoffset="40" strokeLinecap="round" />
-              </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <p className="font-display text-white text-xl leading-none">75%</p>
-                <p className="text-[6px] text-white/25 tracking-widest">CHARGED</p>
-              </div>
-            </div>
-            <p className="text-[8px] text-white/25 mt-1.5">315 km remaining</p>
-          </div>
-          {/* Modes */}
-          <div className="px-3 mb-3">
-            <div className="grid grid-cols-3 gap-1">
-              {["URBAN", "ECO", "SPORT"].map((m, i) => (
-                <div key={m} className={`py-1 text-center text-[6px] tracking-wider rounded ${i === 2 ? "bg-[rgb(0,255,0)] text-black" : "bg-white/[0.04] text-white/25"}`}>
-                  {m}
-                </div>
-              ))}
-            </div>
-          </div>
-          {/* Metrics */}
-          <div className="px-3 grid grid-cols-2 gap-1.5">
-            {[["315 km", "RANGE"], ["0 km/h", "SPEED"], ["22°C", "BATTERY TEMP"], ["3h 40m", "CHARGE ETA"]].map(([val, lbl]) => (
-              <div key={lbl} className="bg-white/[0.03] rounded p-2">
-                <p className="font-display text-white text-sm leading-none">{val}</p>
-                <p className="text-[5.5px] text-white/20 mt-0.5 tracking-widest">{lbl}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+    <div ref={ref} className="flex flex-col justify-center">
+      {/* Section label */}
+      <p className="app-text inline-flex items-center gap-3 mb-6">
+        <span className="font-display text-5xl text-white/[0.06]">04</span>
+        <span className="w-8 h-px bg-[rgb(0,255,0)]/40" />
+        <span className="text-[10px] uppercase tracking-[0.3em] text-white/30">Tech Pillar</span>
+      </p>
+
+      {/* Heading */}
+      <h2 className="app-text font-display text-white leading-none mb-2"
+          style={{ fontSize: "clamp(36px, 4.5vw, 64px)" }}>
+        My Energica App
+      </h2>
+      <p className="app-text text-[10px] uppercase tracking-widest text-[rgb(0,255,0)]/70 mb-5">
+        iOS &amp; Android · Bluetooth + 4G
+      </p>
+      <p className="app-text text-base text-white/50 leading-[1.8] max-w-lg mb-10">
+        Your motorcycle in your pocket. The My Energica app connects via Bluetooth for local
+        control and 4G for remote monitoring. Real-time range, state of charge, and trip data —
+        plus remote diagnostics, scheduled charging, and OTA firmware updates.
+      </p>
 
       {/* Feature list */}
-      <div className="flex flex-col gap-4">
-        {features.map((f) => (
-          <div key={f.label} className="pm-row flex items-center gap-4">
+      <div className="flex flex-col gap-3 mb-8">
+        {appFeatures.map((f) => (
+          <div key={f.label} className="app-feature flex items-center gap-4 py-3 border-b border-white/[0.05]">
             <span className="w-9 h-9 rounded border border-white/10 flex items-center justify-center text-[rgb(0,255,0)] text-sm flex-shrink-0">
               {f.icon}
             </span>
             <span className="text-sm text-white/60">{f.label}</span>
           </div>
         ))}
-        <div className="pm-row mt-4 flex gap-3">
-          <div className="px-4 py-2 border border-white/10 text-white/40 text-[10px] uppercase tracking-widest hover:border-white/30 hover:text-white/60 transition-colors duration-200 cursor-pointer">
-            App Store
+      </div>
+
+      {/* Store buttons */}
+      <div className="app-feature flex flex-wrap gap-3">
+        <div className="px-5 py-2.5 border border-white/10 text-white/40 text-[10px] uppercase tracking-widest hover:border-white/30 hover:text-white/60 transition-colors duration-200 cursor-pointer">
+          App Store
+        </div>
+        <div className="px-5 py-2.5 border border-white/10 text-white/40 text-[10px] uppercase tracking-widest hover:border-white/30 hover:text-white/60 transition-colors duration-200 cursor-pointer">
+          Google Play
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────
+   CSS: Phone app mockup (visual only)
+───────────────────────────────────────────────────────── */
+function PhoneMockup() {
+  const ref = useRef<HTMLDivElement>(null);
+  useGSAP(() => {
+    gsap.from(ref.current, { y: 50, opacity: 0, duration: 1.1, ease: "power3.out",
+      scrollTrigger: { trigger: ref.current, start: "top 80%" } });
+  }, { scope: ref });
+
+  return (
+    <div ref={ref} className="flex justify-center lg:justify-end">
+      <div className="relative w-[220px] h-[440px] sm:w-[240px] sm:h-[480px] rounded-[32px] border border-white/15 bg-[#0d0d0d] overflow-hidden shadow-[0_32px_80px_rgba(0,0,0,0.6)]">
+        {/* Status bar */}
+        <div className="flex justify-between items-center px-4 pt-3.5 pb-2">
+          <span className="text-[8px] text-white/35 font-mono">9:41</span>
+          <div className="w-12 h-2.5 bg-white/10 rounded-full" />
+          <span className="text-[8px] text-white/35 font-mono">■■■</span>
+        </div>
+        {/* App header */}
+        <div className="px-4 pt-1 pb-3 border-b border-white/[0.06]">
+          <p className="text-[7px] uppercase tracking-[0.3em] text-white/25 mb-0.5">MY ENERGICA</p>
+          <p className="font-display text-white text-lg leading-none">Experia</p>
+        </div>
+        {/* Battery circle */}
+        <div className="flex flex-col items-center py-5">
+          <div className="relative w-20 h-20">
+            <svg viewBox="0 0 80 80" className="w-full h-full -rotate-90">
+              <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="5" />
+              <circle cx="40" cy="40" r="34" fill="none" stroke="rgb(0,255,0)" strokeWidth="5"
+                strokeDasharray="160" strokeDashoffset="40" strokeLinecap="round" />
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <p className="font-display text-white text-xl leading-none">75%</p>
+              <p className="text-[6px] text-white/25 tracking-widest">CHARGED</p>
+            </div>
           </div>
-          <div className="px-4 py-2 border border-white/10 text-white/40 text-[10px] uppercase tracking-widest hover:border-white/30 hover:text-white/60 transition-colors duration-200 cursor-pointer">
-            Google Play
+          <p className="text-[8px] text-white/25 mt-1.5">315 km remaining</p>
+        </div>
+        {/* Modes */}
+        <div className="px-3 mb-3">
+          <div className="grid grid-cols-3 gap-1">
+            {["URBAN", "ECO", "SPORT"].map((m, i) => (
+              <div key={m} className={`py-1 text-center text-[6px] tracking-wider rounded ${i === 2 ? "bg-[rgb(0,255,0)] text-black" : "bg-white/[0.04] text-white/25"}`}>
+                {m}
+              </div>
+            ))}
           </div>
+        </div>
+        {/* Metrics */}
+        <div className="px-3 grid grid-cols-2 gap-1.5">
+          {[["315 km", "RANGE"], ["0 km/h", "SPEED"], ["22°C", "BATTERY TEMP"], ["3h 40m", "CHARGE ETA"]].map(([val, lbl]) => (
+            <div key={lbl} className="bg-white/[0.03] rounded p-2">
+              <p className="font-display text-white text-sm leading-none">{val}</p>
+              <p className="text-[5.5px] text-white/20 mt-0.5 tracking-widest">{lbl}</p>
+            </div>
+          ))}
         </div>
       </div>
     </div>
@@ -584,23 +619,14 @@ export default function TechContent() {
       {/* ── 04 APP ──────────────────────────────────────────── */}
       <div className="border-t border-white/[0.04]">
         <div className="max-w-[1600px] mx-auto px-[clamp(24px,4vw,64px)] py-[120px]">
-          <div className="mb-16">
-            <p className="inline-flex items-center gap-3 mb-6">
-              <span className="font-display text-5xl text-white/[0.06]">04</span>
-              <span className="w-8 h-px bg-[rgb(0,255,0)]/40" />
-              <span className="text-[10px] uppercase tracking-[0.3em] text-white/30">Tech Pillar</span>
-            </p>
-            <h2 className="font-display text-white leading-none mb-2" style={{ fontSize: "clamp(36px, 4.5vw, 64px)" }}>
-              My Energica App
-            </h2>
-            <p className="text-[10px] uppercase tracking-widest text-[rgb(0,255,0)]/70 mb-5">
-              iOS &amp; Android · Bluetooth + 4G
-            </p>
-            <p className="text-base text-white/50 leading-[1.8] max-w-2xl">
-              Your motorcycle in your pocket. The My Energica app connects via Bluetooth for local control and 4G for remote monitoring. Real-time range, state of charge, and trip data — plus remote diagnostics, scheduled charging, and OTA firmware updates.
-            </p>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 xl:gap-24 items-center">
+
+            {/* LEFT — Phone mockup */}
+            <PhoneMockup />
+
+            {/* RIGHT — Header + features */}
+            <AppContent />
           </div>
-          <PhoneMockup />
         </div>
       </div>
 

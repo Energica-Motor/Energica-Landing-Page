@@ -55,7 +55,7 @@ export default function SpecsBar({ specs }: SpecsBarProps) {
       data-specsbar
       className="w-full bg-[#060606] border-t-2 border-b border-[rgb(0,255,0)]/60 border-b-white/[0.04]"
     >
-      <div className="max-w-[1400px] mx-auto grid grid-cols-2 md:grid-cols-4 divide-x divide-white/[0.06]">
+      <div className="max-w-[1600px] mx-auto grid grid-cols-2 md:grid-cols-4 divide-x divide-white/[0.06]">
         {specs.map((spec) => {
           const num = parseFloat(spec.value);
           const decimals = spec.value.includes(".")
@@ -64,7 +64,7 @@ export default function SpecsBar({ specs }: SpecsBarProps) {
           const isAnimatable = !isNaN(num);
 
           return (
-            <div key={spec.label} className="sb-item px-8 py-8 text-center">
+            <div key={spec.label} className="sb-item px-4 sm:px-6 md:px-8 py-6 md:py-8 text-center">
               <div className="flex items-baseline justify-center gap-1 leading-none">
                 <span
                   className="font-display text-white"

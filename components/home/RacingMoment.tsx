@@ -22,7 +22,7 @@ export default function RacingMoment() {
             <p className="text-[10px] tracking-[0.4em] text-[rgb(0,255,0)] uppercase mb-4">
               Racing Heritage
             </p>
-            <h2 className="font-display text-[clamp(48px,9vw,112px)] text-white leading-none uppercase mb-6">
+            <h2 className="font-display text-[clamp(36px,9vw,112px)] text-white leading-none uppercase mb-6">
               7 Seasons.<br />One Supplier.
             </h2>
             <Link href="/racing" className="inline-flex items-center gap-3 group">

@@ -26,7 +26,7 @@ export default function TechStrip() {
 
         {/* Header */}
         <Reveal className="flex items-end justify-between mb-16">
-          <h2 className="font-display text-[clamp(32px,5vw,56px)] text-white leading-tight uppercase">
+          <h2 className="font-display text-[clamp(28px,5vw,56px)] text-white leading-tight uppercase">
             Built different.<br />
             <span className="text-white/20">By design.</span>
           </h2>

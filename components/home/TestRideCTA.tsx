@@ -11,7 +11,7 @@ export default function TestRideCTA() {
             Free · No commitment
           </p>
 
-          <h2 className="font-display text-[clamp(48px,8vw,96px)] text-white leading-tight uppercase mb-4">
+          <h2 className="font-display text-[clamp(36px,8vw,96px)] text-white leading-tight uppercase mb-4">
             Words won&apos;t<br />do it justice.
           </h2>
 
