@@ -55,13 +55,13 @@ const bikes = [
 export default function BikeShowcase() {
   const [activeIndex, setActiveIndex] = useState(0);
 
-  const stickyRef = useRef<HTMLDivElement>(null);
-  const activeRef = useRef(0);
-  const isAnimating = useRef(false);
-  const imageRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const textRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const stickyRef   = useRef<HTMLDivElement>(null);
+  const activeRef   = useRef(0);
+  const imageRefs   = useRef<(HTMLDivElement | null)[]>([]);  // outer wrapper — transition target
+  const parallaxRefs = useRef<(HTMLDivElement | null)[]>([]); // inner div — mouse parallax target
+  const textRefs    = useRef<(HTMLDivElement | null)[]>([]);
 
-  /* ── Set initial GSAP visibility ─────────────────────────── */
+  /* ── Initial GSAP state ─────────────────────────────────── */
   useEffect(() => {
     imageRefs.current.forEach((el, i) => {
       if (!el) return;
@@ -74,42 +74,46 @@ export default function BikeShowcase() {
     });
   }, []);
 
-  /* ── Bike transition animation ───────────────────────────── */
+  /* ── Transition: kill any running tween then start new one ─ */
   const runTransition = (nextIdx: number, prevIdx: number) => {
-    if (isAnimating.current) return;
-    isAnimating.current = true;
-
-    const dir = nextIdx > prevIdx ? 1 : -1;
+    const dir     = nextIdx > prevIdx ? 1 : -1;
     const prevImg = imageRefs.current[prevIdx];
     const nextImg = imageRefs.current[nextIdx];
     const prevTxt = textRefs.current[prevIdx];
     const nextTxt = textRefs.current[nextIdx];
 
-    const tl = gsap.timeline({ onComplete: () => { isAnimating.current = false; } });
+    /* Kill any in-flight tweens so the new transition starts immediately */
+    [prevImg, nextImg, prevTxt, nextTxt].forEach(el => el && gsap.killTweensOf(el));
+    if (prevTxt) gsap.killTweensOf(Array.from(prevTxt.children));
+    if (nextTxt) gsap.killTweensOf(Array.from(nextTxt.children));
 
-    /* Image: old slides out + scales down, new slides in + scales to 1 */
-    if (prevImg) {
-      tl.to(prevImg, { x: dir * -90, scale: 0.88, opacity: 0, duration: 0.32, ease: "power3.in" }, 0);
-    }
+    /* Also reset parallax on the incoming bike's inner div */
+    const nextPar = parallaxRefs.current[nextIdx];
+    if (nextPar) gsap.set(nextPar, { x: 0, y: 0 });
+
+    const tl = gsap.timeline();
+
+    /* Image out → scale-down + slide */
+    if (prevImg) tl.to(prevImg, { x: dir * -80, scale: 0.88, opacity: 0, duration: 0.28, ease: "power3.in" }, 0);
+    /* Image in  → from opposite side */
     if (nextImg) {
-      gsap.set(nextImg, { x: dir * 110, scale: 1.08, opacity: 0 });
-      tl.to(nextImg, { x: 0, scale: 1, opacity: 1, duration: 0.62, ease: "expo.out" }, 0.04);
+      gsap.set(nextImg, { x: dir * 100, scale: 1.07, opacity: 0 });
+      tl.to(nextImg, { x: 0, scale: 1, opacity: 1, duration: 0.55, ease: "expo.out" }, 0.03);
     }
 
-    /* Text: old fades up, new enters from below with per-child stagger */
-    if (prevTxt) {
-      tl.to(prevTxt, { y: dir * -45, opacity: 0, duration: 0.24, ease: "power3.in" }, 0);
-    }
+    /* Text out */
+    if (prevTxt) tl.to(prevTxt, { y: dir * -40, opacity: 0, duration: 0.2, ease: "power3.in" }, 0);
+    /* Text in — parent then children stagger */
     if (nextTxt) {
       const kids = Array.from(nextTxt.children);
-      gsap.set(nextTxt, { y: dir * 55, opacity: 0 });
-      gsap.set(kids, { y: 24, opacity: 0 });
-      tl.to(nextTxt, { y: 0, opacity: 1, duration: 0.5, ease: "power3.out" }, 0.1);
-      tl.to(kids, { y: 0, opacity: 1, stagger: 0.055, duration: 0.4, ease: "power2.out" }, 0.15);
+      gsap.set(nextTxt, { y: dir * 50, opacity: 0 });
+      gsap.set(kids, { y: 22, opacity: 0 });
+      tl.to(nextTxt, { y: 0, opacity: 1, duration: 0.42, ease: "power3.out" }, 0.08);
+      tl.to(kids,    { y: 0, opacity: 1, stagger: 0.045, duration: 0.35, ease: "power2.out" }, 0.12);
     }
   };
 
-  /* ── ScrollTrigger: pin + snap (works natively with Lenis) ── */
+  /* ── ScrollTrigger: pin + snap ──────────────────────────── */
   useEffect(() => {
     const sticky = stickyRef.current;
     if (!sticky) return;
@@ -122,10 +126,10 @@ export default function BikeShowcase() {
       pinSpacing: true,
       anticipatePin: 1,
       snap: {
-        snapTo: 1 / (bikes.length - 1),   // snaps to 0, 0.333, 0.666, 1
-        duration: { min: 0.25, max: 0.5 },
+        snapTo: 1 / (bikes.length - 1),
+        duration: { min: 0.12, max: 0.22 },   // fast snap
         delay: 0,
-        ease: "power2.inOut",
+        ease: "power3.inOut",
       },
       onUpdate(self) {
         const idx = Math.min(
@@ -145,23 +149,40 @@ export default function BikeShowcase() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  /* ── Mouse parallax (desktop only) — inner div, no conflict ─ */
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => {
+      const x = (e.clientX / window.innerWidth  - 0.5) * 28;
+      const y = (e.clientY / window.innerHeight - 0.5) * 14;
+      parallaxRefs.current.forEach((el, i) => {
+        if (!el) return;
+        gsap.to(el, {
+          x: i === activeRef.current ? x : 0,
+          y: i === activeRef.current ? y : 0,
+          duration: i === activeRef.current ? 1.1 : 0.6,
+          ease: "power2.out",
+          overwrite: true,
+        });
+      });
+    };
+    window.addEventListener("mousemove", onMove, { passive: true });
+    return () => window.removeEventListener("mousemove", onMove);
+  }, []);
+
   /* ── Dot/progress navigation ─────────────────────────────── */
   const goTo = (i: number) => {
     const sticky = stickyRef.current;
     if (!sticky) return;
     const targetY = sticky.offsetTop + i * window.innerHeight;
     const lenis = (window as any).__lenis;
-    if (lenis) lenis.scrollTo(targetY, { duration: 0.7 });
+    if (lenis) lenis.scrollTo(targetY, { duration: 0.55 });
     else window.scrollTo({ top: targetY, behavior: "smooth" });
   };
 
   const activeBike = bikes[activeIndex];
 
   return (
-    /* Outer wrapper — background only, no height set (ScrollTrigger adds spacer) */
     <div className="bg-[#0A0A0A]">
-
-      {/* This div is pinned by ScrollTrigger */}
       <div ref={stickyRef} className="relative h-screen overflow-hidden bg-[#0A0A0A]">
 
         {/* ── BIKE IMAGES ── */}
@@ -169,29 +190,34 @@ export default function BikeShowcase() {
           <div
             key={bike.id}
             ref={el => { imageRefs.current[i] = el; }}
-            /* Right 70% on desktop so text has breathing room; full-width on mobile */
             className="absolute inset-y-0 right-0 w-full md:w-[70%]"
             style={{ opacity: 0 }}
           >
-            <Image
-              src={bike.image}
-              alt={bike.name}
-              fill
-              className="object-contain object-center"
-              sizes="(max-width: 768px) 100vw, 70vw"
-              priority={i === 0}
-            />
+            {/* Separate inner div for mouse parallax — no transform conflict */}
+            <div
+              ref={el => { parallaxRefs.current[i] = el; }}
+              className="absolute inset-0"
+            >
+              <Image
+                src={bike.image}
+                alt={bike.name}
+                fill
+                className="object-contain object-center"
+                sizes="(max-width: 768px) 100vw, 70vw"
+                priority={i === 0}
+              />
+            </div>
           </div>
         ))}
 
-        {/* ── Gradient overlays ── */}
-        {/* Desktop: left-to-right for text legibility */}
-        <div className="absolute inset-0 hidden md:block pointer-events-none z-[1]"
-          style={{ background: "linear-gradient(to right, #0A0A0A 32%, rgba(10,10,10,0.7) 55%, transparent)" }}
+        {/* ── Gradients ── */}
+        <div
+          className="absolute inset-0 hidden md:block pointer-events-none z-[1]"
+          style={{ background: "linear-gradient(to right, #0A0A0A 30%, rgba(10,10,10,0.65) 52%, transparent)" }}
         />
-        {/* Mobile: bottom-up so bottom text is readable */}
-        <div className="absolute inset-0 md:hidden pointer-events-none z-[1]"
-          style={{ background: "linear-gradient(to top, #0A0A0A 40%, rgba(10,10,10,0.6) 65%, transparent)" }}
+        <div
+          className="absolute inset-0 md:hidden pointer-events-none z-[1]"
+          style={{ background: "linear-gradient(to top, #0A0A0A 38%, rgba(10,10,10,0.55) 62%, transparent)" }}
         />
 
         {/* ── TOP LABEL ── */}
@@ -207,11 +233,10 @@ export default function BikeShowcase() {
           </div>
         </div>
 
-        {/* ── TEXT BLOCKS — stacked at same position, GSAP crossfades ── */}
-        <div className="absolute inset-0 z-10 flex md:items-center items-end pb-24 md:pb-0">
+        {/* ── TEXT BLOCKS ── */}
+        <div className="absolute inset-0 z-10 flex md:items-center items-end pb-20 md:pb-0">
           <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-20 w-full">
-            {/* Fixed-height container so all absolute text blocks stack cleanly */}
-            <div className="relative md:max-w-[46%]" style={{ height: "clamp(340px, 52vh, 500px)" }}>
+            <div className="relative md:max-w-[46%]" style={{ height: "clamp(320px, 50vh, 490px)" }}>
               {bikes.map((bike, i) => (
                 <div
                   key={bike.id}
@@ -221,7 +246,7 @@ export default function BikeShowcase() {
                   aria-hidden={i !== activeIndex}
                 >
                   {/* Index + Category */}
-                  <div className="flex items-center gap-3 mb-5">
+                  <div className="flex items-center gap-3 mb-4 md:mb-5">
                     <span className="font-mono text-[10px] tracking-[0.45em] text-white/20">
                       {bike.index}
                     </span>
@@ -235,28 +260,28 @@ export default function BikeShowcase() {
                   </div>
 
                   {/* Name */}
-                  <h2 className="font-display text-[clamp(52px,9.5vw,128px)] text-white leading-[0.88] uppercase tracking-tight mb-3">
+                  <h2 className="font-display text-[clamp(44px,9vw,124px)] text-white leading-[0.88] uppercase tracking-tight mb-3">
                     {bike.name}
                   </h2>
 
-                  {/* Accent bar under name */}
-                  <div className="h-[2px] w-12 mb-5" style={{ backgroundColor: bike.accent }} />
+                  {/* Accent bar */}
+                  <div className="h-[2px] w-12 mb-4 md:mb-5" style={{ backgroundColor: bike.accent }} />
 
                   {/* Tagline */}
-                  <p className="text-base md:text-lg text-white/35 mb-7 italic font-light">
+                  <p className="text-sm md:text-lg text-white/35 mb-5 md:mb-7 italic font-light leading-snug">
                     &ldquo;{bike.tagline}&rdquo;
                   </p>
 
-                  {/* Key Stat */}
-                  <div className="mb-9">
+                  {/* Stat */}
+                  <div className="mb-7 md:mb-9">
                     <div className="flex items-baseline gap-2 mb-1">
                       <span
-                        className="font-display text-[clamp(48px,7.5vw,96px)] leading-none"
+                        className="font-display text-[clamp(42px,7vw,92px)] leading-none"
                         style={{ color: bike.accent }}
                       >
                         {bike.stat.value}
                       </span>
-                      <span className="text-2xl text-white/35 font-light">
+                      <span className="text-xl md:text-2xl text-white/35 font-light">
                         {bike.stat.unit}
                       </span>
                     </div>
@@ -266,9 +291,9 @@ export default function BikeShowcase() {
                   </div>
 
                   {/* CTA */}
-                  <Link href={bike.href} className="inline-flex items-center gap-4 group">
+                  <Link href={bike.href} className="inline-flex items-center gap-3 group">
                     <span
-                      className="h-px w-10 group-hover:w-20 transition-all duration-300"
+                      className="h-px w-8 group-hover:w-16 transition-all duration-300"
                       style={{ backgroundColor: bike.accent }}
                     />
                     <span className="text-[11px] tracking-[0.3em] text-white uppercase group-hover:text-white/50 transition-colors duration-200">
@@ -287,12 +312,12 @@ export default function BikeShowcase() {
           </div>
         </div>
 
-        {/* ── WATERMARK NUMBER — outlined stroke ── */}
-        <div className="absolute bottom-0 right-4 md:right-14 lg:right-20 z-0 select-none pointer-events-none overflow-hidden h-[180px] md:h-[240px]">
+        {/* ── WATERMARK ── */}
+        <div className="absolute bottom-0 right-3 md:right-14 lg:right-20 z-0 select-none pointer-events-none overflow-hidden h-[160px] md:h-[220px]">
           {bikes.map((bike, i) => (
             <span
               key={bike.id}
-              className="absolute bottom-0 right-0 font-display text-[clamp(120px,16vw,200px)] leading-none transition-opacity duration-500"
+              className="absolute bottom-0 right-0 font-display text-[clamp(110px,15vw,190px)] leading-none transition-opacity duration-400"
               style={{
                 color: "transparent",
                 WebkitTextStroke: `1px ${bike.accent}`,
@@ -304,9 +329,9 @@ export default function BikeShowcase() {
           ))}
         </div>
 
-        {/* ── BOTTOM PROGRESS + BIKE LABEL ── */}
-        <div className="absolute bottom-6 left-0 right-0 z-20">
-          <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-20 flex items-center gap-5">
+        {/* ── BOTTOM PROGRESS ── */}
+        <div className="absolute bottom-5 left-0 right-0 z-20">
+          <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-20 flex items-center gap-4">
             <div className="flex items-center gap-1.5 flex-1">
               {bikes.map((bike, i) => (
                 <button
@@ -316,15 +341,15 @@ export default function BikeShowcase() {
                   className="group relative h-8 flex items-center flex-1"
                 >
                   <div
-                    className="w-full transition-all duration-500"
+                    className="w-full transition-all duration-300"
                     style={{
                       height: i === activeIndex ? "2px" : "1px",
-                      backgroundColor: i === activeIndex ? activeBike.accent : "rgba(255,255,255,0.12)",
+                      backgroundColor: i === activeIndex ? activeBike.accent : "rgba(255,255,255,0.1)",
                     }}
                   />
                   {i === activeIndex && (
                     <div
-                      className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full"
+                      className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full transition-colors duration-300"
                       style={{ backgroundColor: activeBike.accent }}
                     />
                   )}
@@ -347,15 +372,15 @@ export default function BikeShowcase() {
               className="group flex items-center gap-3"
             >
               <div
-                className="rounded-full transition-all duration-500"
+                className="rounded-full transition-all duration-300"
                 style={{
-                  width: i === activeIndex ? "6px" : "4px",
+                  width:  i === activeIndex ? "6px"  : "4px",
                   height: i === activeIndex ? "32px" : "12px",
                   backgroundColor: i === activeIndex ? activeBike.accent : "rgba(255,255,255,0.18)",
                 }}
               />
               <span
-                className={`text-[9px] tracking-[0.3em] uppercase whitespace-nowrap transition-all duration-300 ${
+                className={`text-[9px] tracking-[0.3em] uppercase whitespace-nowrap transition-all duration-200 ${
                   i === activeIndex ? "text-white" : "text-white/0 group-hover:text-white/35"
                 }`}
               >
@@ -366,7 +391,8 @@ export default function BikeShowcase() {
         </div>
 
         {/* ── LEFT ACCENT LINE ── */}
-        <div className="fixed left-5 md:left-9 top-0 bottom-0 z-[29] w-px hidden md:block"
+        <div
+          className="fixed left-5 md:left-9 top-0 bottom-0 z-[29] w-px hidden md:block"
           style={{ background: "linear-gradient(to bottom, transparent, rgba(0,255,0,0.18), transparent)" }}
         />
 
