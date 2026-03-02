@@ -65,40 +65,44 @@ function MotorDiagram() {
     });
   }, { scope: ref });
 
+  // Pre-round all computed coords so server & client output identical attribute strings
+  const statorTeeth = Array.from({ length: 12 }).map((_, i) => {
+    const a = ((i / 12) * 360 - 90) * (Math.PI / 180);
+    const r = (v: number) => Math.round(v * 1e6) / 1e6;
+    return { i, isCoil: i % 3 === 0, x1: r(200 + Math.cos(a) * 128), y1: r(200 + Math.sin(a) * 128), x2: r(200 + Math.cos(a) * 160), y2: r(200 + Math.sin(a) * 160) };
+  });
+  const fieldArcs = Array.from({ length: 8 }).map((_, i) => {
+    const a = (i / 8) * Math.PI * 2;
+    const r1 = 113, r2 = 127;
+    const r = (v: number) => Math.round(v * 1e6) / 1e6;
+    const x1 = r(200 + Math.cos(a) * r1), y1 = r(200 + Math.sin(a) * r1);
+    const mx = r(200 + Math.cos(a + 0.3) * 140), my = r(200 + Math.sin(a + 0.3) * 140);
+    const x2 = r(200 + Math.cos(a + 0.6) * r2), y2 = r(200 + Math.sin(a + 0.6) * r2);
+    return { i, d: `M ${x1} ${y1} Q ${mx} ${my} ${x2} ${y2}`, color: i % 2 === 0 ? "rgb(0,255,0)" : "rgba(139,184,212,0.5)" };
+  });
+
   return (
     <svg ref={ref} viewBox="0 0 400 400" className="w-full max-w-[380px] mx-auto" aria-hidden>
       {/* Housing */}
       <circle cx="200" cy="200" r="182" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="28" />
       {/* Stator outline */}
       <circle className="md-stator" cx="200" cy="200" r="168" fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="2" />
-      {/* 12 stator teeth */}
-      {Array.from({ length: 12 }).map((_, i) => {
-        const a = ((i / 12) * 360 - 90) * (Math.PI / 180);
-        const isCoil = i % 3 === 0;
-        return (
-          <line key={i}
-            x1={200 + Math.cos(a) * 128} y1={200 + Math.sin(a) * 128}
-            x2={200 + Math.cos(a) * 160} y2={200 + Math.sin(a) * 160}
-            stroke={isCoil ? "rgb(0,255,0)" : "rgba(255,255,255,0.1)"}
-            strokeWidth={isCoil ? "5" : "8"}
-          />
-        );
-      })}
+      {/* 12 stator teeth — pre-rounded coords avoid SSR/client float mismatch */}
+      {statorTeeth.map(({ i, isCoil, x1, y1, x2, y2 }) => (
+        <line key={i} x1={x1} y1={y1} x2={x2} y2={y2}
+          stroke={isCoil ? "rgb(0,255,0)" : "rgba(255,255,255,0.1)"}
+          strokeWidth={isCoil ? "5" : "8"}
+        />
+      ))}
       {/* Air gap */}
       <circle cx="200" cy="200" r="120" fill="none" stroke="rgba(0,0,0,0.6)" strokeWidth="14" />
       {/* Field arc lines */}
-      {Array.from({ length: 8 }).map((_, i) => {
-        const a = (i / 8) * Math.PI * 2;
-        const r1 = 113, r2 = 127;
-        const mx = 200 + Math.cos(a + 0.3) * 140, my = 200 + Math.sin(a + 0.3) * 140;
-        return (
-          <path key={i} className="md-field"
-            d={`M ${200 + Math.cos(a) * r1} ${200 + Math.sin(a) * r1} Q ${mx} ${my} ${200 + Math.cos(a + 0.6) * r2} ${200 + Math.sin(a + 0.6) * r2}`}
-            fill="none" stroke={i % 2 === 0 ? "rgb(0,255,0)" : "rgba(139,184,212,0.5)"}
-            strokeWidth="1.5" strokeLinecap="round" opacity="0.9"
-          />
-        );
-      })}
+      {fieldArcs.map(({ i, d, color }) => (
+        <path key={i} className="md-field" d={d}
+          fill="none" stroke={color}
+          strokeWidth="1.5" strokeLinecap="round" opacity="0.9"
+        />
+      ))}
       {/* Rotor (rotates) */}
       <g className="md-rotor">
         <circle cx="200" cy="200" r="108" fill="#0c0c0c" />
@@ -242,7 +246,40 @@ function ChargingCurve() {
 }
 
 /* ─────────────────────────────────────────────────────────
-   App section — right-side content (header + features)
+   App section — left column: heading text only
+───────────────────────────────────────────────────────── */
+function AppHeader() {
+  const ref = useRef<HTMLDivElement>(null);
+  useGSAP(() => {
+    gsap.from(".app-text", { y: 24, opacity: 0, stagger: 0.08, duration: 0.9, ease: "power3.out",
+      scrollTrigger: { trigger: ref.current, start: "top 78%" } });
+  }, { scope: ref });
+
+  return (
+    <div ref={ref} className="flex flex-col justify-center">
+      <p className="app-text inline-flex items-center gap-3 mb-6">
+        <span className="font-display text-5xl text-white/[0.06]">04</span>
+        <span className="w-8 h-px bg-[rgb(0,255,0)]/40" />
+        <span className="text-[10px] uppercase tracking-[0.3em] text-white/30">Tech Pillar</span>
+      </p>
+      <h2 className="app-text font-display text-white leading-none mb-2"
+          style={{ fontSize: "clamp(36px, 4.5vw, 64px)" }}>
+        My Energica App
+      </h2>
+      <p className="app-text text-[10px] uppercase tracking-widest text-[rgb(0,255,0)]/70 mb-5">
+        iOS &amp; Android · Bluetooth + 4G
+      </p>
+      <p className="app-text text-base text-white/50 leading-[1.8] max-w-lg">
+        Your motorcycle in your pocket. The My Energica app connects via Bluetooth for local
+        control and 4G for remote monitoring. Real-time range, state of charge, and trip data —
+        plus remote diagnostics, scheduled charging, and OTA firmware updates.
+      </p>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────
+   App section — right column: phone + features + buttons
 ───────────────────────────────────────────────────────── */
 const appFeatures = [
   { icon: "⟳", label: "Real-time range prediction" },
@@ -252,76 +289,23 @@ const appFeatures = [
   { icon: "◷", label: "Scheduled charging timer" },
 ];
 
-function AppContent() {
-  const ref = useRef<HTMLDivElement>(null);
-  useGSAP(() => {
-    gsap.from(".app-text", { y: 24, opacity: 0, duration: 0.9, ease: "power3.out",
-      scrollTrigger: { trigger: ref.current, start: "top 78%" } });
-    gsap.from(".app-feature", { x: 20, opacity: 0, stagger: 0.08, duration: 0.6, ease: "power3.out",
-      scrollTrigger: { trigger: ref.current, start: "top 72%" } });
-  }, { scope: ref });
-
-  return (
-    <div ref={ref} className="flex flex-col justify-center">
-      {/* Section label */}
-      <p className="app-text inline-flex items-center gap-3 mb-6">
-        <span className="font-display text-5xl text-white/[0.06]">04</span>
-        <span className="w-8 h-px bg-[rgb(0,255,0)]/40" />
-        <span className="text-[10px] uppercase tracking-[0.3em] text-white/30">Tech Pillar</span>
-      </p>
-
-      {/* Heading */}
-      <h2 className="app-text font-display text-white leading-none mb-2"
-          style={{ fontSize: "clamp(36px, 4.5vw, 64px)" }}>
-        My Energica App
-      </h2>
-      <p className="app-text text-[10px] uppercase tracking-widest text-[rgb(0,255,0)]/70 mb-5">
-        iOS &amp; Android · Bluetooth + 4G
-      </p>
-      <p className="app-text text-base text-white/50 leading-[1.8] max-w-lg mb-10">
-        Your motorcycle in your pocket. The My Energica app connects via Bluetooth for local
-        control and 4G for remote monitoring. Real-time range, state of charge, and trip data —
-        plus remote diagnostics, scheduled charging, and OTA firmware updates.
-      </p>
-
-      {/* Feature list */}
-      <div className="flex flex-col gap-3 mb-8">
-        {appFeatures.map((f) => (
-          <div key={f.label} className="app-feature flex items-center gap-4 py-3 border-b border-white/[0.05]">
-            <span className="w-9 h-9 rounded border border-white/10 flex items-center justify-center text-[rgb(0,255,0)] text-sm flex-shrink-0">
-              {f.icon}
-            </span>
-            <span className="text-sm text-white/60">{f.label}</span>
-          </div>
-        ))}
-      </div>
-
-      {/* Store buttons */}
-      <div className="app-feature flex flex-wrap gap-3">
-        <div className="px-5 py-2.5 border border-white/10 text-white/40 text-[10px] uppercase tracking-widest hover:border-white/30 hover:text-white/60 transition-colors duration-200 cursor-pointer">
-          App Store
-        </div>
-        <div className="px-5 py-2.5 border border-white/10 text-white/40 text-[10px] uppercase tracking-widest hover:border-white/30 hover:text-white/60 transition-colors duration-200 cursor-pointer">
-          Google Play
-        </div>
-      </div>
-    </div>
-  );
-}
-
 /* ─────────────────────────────────────────────────────────
-   CSS: Phone app mockup (visual only)
+   App right column: phone mockup + features + store buttons
 ───────────────────────────────────────────────────────── */
-function PhoneMockup() {
+function AppRight() {
   const ref = useRef<HTMLDivElement>(null);
   useGSAP(() => {
-    gsap.from(ref.current, { y: 50, opacity: 0, duration: 1.1, ease: "power3.out",
+    gsap.from(".apr-phone", { y: 40, opacity: 0, duration: 1.1, ease: "power3.out",
       scrollTrigger: { trigger: ref.current, start: "top 80%" } });
+    gsap.from(".apr-row", { x: 16, opacity: 0, stagger: 0.07, duration: 0.55, ease: "power3.out",
+      scrollTrigger: { trigger: ref.current, start: "top 70%" } });
   }, { scope: ref });
 
   return (
-    <div ref={ref} className="flex justify-center lg:justify-start">
-      <div className="relative w-[220px] h-[440px] sm:w-[240px] sm:h-[480px] rounded-[32px] border border-white/15 bg-[#0d0d0d] overflow-hidden shadow-[0_32px_80px_rgba(0,0,0,0.6)]">
+    <div ref={ref} className="flex flex-col items-center lg:items-start gap-8">
+
+      {/* ── Phone mockup ── */}
+      <div className="apr-phone relative w-[220px] h-[440px] sm:w-[240px] sm:h-[480px] rounded-[32px] border border-white/15 bg-[#0d0d0d] overflow-hidden shadow-[0_32px_80px_rgba(0,0,0,0.6)]">
         {/* Status bar */}
         <div className="flex justify-between items-center px-4 pt-3.5 pb-2">
           <span className="text-[8px] text-white/35 font-mono">9:41</span>
@@ -368,6 +352,29 @@ function PhoneMockup() {
           ))}
         </div>
       </div>
+
+      {/* ── Feature list ── */}
+      <div className="w-full max-w-[300px] lg:max-w-none">
+        {appFeatures.map((f) => (
+          <div key={f.label} className="apr-row flex items-center gap-4 py-3 border-b border-white/[0.05]">
+            <span className="w-8 h-8 rounded border border-white/10 flex items-center justify-center text-[rgb(0,255,0)] text-sm flex-shrink-0">
+              {f.icon}
+            </span>
+            <span className="text-sm text-white/60">{f.label}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Store buttons ── */}
+      <div className="apr-row flex gap-3">
+        <div className="px-5 py-2.5 border border-white/10 text-white/40 text-[10px] uppercase tracking-widest hover:border-white/30 hover:text-white/60 transition-colors duration-200 cursor-pointer">
+          App Store
+        </div>
+        <div className="px-5 py-2.5 border border-white/10 text-white/40 text-[10px] uppercase tracking-widest hover:border-white/30 hover:text-white/60 transition-colors duration-200 cursor-pointer">
+          Google Play
+        </div>
+      </div>
+
     </div>
   );
 }
@@ -619,13 +626,13 @@ export default function TechContent() {
       {/* ── 04 APP ──────────────────────────────────────────── */}
       <div className="border-t border-white/[0.04]">
         <div className="max-w-[1600px] mx-auto px-[clamp(24px,4vw,64px)] py-[120px]">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 xl:gap-24 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 xl:gap-24 items-start">
 
-            {/* LEFT — Header + features (matches other TechSection pattern) */}
-            <AppContent />
+            {/* LEFT — Text only */}
+            <AppHeader />
 
-            {/* RIGHT — Phone mockup visual */}
-            <PhoneMockup />
+            {/* RIGHT — Phone + features + store buttons */}
+            <AppRight />
           </div>
         </div>
       </div>
