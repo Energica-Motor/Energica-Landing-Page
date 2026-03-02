@@ -19,6 +19,9 @@ export default function SmoothScroll() {
       smoothWheel: true,
     });
 
+    // Expose instance globally so other components can stop/start scroll
+    (window as any).__lenis = lenis;
+
     // Keep ScrollTrigger in sync with Lenis scroll position
     lenis.on("scroll", ScrollTrigger.update);
 
@@ -30,6 +33,7 @@ export default function SmoothScroll() {
     return () => {
       lenis.destroy();
       gsap.ticker.remove(raf);
+      delete (window as any).__lenis;
     };
   }, []);
 

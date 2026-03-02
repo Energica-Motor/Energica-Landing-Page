@@ -294,18 +294,57 @@ const appFeatures = [
 ───────────────────────────────────────────────────────── */
 function AppRight() {
   const ref = useRef<HTMLDivElement>(null);
+  const batteryCircleRef = useRef<SVGCircleElement>(null);
+  const [batteryPct, setBatteryPct] = useState(0);
+  const [rangePct, setRangePct] = useState(0);
+  const [activeMode, setActiveMode] = useState(2); // default SPORT (index 2)
+
+  // strokeDasharray=160 → offset 160 = 0%, offset 40 = 75%
+  const DASH = 160;
+  const TARGET_PCT = 75;
+  const TARGET_RANGE = 315;
+
   useGSAP(() => {
+    // Phone slide-in
     gsap.from(".apr-phone", { y: 40, opacity: 0, duration: 1.1, ease: "power3.out",
       scrollTrigger: { trigger: ref.current, start: "top 80%" } });
+    // Feature rows slide-in
     gsap.from(".apr-row", { x: 16, opacity: 0, stagger: 0.07, duration: 0.55, ease: "power3.out",
       scrollTrigger: { trigger: ref.current, start: "top 70%" } });
+
+    // Battery circle fill animation
+    const circle = batteryCircleRef.current;
+    if (circle) {
+      gsap.set(circle, { strokeDashoffset: DASH }); // start empty
+      gsap.to(circle, {
+        strokeDashoffset: DASH - (DASH * TARGET_PCT) / 100, // → 40
+        duration: 1.8, ease: "power2.out",
+        scrollTrigger: { trigger: ref.current, start: "top 75%", once: true },
+      });
+    }
+
+    // Percentage counter 0 → 75
+    const pctProxy = { val: 0 };
+    gsap.to(pctProxy, {
+      val: TARGET_PCT, duration: 1.8, ease: "power2.out",
+      onUpdate: () => setBatteryPct(Math.round(pctProxy.val)),
+      scrollTrigger: { trigger: ref.current, start: "top 75%", once: true },
+    });
+
+    // Range counter 0 → 315
+    const rangeProxy = { val: 0 };
+    gsap.to(rangeProxy, {
+      val: TARGET_RANGE, duration: 1.6, ease: "power2.out",
+      onUpdate: () => setRangePct(Math.round(rangeProxy.val)),
+      scrollTrigger: { trigger: ref.current, start: "top 75%", once: true },
+    });
   }, { scope: ref });
 
   return (
     /* Phone (left) + Features/buttons (right) — side by side within the right grid column */
     <div ref={ref} className="flex flex-col sm:flex-row gap-8 lg:gap-10 items-start">
 
-      {/* ── Phone mockup ── fixed width, smaller to fit alongside features */}
+      {/* ── Phone mockup ── */}
       <div className="apr-phone flex-shrink-0 relative w-[180px] h-[360px] rounded-[28px] border border-white/15 bg-[#0d0d0d] overflow-hidden shadow-[0_24px_60px_rgba(0,0,0,0.7)]">
         {/* Status bar */}
         <div className="flex justify-between items-center px-3 pt-3 pb-1.5">
@@ -318,39 +357,63 @@ function AppRight() {
           <p className="text-[6px] uppercase tracking-[0.3em] text-white/25 mb-0.5">MY ENERGICA</p>
           <p className="font-display text-white text-base leading-none">Experia</p>
         </div>
-        {/* Battery circle */}
+        {/* Battery circle — animated */}
         <div className="flex flex-col items-center py-4">
           <div className="relative w-16 h-16">
             <svg viewBox="0 0 80 80" className="w-full h-full -rotate-90">
               <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="5" />
-              <circle cx="40" cy="40" r="34" fill="none" stroke="rgb(0,255,0)" strokeWidth="5"
-                strokeDasharray="160" strokeDashoffset="40" strokeLinecap="round" />
+              <circle
+                ref={batteryCircleRef}
+                cx="40" cy="40" r="34" fill="none"
+                stroke="rgb(0,255,0)" strokeWidth="5"
+                strokeDasharray={DASH}
+                strokeDashoffset={DASH}
+                strokeLinecap="round"
+              />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <p className="font-display text-white text-base leading-none">75%</p>
+              <p className="font-display text-white text-base leading-none" suppressHydrationWarning>
+                {batteryPct}%
+              </p>
               <p className="text-[5px] text-white/25 tracking-widest">CHARGED</p>
             </div>
           </div>
-          <p className="text-[7px] text-white/25 mt-1">315 km remaining</p>
+          <p className="text-[7px] text-white/25 mt-1" suppressHydrationWarning>
+            {rangePct} km remaining
+          </p>
         </div>
-        {/* Modes */}
+        {/* Modes — interactive */}
         <div className="px-2.5 mb-2.5">
           <div className="grid grid-cols-3 gap-1">
             {["URBAN", "ECO", "SPORT"].map((m, i) => (
-              <div key={m} className={`py-1 text-center text-[5.5px] tracking-wider rounded ${i === 2 ? "bg-[rgb(0,255,0)] text-black" : "bg-white/[0.04] text-white/25"}`}>
+              <button
+                key={m}
+                onClick={() => setActiveMode(i)}
+                className={`py-1 text-center text-[5.5px] tracking-wider rounded transition-colors duration-200 ${
+                  i === activeMode
+                    ? "bg-[rgb(0,255,0)] text-black"
+                    : "bg-white/[0.04] text-white/25 hover:bg-white/[0.08] hover:text-white/40"
+                }`}
+              >
                 {m}
-              </div>
+              </button>
             ))}
           </div>
         </div>
         {/* Metrics */}
         <div className="px-2.5 grid grid-cols-2 gap-1">
-          {[["315 km", "RANGE"], ["0 km/h", "SPEED"], ["22°C", "BATT TEMP"], ["3h 40m", "CHARGE ETA"]].map(([val, lbl]) => (
-            <div key={lbl} className="bg-white/[0.03] rounded p-1.5">
-              <p className="font-display text-white text-xs leading-none">{val}</p>
-              <p className="text-[5px] text-white/20 mt-0.5 tracking-widest">{lbl}</p>
-            </div>
-          ))}
+          {(["RANGE", "SPEED", "BATT TEMP", "CHARGE ETA"] as const).map((lbl, idx) => {
+            const staticVals = ["315 km", "0 km/h", "22°C", "3h 40m"];
+            const displayVal = idx === 0 ? `${rangePct} km` : staticVals[idx];
+            return (
+              <div key={lbl} className="bg-white/[0.03] rounded p-1.5">
+                <p className="font-display text-white text-xs leading-none" suppressHydrationWarning>
+                  {displayVal}
+                </p>
+                <p className="text-[5px] text-white/20 mt-0.5 tracking-widest">{lbl}</p>
+              </div>
+            );
+          })}
         </div>
       </div>
 
