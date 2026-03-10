@@ -24,7 +24,7 @@ export default function RacingPage() {
         {/* Background image */}
         <div className="absolute inset-0">
           <Image
-            src="/images/Pagina%20EGO/ego_mosaico_ANN4320.jpg"
+            src="/images/Immagini/energica-usa-incentives.jpg"
             alt="Energica Racing"
             fill
             priority
