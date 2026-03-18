@@ -14,7 +14,7 @@ const bikes = [
     stat: { value: "420", unit: "km", label: "City Range" },
     accent: "#78BE20",
     href: "/models/experia",
-    image: "/images/experia-showcase.png",
+    image: "/images/Pagina Experia/Energica_Experia.png",
   },
   {
     id: "esseesse9",
@@ -25,7 +25,7 @@ const bikes = [
     stat: { value: "200", unit: "Nm", label: "Wheel Torque" },
     accent: "#78BE20",
     href: "/models/esseesse9",
-    image: "/images/ss9-showcase.png",
+    image: "/images/Pagina SS9/ss9_mosaico_ANN4384.jpg",
   },
   {
     id: "eva-ribelle",
@@ -36,7 +36,7 @@ const bikes = [
     stat: { value: "107", unit: "HP", label: "Peak Power" },
     accent: "#78BE20",
     href: "/models/eva-ribelle",
-    image: "/images/eva-showcase.jpg",
+    image: "/images/Pagina Eva/evaribelle-tricolore_670x377.png",
   },
   {
     id: "ego",
@@ -47,7 +47,7 @@ const bikes = [
     stat: { value: "2.6", unit: "s", label: "0–100 km/h" },
     accent: "#78BE20",
     href: "/models/ego",
-    image: "/images/ego-showcase.png",
+    image: "/images/Pagina SS9/egoplus-black-red-frame-resize-5.png",
   },
 ];
 
