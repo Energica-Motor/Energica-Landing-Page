@@ -15,8 +15,8 @@ const bikes = [
     accent: "#78BE20",
     href: "/models/experia",
     image: "/images/Pagina Experia/Energica_Experia.png",
-    imagePosition: "62% 64%",
-    imageScale: 1.22,
+    imagePosition: "62% 54%",
+    imageScale: 1.18,
     glowX: "68%",
     glowY: "58%",
   },
@@ -60,8 +60,8 @@ const bikes = [
     accent: "#78BE20",
     href: "/models/ego",
     image: "/images/Pagina SS9/egoplus-black-red-frame-resize-5.png",
-    imagePosition: "64% 62%",
-    imageScale: 1.2,
+    imagePosition: "64% 58%",
+    imageScale: 1.28,
     glowX: "70%",
     glowY: "55%",
   },
@@ -239,7 +239,7 @@ export default function BikeShowcase() {
         {/* ── Left text gradient (desktop) ── */}
         <div
           className="absolute inset-0 hidden md:block pointer-events-none z-[2]"
-          style={{ background: "linear-gradient(to right, #0A0A0A 26%, rgba(10,10,10,0.72) 44%, rgba(10,10,10,0.1) 64%, transparent 100%)" }}
+          style={{ background: "linear-gradient(to right, #0A0A0A 30%, rgba(10,10,10,0.85) 46%, rgba(10,10,10,0.2) 60%, transparent 100%)" }}
         />
         {/* ── Mobile bottom gradient ── */}
         <div
