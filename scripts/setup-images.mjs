@@ -62,7 +62,7 @@ const IMAGE_MAP = [
   ["Pagina Experia/0N-Experia_MM_0656_mod.jpg",    "Pagina Experia/0N-Experia_MM_0656_mod.jpg"],
   ["Pagina Experia/Experia_MM_0218.jpg",           "Pagina Experia/Experia_MM_0218.jpg"],
 
-  // ── EsseEsse9+ ────────────────────────────────────────────
+  // ── EsseEsse9 ────────────────────────────────────────────
   ["Pagina SS9/ss9-1.png",                                              "Pagina SS9/ss9-1.png"],
   ["Pagina SS9/ss9RS.png",                                              "Pagina SS9/ss9RS.png"],
   ["Pagina SS9/egoplus-black-red-frame-resize-5.png",                   "Pagina SS9/egoplus-black-red-frame-resize-5.png"],
@@ -83,7 +83,7 @@ const IMAGE_MAP = [
   ["Pagina Eva/evaribelle_mosaico_ANN4110.jpg",          "Pagina Eva/evaribelle_mosaico_ANN4110.jpg"],
   ["Pagina Eva/homepage_forza_img-1536x837.jpg",         "Pagina Eva/homepage_forza_img-1536x837.jpg"],
 
-  // ── Ego+ ──────────────────────────────────────────────────
+  // ── Ego ──────────────────────────────────────────────────
   ["Pagina EGO/Ego-1.png",               "Pagina EGO/Ego-1.png"],
   ["Pagina EGO/Ego-RS.png",              "Pagina EGO/Ego-RS.png"],
   ["Pagina EGO/ego-tricolore_670x377.png","Pagina EGO/ego-tricolore_670x377.png"],
