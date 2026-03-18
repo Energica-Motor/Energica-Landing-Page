@@ -5,6 +5,14 @@ import { SectionReveal } from "@/components/ui/SectionReveal";
 import { Container } from "@/components/ui/Container";
 import type { Metadata } from "next";
 
+// Same images used in the home BikeShowcase section
+const showcaseImages: Record<string, string> = {
+  experia:    "/images/Pagina Experia/Energica_Experia.png",
+  esseesse9:  "/images/Pagina SS9/ss9_mosaico_ANN4384.jpg",
+  "eva-ribelle": "/images/Pagina Eva/evaribelle-tricolore_670x377.png",
+  ego:        "/images/Pagina SS9/egoplus-black-red-frame-resize-5.png",
+};
+
 export const metadata: Metadata = {
   title: "Models",
   description:
@@ -49,7 +57,7 @@ export default function ModelsPage() {
                 {/* Image */}
                 <div className="relative aspect-[16/9] w-full overflow-hidden bg-[#0d0d0d]">
                   <Image
-                    src={model.heroImage}
+                    src={showcaseImages[model.id] ?? model.heroImage}
                     alt={model.name}
                     fill
                     className="object-contain p-6 group-hover:scale-105 transition-transform duration-700"
