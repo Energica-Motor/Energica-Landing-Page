@@ -73,7 +73,7 @@ export default function RacingPage() {
                 battery management, and thermal efficiency that no other
                 manufacturer can match.
               </p>
-              <PrimaryButton href="/models/ego">View the Ego+ Road Bike →</PrimaryButton>
+              <PrimaryButton href="/models/ego">View the Ego Road Bike →</PrimaryButton>
             </div>
 
             {/* Image */}

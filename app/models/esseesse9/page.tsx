@@ -10,7 +10,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 export const metadata: Metadata = {
-  title: "EsseEsse9+ | Energica Motor Company",
+  title: "EsseEsse9 | Energica Motor Company",
   description:
     "The naked electric champion. 107 HP, 0–100 in 3.2 seconds, 200 km/h top speed.",
 };

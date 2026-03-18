@@ -19,7 +19,7 @@ export default function ExperiaPage() {
   const model = getModelById("experia");
   if (!model) notFound();
 
-  const nextModel = models[1]; // EsseEsse9+
+  const nextModel = models[1]; // EsseEsse9
 
   return (
     <main className="bg-[#0a0a0a]">

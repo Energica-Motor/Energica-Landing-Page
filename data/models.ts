@@ -168,13 +168,13 @@ export const models: BikeModel[] = [
   },
   {
     id: "esseesse9",
-    name: "EsseEsse9+",
+    name: "EsseEsse9",
     tagline: "Naked. No apologies.",
     headline: "200 Nm. From zero.",
     description:
-      "Stripped of everything unnecessary. The EsseEsse9+ delivers 200 Nm of wheel torque at 0 rpm and reaches 100 km/h in 3.2 seconds. Same motor architecture as the MotoE race machines.",
+      "Stripped of everything unnecessary. The EsseEsse9 delivers 200 Nm of wheel torque at 0 rpm and reaches 100 km/h in 3.2 seconds. Same motor architecture as the MotoE race machines.",
     storyParagraphs: [
-      "Every component has a function. Nothing is decorative. The EsseEsse9+ is Energica's most direct expression of what the motor platform can do when weight and restraint are the design brief.",
+      "Every component has a function. Nothing is decorative. The EsseEsse9 is Energica's most direct expression of what the motor platform can do when weight and restraint are the design brief.",
       "200 Nm at the wheel. Available from 0 rpm. The 0–100 km/h sprint takes 3.2 seconds. It is clinical, repeatable, and quiet.",
       "The motor shares its architecture with the MotoE race machines — the same platform that has powered every FIM Enel MotoE grid since 2019. This is that technology on a public road.",
     ],
@@ -343,13 +343,13 @@ export const models: BikeModel[] = [
   },
   {
     id: "ego",
-    name: "Ego+",
+    name: "Ego",
     tagline: "Derived from racing. Proven on track.",
     headline: "145 HP. MotoE architecture. Road legal.",
     description:
       "Seven MotoE seasons produced this motor. 145 HP. 0–100 in 2.6 seconds. Öhlins suspension, Brembo brakes, race-derived chassis geometry. Street registered.",
     storyParagraphs: [
-      "Seven seasons of MotoE. One motor platform. The Ego+ is built from what Energica learned on the grid — not inspired by it. The same architecture. Different application.",
+      "Seven seasons of MotoE. One motor platform. The Ego is built from what Energica learned on the grid — not inspired by it. The same architecture. Different application.",
       "145 HP. 215 Nm at the wheel. 0–100 km/h in 2.6 seconds. 200 km/h top speed. These numbers were earned on circuits, then certified for public roads.",
       "Öhlins suspension front and rear. Brembo M4.32 radial brakes. Chassis geometry tuned on the same circuits where MotoE champions compete. Road legal. No exceptions.",
     ],

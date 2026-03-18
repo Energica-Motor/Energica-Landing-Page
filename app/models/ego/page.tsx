@@ -10,7 +10,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 export const metadata: Metadata = {
-  title: "Ego+ | Energica Motor Company",
+  title: "Ego | Energica Motor Company",
   description:
     "Track tested. Street legal. MotoE-derived 145 HP in a road-legal superbike.",
 };

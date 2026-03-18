@@ -37,9 +37,9 @@ function validate(data: FormData): FormErrors {
 /* ─── Static data ───────────────────────────────────────── */
 const MODELS = [
   { value: "experia", label: "Experia — Electric Tourer" },
-  { value: "esseesse9", label: "EsseEsse9+ — Naked" },
+  { value: "esseesse9", label: "EsseEsse9 — Naked" },
   { value: "eva-ribelle", label: "Eva Ribelle — Sport" },
-  { value: "ego", label: "Ego+ — Track-derived" },
+  { value: "ego", label: "Ego — Track-derived" },
 ];
 
 const DEALERS = [

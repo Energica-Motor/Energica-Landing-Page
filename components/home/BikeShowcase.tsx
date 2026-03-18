@@ -19,7 +19,7 @@ const bikes = [
   {
     id: "esseesse9",
     index: "02",
-    name: "EsseEsse9+",
+    name: "EsseEsse9",
     tagline: "200 Nm. From zero.",
     category: "Naked Sport",
     stat: { value: "200", unit: "Nm", label: "Wheel Torque" },
@@ -41,7 +41,7 @@ const bikes = [
   {
     id: "ego",
     index: "04",
-    name: "Ego+",
+    name: "Ego",
     tagline: "169 HP. MotoE-derived. Road legal.",
     category: "Supersport",
     stat: { value: "2.6", unit: "s", label: "0–100 km/h" },

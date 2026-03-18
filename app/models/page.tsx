@@ -16,7 +16,7 @@ const showcaseImages: Record<string, string> = {
 export const metadata: Metadata = {
   title: "Models",
   description:
-    "Explore the complete Energica electric motorcycle lineup — Experia, EsseEsse9+, Eva Ribelle, and Ego+.",
+    "Explore the complete Energica electric motorcycle lineup — Experia, EsseEsse9, Eva Ribelle, and Ego.",
 };
 
 export default function ModelsPage() {
