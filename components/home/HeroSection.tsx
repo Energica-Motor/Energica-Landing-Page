@@ -54,7 +54,7 @@ export default function HeroSection() {
 
       {/* TEXT — bottom left */}
       <div className="absolute bottom-0 left-0 right-0 z-20 pb-16 md:pb-20">
-        <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-20">
+        <div className="max-w-[1600px] mx-auto px-[clamp(24px,4vw,64px)]">
 
           <span className="mono-tag mb-5 block">Modena, Italy · Est. 2009</span>
 
