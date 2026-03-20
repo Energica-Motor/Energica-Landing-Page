@@ -7,10 +7,10 @@ import type { Metadata } from "next";
 
 // Same images used in the home BikeShowcase section
 const showcaseImages: Record<string, string> = {
-  experia:    "/images/Pagina Experia/Energica_Experia.png",
-  esseesse9:  "/images/Pagina SS9/ss9_mosaico_ANN4384.jpg",
-  "eva-ribelle": "/images/Pagina Eva/evaribelle-tricolore_670x377.png",
-  ego:        "/images/Pagina SS9/egoplus-black-red-frame-resize-5.png",
+  experia:       "/images/Pagina Experia/EXPERIA_Bormio Ice.webp",
+  esseesse9:     "/images/Pagina SS9/EsseEsse9 RS_Sunrise Red.webp",
+  "eva-ribelle": "/images/Pagina Eva/EVA Ribelle RS_Stealth Grey.webp",
+  ego:           "/images/Pagina EGO/EGO RS_Metal Black.webp",
 };
 
 export const metadata: Metadata = {

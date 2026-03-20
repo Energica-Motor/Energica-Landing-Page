@@ -95,7 +95,7 @@ export const models: BikeModel[] = [
       stat: "22.5 kWh",
       label: "Largest battery of any production electric motorcycle",
     },
-    heroImage: "/images/Pagina%20Experia/Energica_Experia.png",
+    heroImage: "/images/Pagina%20Experia/EXPERIA_Bormio%20Ice.webp",
     lifestyleImages: [
       "/images/Pagina%20Experia/Experia_MM_0218.jpg",
       "/images/Pagina%20Experia/0N-Experia_MM_0656_mod.jpg",
@@ -182,7 +182,7 @@ export const models: BikeModel[] = [
       stat: "200 Nm",
       label: "Wheel torque — from the moment you twist the throttle",
     },
-    heroImage: "/images/Pagina%20SS9/ss9-1.png",
+    heroImage: "/images/Pagina%20SS9/EsseEsse9%20RS_Sunrise%20Red.webp",
     lifestyleImages: [
       "/images/Pagina%20SS9/ss9_featured_740x660_7766.jpg",
       "/images/Pagina%20SS9/ANN7756.jpg",
@@ -269,7 +269,7 @@ export const models: BikeModel[] = [
       stat: "107 HP",
       label: "MotoE-derived platform. Road legal.",
     },
-    heroImage: "/images/Pagina%20Eva/Eva-Ribelle-1.png",
+    heroImage: "/images/Pagina%20Eva/EVA%20Ribelle%20RS_Stealth%20Grey.webp",
     lifestyleImages: [
       "/images/Pagina%20Eva/evaribelle_slider1440x930_5533-1.jpg",
       "/images/Pagina%20Eva/ANN5461.jpg",
@@ -356,7 +356,7 @@ export const models: BikeModel[] = [
       stat: "147 HP",
       label: "MotoE-derived peak power — road legal",
     },
-    heroImage: "/images/Pagina%20EGO/Ego-1.png",
+    heroImage: "/images/Pagina%20EGO/EGO%20RS_Metal%20Black.webp",
     lifestyleImages: [
       "/images/Pagina%20EGO/ego_mosaico_ANN4320.jpg",
       "/images/Pagina%20EGO/ANN4778.jpg",
