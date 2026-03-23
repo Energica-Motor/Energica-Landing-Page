@@ -46,7 +46,7 @@ export default function RacingHero() {
         >
           FULL<br />
           ATTACK.<br />
-          <span className="text-[#78BE20]">ZERO<br />COMPROMISE.</span>
+          <span className="text-[#78BE20]">NO<br />COMPROMISE.</span>
         </h1>
         <p className="text-[length:var(--text-body-lg)] text-white/65 max-w-[540px] leading-relaxed" style={{ fontFamily: "var(--font-ibm-sans)", fontWeight: 300 }}>
           4 seasons. 22+ rounds. One motorcycle — the Energica Ego Corsa.
