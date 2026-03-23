@@ -5,11 +5,11 @@ import { PrimaryButton, SecondaryButton } from "@/components/ui/Button";
 
 export const metadata: Metadata = {
   title: "About | Energica Motor Company",
-  description: "Born to Race. Reborn to Fly. Energica Motor Company — engineered in Modena's Motor Valley since 2014, exclusive MotoE supplier for 4 seasons.",
+  description: "Born to Race. Reborn to Fly. Energica Motor Company — engineered in Modena's Motor Valley since 2009, exclusive MotoE supplier for 4 seasons.",
 };
 
 const STATS = [
-  { stat: "2014", label: "Founded in Modena, Italy" },
+  { stat: "2009", label: "Founded in Modena, Italy" },
   { stat: "4", label: "Seasons as exclusive MotoE supplier" },
   { stat: "4,000+", label: "Riders globally" },
   { stat: "135+", label: "Dealer & importer touchpoints" },
@@ -45,7 +45,7 @@ export default function AboutPage() {
           <p className="inline-flex items-center gap-3 mb-5">
             <span className="w-6 h-px bg-[#78BE20]" />
             <span className="text-[10px] uppercase tracking-[0.4em] text-[#78BE20]/80">
-              Motor Valley · Modena, Italy · Est. 2014
+              Motor Valley · Modena, Italy · Est. 2009
             </span>
           </p>
           <h1
@@ -79,7 +79,7 @@ export default function AboutPage() {
                 className="font-display text-white leading-none mb-8"
                 style={{ fontSize: "clamp(36px, 5vw, 72px)" }}
               >
-                Pioneers Since 2014.
+                Pioneers Since 2009.
               </h2>
               <p className="text-white/65 text-base leading-[1.9] mb-5">
                 Energica Motor Company was founded in Modena, Italy — the same city
