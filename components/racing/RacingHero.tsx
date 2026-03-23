@@ -46,8 +46,8 @@ export default function RacingHero() {
             className="font-display text-white leading-[0.93] mb-6 whitespace-nowrap"
             style={{ fontSize: "clamp(40px, 6.5vw, 100px)" }}
           >
-            FULL ATTACK.<br />
-            <span className="text-[#78BE20]">NO COMPROMISE.</span>
+            BORN TO RACE.<br />
+            <span className="text-[#78BE20]">REBORN TO FLY.</span>
           </h1>
           <p className="text-sm text-white/65 max-w-[480px] leading-relaxed" style={{ fontFamily: "var(--font-ibm-sans)", fontWeight: 300 }}>
             4 seasons. 22+ rounds. One motorcycle — the Energica Ego Corsa.<br />
