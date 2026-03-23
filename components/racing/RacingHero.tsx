@@ -22,7 +22,8 @@ export default function RacingHero() {
           alt="Energica MotoAmerica Racing"
           fill
           priority
-          className="object-cover object-top"
+          className="object-cover"
+          style={{ objectPosition: "center 30%", transform: "scale(0.92)", transformOrigin: "center 30%" }}
           sizes="100vw"
         />
       </div>

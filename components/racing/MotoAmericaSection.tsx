@@ -199,13 +199,13 @@ export default function MotoAmericaSection() {
 
           <div className="ma-grid grid grid-cols-1 md:grid-cols-3 gap-3">
 
-            {/* Wide hero cell */}
+            {/* Wide hero cell — BJNB2669 (not used elsewhere) */}
             <div
               className="ma-cell md:col-span-3 group relative overflow-hidden bg-[#111]"
               style={{ aspectRatio: "21/9" }}
             >
               <Image
-                src={PHOTOS[0]}
+                src={PHOTOS[3]}
                 alt="Eva Ribelle MotoAmerica — race action"
                 fill
                 className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
@@ -219,8 +219,8 @@ export default function MotoAmericaSection() {
               <div className="absolute inset-x-0 bottom-0 h-[2px] bg-[#78BE20] scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
             </div>
 
-            {/* Five standard cells */}
-            {PHOTOS.slice(1).map((src, i) => (
+            {/* Three standard cells — BJNB1846, BJNB2683, BJNB2689 */}
+            {[PHOTOS[1], PHOTOS[4], PHOTOS[5]].map((src, i) => (
               <div
                 key={src}
                 className="ma-cell group relative overflow-hidden bg-[#111]"
