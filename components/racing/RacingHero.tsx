@@ -36,22 +36,21 @@ export default function RacingHero() {
       {/* SVG Track outline */}
       <TrackOutline sectionRef={sectionRef} />
 
-      <Container className="relative z-10 w-full pt-20">
-        <span className="mono-tag mb-6 inline-flex items-center gap-3">
+      <Container className="relative z-10 w-full pt-28 pb-16">
+        <span className="mono-tag mb-5 inline-flex items-center gap-3">
           MotoE · MotoAmerica · Racing Heritage
         </span>
         <h1
-          className="font-display text-white leading-[0.92] mb-8"
-          style={{ fontSize: "clamp(56px, 10vw, 148px)" }}
+          className="font-display text-white leading-[0.93] mb-6 whitespace-nowrap"
+          style={{ fontSize: "clamp(44px, 7.5vw, 112px)" }}
         >
-          FULL<br />
-          ATTACK.<br />
-          <span className="text-[#78BE20]">NO<br />COMPROMISE.</span>
+          FULL ATTACK.<br />
+          <span className="text-[#78BE20]">NO COMPROMISE.</span>
         </h1>
-        <p className="text-[length:var(--text-body-lg)] text-white/65 max-w-[540px] leading-relaxed" style={{ fontFamily: "var(--font-ibm-sans)", fontWeight: 300 }}>
+        <p className="text-base text-white/65 max-w-[500px] leading-relaxed" style={{ fontFamily: "var(--font-ibm-sans)", fontWeight: 300 }}>
           4 seasons. 22+ rounds. One motorcycle — the Energica Ego Corsa.
-          Exclusive supplier to the FIM Enel MotoE World Cup. First electric in MotoAmerica.
-          The track doesn't lie.
+          Exclusive supplier to the FIM Enel MotoE World Cup. First electric entry in MotoAmerica.
+          The track doesn&apos;t lie.
         </p>
       </Container>
 
