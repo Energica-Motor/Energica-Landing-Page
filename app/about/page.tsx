@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { PrimaryButton, SecondaryButton } from "@/components/ui/Button";
+import AboutHero from "@/components/about/AboutHero";
 
 export const metadata: Metadata = {
   title: "About | Energica Motor Company",
@@ -27,40 +27,7 @@ export default function AboutPage() {
     <main className="bg-[#0a0a0a] text-white min-h-screen overflow-x-hidden">
 
       {/* ── HERO ──────────────────────────────────────────────── */}
-      <section className="relative h-screen flex items-end overflow-hidden">
-        <div className="absolute inset-0">
-          <Image
-            src="/images/new/home-slide-1.jpg"
-            alt="Energica Motor Company — the full lineup on track"
-            fill
-            priority
-            className="object-cover object-center"
-            sizes="100vw"
-          />
-        </div>
-        {/* Gradient: dark bottom for text, subtle top for nav visibility */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-black/55 to-black/25" />
-
-        <Container className="relative z-10 w-full pb-20">
-          <p className="inline-flex items-center gap-3 mb-5">
-            <span className="w-6 h-px bg-[#78BE20]" />
-            <span className="text-[10px] uppercase tracking-[0.4em] text-[#78BE20]/80">
-              Motor Valley · Modena, Italy · Est. 2009
-            </span>
-          </p>
-          <h1
-            className="font-display text-white leading-[0.92] mb-6"
-            style={{ fontSize: "clamp(52px, 8.5vw, 124px)" }}
-          >
-            Italian Heritage,<br />
-            <span className="text-[#78BE20]">Electric Soul.</span>
-          </h1>
-          <p className="text-sm text-white/65 max-w-[480px] leading-relaxed" style={{ fontFamily: "var(--font-ibm-sans)", fontWeight: 300 }}>
-            Four electric motorcycles. One obsession. Engineered where Ferrari,
-            Lamborghini and Ducati were born.
-          </p>
-        </Container>
-      </section>
+      <AboutHero />
 
       {/* ── STORY + STATS ─────────────────────────────────────── */}
       <section className="w-full py-[120px]">
