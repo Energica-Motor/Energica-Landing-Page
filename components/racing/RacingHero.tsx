@@ -1,9 +1,7 @@
 "use client";
 
-import { useRef } from "react";
 import Image from "next/image";
 import { Container } from "@/components/ui/Container";
-import TrackOutline from "@/components/racing/TrackOutline";
 import ParticleCanvas from "@/components/ui/ParticleCanvas";
 
 /**
@@ -11,10 +9,8 @@ import ParticleCanvas from "@/components/ui/ParticleCanvas";
  * Includes TrackOutline (GSAP ScrollTrigger) and ParticleCanvas (ambient particles).
  */
 export default function RacingHero() {
-  const sectionRef = useRef<HTMLElement>(null);
-
   return (
-    <section ref={sectionRef} className="relative h-screen overflow-hidden">
+    <section className="relative h-screen overflow-hidden">
       {/* Background image */}
       <div className="absolute inset-0">
         <Image
@@ -32,9 +28,6 @@ export default function RacingHero() {
 
       {/* Ambient particles */}
       <ParticleCanvas />
-
-      {/* SVG Track outline */}
-      <TrackOutline sectionRef={sectionRef} />
 
       {/* Content — pinned to bottom-left like most racing hero layouts */}
       <div className="absolute bottom-16 left-0 right-0 z-10">
