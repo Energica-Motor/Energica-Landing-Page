@@ -37,6 +37,17 @@ export default function HeroSection() {
         onLoadedData={() => setVideoLoaded(true)}
       />
 
+      {/* YouTube iframe — fallback only if local video hasn't loaded after 2s */}
+      {!videoLoaded && (
+        <iframe
+          className="absolute inset-0 w-full h-full pointer-events-none hidden sm:block"
+          style={{ transform: "scale(1.5)", transformOrigin: "center center" }}
+          src="https://www.youtube-nocookie.com/embed/vKfU7NPIEI4?autoplay=1&mute=1&loop=1&playlist=vKfU7NPIEI4&controls=0&showinfo=0&rel=0&start=12"
+          allow="autoplay; encrypted-media"
+          title="Energica"
+        />
+      )}
+
       {/* GRADIENT OVERLAYS */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80 z-10" />
 
