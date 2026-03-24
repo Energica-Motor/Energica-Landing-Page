@@ -23,8 +23,8 @@ export default function RacingHero() {
           sizes="100vw"
         />
       </div>
-      {/* Overlay — stronger left fade so text always readable */}
-      <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/50 to-transparent" />
+      {/* Overlay — left fade keeps text readable, right stays open */}
+      <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/30 to-transparent" />
 
       {/* Ambient particles */}
       <ParticleCanvas />
