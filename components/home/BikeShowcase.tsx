@@ -555,7 +555,7 @@ export default function BikeShowcase() {
                 backgroundColor: i === activeIndex ? activeBike.accent : "rgba(255,255,255,0.30)",
               }}
             />
-            <span className={`text-[9px] tracking-[0.3em] uppercase whitespace-nowrap transition-all duration-200 ${i === activeIndex ? "text-white" : "text-white/0 group-hover:text-white/35"}`}>
+            <span className={`hidden xl:block text-[9px] tracking-[0.3em] uppercase whitespace-nowrap transition-all duration-200 ${i === activeIndex ? "text-white" : "text-white/0 group-hover:text-white/35"}`}>
               {bike.name}
             </span>
           </button>
