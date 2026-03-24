@@ -208,7 +208,7 @@ export default function BikeShowcase() {
         lock();
         return;
       }
-      if (!lockedRef.current && up && rect.bottom > 0 && rect.bottom <= window.innerHeight + 20) {
+      if (!lockedRef.current && up && rect.top < 0 && rect.bottom > 0) {
         e.preventDefault();
         lock();
         return;
