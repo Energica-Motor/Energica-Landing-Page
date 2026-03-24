@@ -80,8 +80,8 @@ export default function RacingPage() {
             {/* Image */}
             <div className="relative aspect-[4/3] overflow-hidden bg-[#111]">
               <Image
-                src="/images/Pagina%20EGO/ANN4778.jpg"
-                alt="Energica Ego racing"
+                src="/images/MotoE/Ferrari_MotoE_R11_Assen-19.jpg"
+                alt="Energica Ego Corsa on the MotoE grid at Assen"
                 fill
                 className="object-cover"
                 sizes="(max-width: 1024px) 100vw, 50vw"
@@ -144,30 +144,97 @@ export default function RacingPage() {
         </Container>
       </section>
 
-      {/* ── GALLERY ───────────────────────────────────────────── */}
+      {/* ── MOTOE WORLD CUP GALLERY ───────────────────────────── */}
       <section className="w-full py-[120px] border-t border-white/[0.04]">
         <Container>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {[
-              "/images/Pagina%20EGO/ANN4779.jpg",
-              "/images/Pagina%20EGO/ANN4787.jpg",
-              "/images/Pagina%20EGO/ANN4778.jpg",
-            ].map((src, i) => (
-              <div
-                key={i}
-                className="relative overflow-hidden bg-[#111]"
-                style={{ aspectRatio: "4/3" }}
-              >
-                <Image
-                  src={src}
-                  alt="Energica racing"
-                  fill
-                  className="object-cover hover:scale-105 transition-transform duration-600"
-                  sizes="(max-width: 768px) 50vw, 33vw"
-                />
-              </div>
-            ))}
+
+          {/* Section header */}
+          <div className="mb-12">
+            <p className="inline-flex items-center gap-3 mb-4">
+              <span className="w-6 h-px bg-[#78BE20]" />
+              <span className="text-[10px] uppercase tracking-[0.35em] text-white/60">
+                2019 – 2022
+              </span>
+            </p>
+            <h2
+              className="font-display text-white leading-none"
+              style={{ fontSize: "clamp(32px, 4.5vw, 64px)" }}
+            >
+              FIM Enel MotoE<br />
+              <span className="text-[#78BE20]">World Cup.</span>
+            </h2>
           </div>
+
+          {/* 5-image magazine grid */}
+          <div className="grid grid-cols-3 grid-rows-2 gap-3" style={{ height: "clamp(420px, 55vw, 760px)" }}>
+
+            {/* Large hero cell — col-span-2, row-span-2 */}
+            <div className="relative col-span-2 row-span-2 overflow-hidden bg-[#111] group">
+              <Image
+                src="/images/MotoE/5NG_0427.jpg"
+                alt="Ego Corsa — FIM Enel MotoE World Cup"
+                fill
+                className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                sizes="66vw"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            </div>
+
+            {/* Small cell 1 */}
+            <div className="relative overflow-hidden bg-[#111] group">
+              <Image
+                src="/images/MotoE/5NG_5156.jpg"
+                alt="Ego Corsa on track — MotoE"
+                fill
+                className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+                sizes="33vw"
+              />
+            </div>
+
+            {/* Small cell 2 */}
+            <div className="relative overflow-hidden bg-[#111] group">
+              <Image
+                src="/images/MotoE/5NG_5288.jpg"
+                alt="Ego Corsa racing — MotoE grid"
+                fill
+                className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+                sizes="33vw"
+              />
+            </div>
+
+          </div>
+
+          {/* Bottom row — remaining 2 images full-width split */}
+          <div className="grid grid-cols-2 gap-3 mt-3" style={{ height: "clamp(200px, 24vw, 340px)" }}>
+
+            <div className="relative overflow-hidden bg-[#111] group">
+              <Image
+                src="/images/MotoE/LG5_1964.jpg"
+                alt="Energica Ego Corsa — MotoE championship"
+                fill
+                className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                sizes="50vw"
+              />
+            </div>
+
+            <div className="relative overflow-hidden bg-[#111] group">
+              <Image
+                src="/images/MotoE/Ferrari_MotoE_R11_Assen-19.jpg"
+                alt="Ego Corsa — Assen MotoE round"
+                fill
+                className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                sizes="50vw"
+              />
+              {/* Caption overlay */}
+              <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
+                <p className="text-[9px] uppercase tracking-[0.35em] text-white/60">
+                  Assen · Round 11
+                </p>
+              </div>
+            </div>
+
+          </div>
+
         </Container>
       </section>
 
