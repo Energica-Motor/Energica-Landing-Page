@@ -315,7 +315,7 @@ export default function Navigation() {
         <div className="max-w-[1600px] mx-auto px-[clamp(24px,4vw,64px)] h-16 md:h-20 flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="relative z-50 flex-shrink-0">
-            <EnergicaLogo className="h-6 w-auto" />
+            <EnergicaLogo className="h-8 w-auto" />
           </Link>
 
           {/* Desktop Nav */}
