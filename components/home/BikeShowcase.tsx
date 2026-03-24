@@ -159,7 +159,7 @@ export default function BikeShowcase() {
 
         // Restore old wrapper quietly
         setTimeout(() => {
-          if (fromW) gsap.set(fromW, { y: 0, opacity: 1 });
+          if (fromW) gsap.set(fromW, { y: 0, opacity: 0 });
           resetDrift(target);
           transRef.current = false;
           pullYRef.current  = 0;
@@ -347,7 +347,7 @@ export default function BikeShowcase() {
               position:      "absolute",
               inset:         0,
               opacity:       i === 0 ? 1 : 0,
-              zIndex:        i === 0 ? 2 : 0,
+              zIndex:        i === activeIndex ? 2 : 0,
               willChange:    "transform, opacity",
               pointerEvents: i === activeIndex ? "auto" : "none",
             }}
@@ -369,7 +369,7 @@ export default function BikeShowcase() {
           <div
             key={bike.id}
             ref={el => { if (!imgWrapperRefs.current[i]) imgWrapperRefs.current[i] = el; }}
-            style={{ position: "absolute", inset: 0, opacity: i === 0 ? 1 : 0, zIndex: i === 0 ? 1 : 0 }}
+            style={{ position: "absolute", inset: 0, opacity: i === 0 ? 1 : 0, zIndex: i === activeIndex ? 2 : 0 }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={bike.image} alt={bike.name} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain", objectPosition: "center 55%" }} />
