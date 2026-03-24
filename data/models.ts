@@ -145,7 +145,7 @@ export const models: BikeModel[] = [
         tractionControl: "Six levels — combined with eABS and Cornering Bosch 9.3 MP",
         ridingModes: "7 Profiles (Energica 1–4 factory + Custom 1–3) · Eco · Urban · Rain · Sport · 4 Regen Maps",
         display: "5\" IPS 1000 nits bonded 848×480 TFT Colour Display",
-        connectivity: "My Energica App — iOS & Android · Bluetooth · 4G",
+        connectivity: "Bluetooth · 4G connectivity",
         dataRecorder: "On-board data logger · Park Assistant: Forward and Reverse",
       },
       dimensions: {
@@ -233,7 +233,7 @@ export const models: BikeModel[] = [
         tractionControl: "Six levels — combined with eABS and Bosch ABS",
         ridingModes: "Urban · Eco · Rain · Sport · 4 Regenerative Maps: Low, Medium, High, Off",
         display: "Cobo 4.3\" WQVGA 480×272 TFT — integrated GPS, Ambient Light Sensor",
-        connectivity: "My Energica App — iOS & Android · Bluetooth · 4G",
+        connectivity: "Bluetooth · 4G connectivity",
         dataRecorder: "On-board data logger — ride telemetry",
       },
       dimensions: {
@@ -320,7 +320,7 @@ export const models: BikeModel[] = [
         tractionControl: "Six levels — combined with eABS and Bosch ABS",
         ridingModes: "Urban · Eco · Rain · Sport · 4 Regenerative Maps: Low, Medium, High, Off",
         display: "Cobo 4.3\" WQVGA 480×272 TFT — integrated GPS, Ambient Light Sensor",
-        connectivity: "My Energica App — iOS & Android · Bluetooth · 4G",
+        connectivity: "Bluetooth · 4G connectivity",
         dataRecorder: "On-board data logger — ride telemetry",
       },
       dimensions: {
@@ -407,7 +407,7 @@ export const models: BikeModel[] = [
         tractionControl: "Six levels — combined with eABS and Bosch ABS",
         ridingModes: "Eco · Standard · Wet · Sport · 4 Regenerative Maps: Low, Medium, High, Off",
         display: "Cobo 4.3\" WQVGA 480×272 TFT — integrated GPS, Ambient Light Sensor",
-        connectivity: "My Energica App — iOS & Android · Bluetooth · 4G",
+        connectivity: "Bluetooth · 4G connectivity",
         dataRecorder: "On-board data logger — MotoE-spec telemetry",
       },
       dimensions: {

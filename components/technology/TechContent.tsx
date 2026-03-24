@@ -487,7 +487,7 @@ const SAFETY_FEATURES = [
   { num: "01", title: "Cornering ABS", sub: "Bosch 9.3MP", body: "Lean-angle sensitive braking that automatically adjusts ABS threshold based on bike inclination — up to 45° of lean without lockup." },
   { num: "02", title: "MSC Traction Control", sub: "Bosch Motorcycle Stability Control", body: "Wheel-spin detection via IMU and rear wheel speed sensor, with torque reduction applied in under 10 milliseconds." },
   { num: "03", title: "6 Riding Modes", sub: "Urban · Eco · Rain · Sport · Boost · Custom", body: "Each mode remaps throttle response, regenerative braking, and power ceiling. Custom mode lets riders define their own parameters on the TFT." },
-  { num: "04", title: "5\" TFT Display", sub: "Full-colour, glare-resistant", body: "Sunlight-readable 5-inch display with Apple CarPlay connectivity via the My Energica app. Full navigation, call management, and music controls." },
+  { num: "04", title: "5\" TFT Display", sub: "Full-colour, glare-resistant", body: "Sunlight-readable 5-inch display with full navigation, Bluetooth connectivity, and real-time ride data at a glance." },
   { num: "05", title: "4G Connectivity", sub: "Always-on telematics", body: "Cellular-connected telematics with theft alerts, remote diagnostics, and over-the-air firmware updates. Your dealer can run a diagnostic without you being present." },
   { num: "06", title: "CCS DC Charging", sub: "Level 3 — any public network", body: "The only electric motorcycle compatible with CCS Combo chargers. Plugs into every public fast charger in Europe and North America." },
 ];
