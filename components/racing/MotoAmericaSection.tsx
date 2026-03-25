@@ -207,6 +207,7 @@ export default function MotoAmericaSection() {
                 alt="Eva Ribelle MotoAmerica — race action"
                 fill
                 className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                style={{ objectPosition: "center 40%" }}
                 sizes="100vw"
               />
               <div className="absolute inset-x-0 bottom-0 p-5 translate-y-full group-hover:translate-y-0 transition-transform duration-500 bg-gradient-to-t from-black/80 to-transparent">
