@@ -113,7 +113,7 @@ export default function ModelHero({ model }: ModelHeroProps) {
       {/* ── Text panel ──────────────────────────────────────── */}
       <div className="relative z-10 px-[clamp(24px,4vw,64px)] w-full max-w-2xl">
         {/* Eyebrow */}
-        <p className="mh-eyebrow inline-flex items-center gap-3 mb-6">
+        <p className="mh-eyebrow inline-flex items-center gap-3 mb-4">
           <span className="w-8 h-px bg-[#78BE20]" />
           <span className="text-[11px] uppercase tracking-[0.35em] text-white/65">
             Energica Motorcycles
@@ -122,19 +122,19 @@ export default function ModelHero({ model }: ModelHeroProps) {
 
         {/* Model name */}
         <h1
-          className="mh-title font-display text-white leading-none mb-[24px]"
-          style={{ fontSize: "clamp(48px, 11vw, 180px)" }}
+          className="mh-title font-display text-white leading-none mb-4"
+          style={{ fontSize: "clamp(40px, 9vw, 150px)" }}
         >
           {model.name}
         </h1>
 
         {/* Tagline */}
-        <p className="mh-tagline text-base md:text-lg text-white/60 italic mb-8">
+        <p className="mh-tagline text-base md:text-lg text-white/60 italic mb-5">
           &ldquo;{model.tagline}&rdquo;
         </p>
 
         {/* Inline key specs — first two */}
-        <div className="flex items-stretch gap-0 mb-[48px]">
+        <div className="flex items-stretch gap-0 mb-8">
           {model.keySpecs.slice(0, 2).map((spec, i) => (
             <div
               key={spec.label}
