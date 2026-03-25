@@ -58,6 +58,7 @@ export const footerLinks = {
   support: [
     { label: "Find a Dealer", href: "/dealers" },
     { label: "Book Test Ride", href: "/test-ride" },
+    { label: "Configurator", href: "/configurator" },
     { label: "Owners", href: "/owners" },
     { label: "Warranty", href: "/warranty" },
   ],
