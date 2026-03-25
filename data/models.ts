@@ -184,10 +184,9 @@ export const models: BikeModel[] = [
     },
     heroImage: "/images/Pagina%20SS9/EsseEsse9%20RS_Sunrise%20Red.webp",
     lifestyleImages: [
-      "/images/Pagina%20SS9/ss9_featured_740x660_7766.jpg",
       "/images/Pagina%20SS9/ANN7756.jpg",
       "/images/Pagina%20SS9/ANN7824.jpg",
-      "/images/Pagina%20SS9/ss9_mosaico_ANN4384.jpg",
+      "/images/Pagina%20SS9/ss9_featured_740x660_7766.jpg",
     ],
     colors: [
       {
@@ -274,7 +273,6 @@ export const models: BikeModel[] = [
       "/images/Pagina%20Eva/evaribelle_slider1440x930_5533-1.jpg",
       "/images/Pagina%20Eva/ANN5461.jpg",
       "/images/Pagina%20Eva/ANN5814.jpg",
-      "/images/Pagina%20Eva/evaribelle_mosaico_ANN4110.jpg",
     ],
     colors: [
       {
@@ -358,10 +356,9 @@ export const models: BikeModel[] = [
     },
     heroImage: "/images/Pagina%20EGO/EGO%20RS_Metal%20Black.webp",
     lifestyleImages: [
-      "/images/Pagina%20EGO/ego_mosaico_ANN4320.jpg",
-      "/images/Pagina%20EGO/ANN4778.jpg",
       "/images/Pagina%20EGO/ANN4779.jpg",
       "/images/Pagina%20EGO/ANN4787.jpg",
+      "/images/Pagina%20EGO/ANN4778.jpg",
     ],
     colors: [
       {

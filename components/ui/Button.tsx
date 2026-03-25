@@ -51,10 +51,10 @@ export function Button(props: ButtonProps) {
   const classes = cn(base, variants[variant], sizes[size], className);
 
   if ("href" in props && props.href) {
-    const { href, variant: _v, size: _s, ...linkRest } = props as ButtonAsLink;
+    const { href, variant: _v, size: _s, className: _cls, children, ...linkRest } = props as ButtonAsLink & { children?: React.ReactNode };
     return (
       <Link href={href} className={classes} {...(linkRest as object)}>
-        {(linkRest as { children?: React.ReactNode }).children}
+        {children}
       </Link>
     );
   }
