@@ -14,12 +14,12 @@ export default function RacingHero() {
       {/* Background image */}
       <div className="absolute inset-0">
         <Image
-          src="/images/MotoAmerica/BJNB1844_P.jpg"
+          src="/images/MotoAmerica/BJNB2669_3_P.jpg"
           alt="Energica MotoAmerica Racing"
           fill
           priority
           className="object-cover"
-          style={{ objectPosition: "65% center" }}
+          style={{ objectPosition: "center center" }}
           sizes="100vw"
         />
       </div>
