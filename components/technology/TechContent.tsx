@@ -648,7 +648,7 @@ export default function TechContent() {
         sub="21.5 / 22.5 kWh lithium polymer — custom-built for Energica platforms"
         body="Custom lithium polymer cells arranged in a structural aluminium pack. Each of the 84 cells is individually monitored by the BMS — optimising charge rate, thermal management, and longevity simultaneously. The pack doubles as a stressed chassis member, reducing weight elsewhere."
         stats={[
-          { value: "22.5", unit: "kWh", label: "Total Capacity" },
+          { value: "21.5 / 22.5", unit: "kWh", label: "Total Capacity" },
           { value: "420", unit: "km", label: "City Range" },
         ]}
         visual={<BatteryGrid />}
