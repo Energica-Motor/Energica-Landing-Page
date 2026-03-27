@@ -428,7 +428,7 @@ export default function BikeShowcase() {
             <img src={bike.image} alt={bike.name} style={{ position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"contain", objectPosition:"center 55%" }} />
           </div>
         ))}
-        <div className="pointer-events-none" style={{ position:"absolute", inset:0, background:"linear-gradient(to top, #0A0A0A 40%, rgba(10,10,10,0.5) 65%, transparent)", zIndex:2 }} />
+        <div className="pointer-events-none" style={{ position:"absolute", inset:0, background:"linear-gradient(to top, #0A0A0A 20%, rgba(10,10,10,0.3) 50%, transparent)", zIndex:2 }} />
       </div>
 
       {/* Left gradient */}
@@ -486,6 +486,23 @@ export default function BikeShowcase() {
             style={{ color:"transparent", WebkitTextStroke:"1px rgba(120,190,32,0.12)", opacity: i === activeIndex ? 1 : 0, transition:"opacity 0.35s ease" }}>
             {bike.index}
           </span>
+        ))}
+      </div>
+
+      {/* Mobile dot indicator */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex md:hidden gap-2">
+        {bikes.map((bike, i) => (
+          <button
+            key={bike.id}
+            onClick={() => goTo(i)}
+            aria-label={`Go to ${bike.name}`}
+            className="rounded-full transition-all duration-300"
+            style={{
+              width: i === activeIndex ? "20px" : "6px",
+              height: "6px",
+              backgroundColor: i === activeIndex ? "#78BE20" : "rgba(255,255,255,0.3)"
+            }}
+          />
         ))}
       </div>
 

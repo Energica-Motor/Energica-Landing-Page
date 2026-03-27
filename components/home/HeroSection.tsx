@@ -40,7 +40,7 @@ export default function HeroSection() {
       {/* YouTube iframe — fallback only if local video hasn't loaded after 2s */}
       {!videoLoaded && (
         <iframe
-          className="absolute inset-0 w-full h-full pointer-events-none hidden sm:block"
+          className="absolute inset-0 w-full h-full pointer-events-none"
           style={{ transform: "scale(1.5)", transformOrigin: "center center" }}
           src="https://www.youtube-nocookie.com/embed/vKfU7NPIEI4?autoplay=1&mute=1&loop=1&playlist=vKfU7NPIEI4&controls=0&showinfo=0&rel=0&start=12"
           allow="autoplay; encrypted-media"
@@ -68,7 +68,7 @@ export default function HeroSection() {
             Built in Modena. Proven in MotoE.<br className="hidden md:block" />Four seasons, one supplier.
           </p>
 
-          <div className="flex items-center gap-6">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
             <Link
               href="/models"
               className="text-xs tracking-[0.25em] uppercase text-white border-b border-white/40 pb-0.5 hover:border-white transition-colors duration-200"
@@ -82,7 +82,7 @@ export default function HeroSection() {
               className="text-xs tracking-[0.25em] uppercase text-[#78BE20] border-b border-[#78BE20]/40 pb-0.5 hover:border-[#78BE20] transition-colors duration-200"
               style={{ fontFamily: "var(--font-ibm-mono)" }}
             >
-              Book a test ride
+              Reserve a test ride
             </Link>
           </div>
         </div>

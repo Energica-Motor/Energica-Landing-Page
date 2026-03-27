@@ -99,7 +99,7 @@ export default function DealersPage() {
         <p className="text-[length:var(--text-body)] text-white/70 max-w-[750px] leading-relaxed mb-[32px]">
           Visit an authorised Energica dealer to see, touch, and ride our motorcycles. Our specialists are ready to help you configure your perfect match.
         </p>
-        <PrimaryButton href="/test-ride">Book Test Ride →</PrimaryButton>
+        <PrimaryButton href="/test-ride">Reserve a Test Ride →</PrimaryButton>
       </Container>
 
       {/* ── Two-column layout ────────────────────────────────── */}

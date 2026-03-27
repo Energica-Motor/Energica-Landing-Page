@@ -224,7 +224,7 @@ function MobileOverlay({
           onClick={onClose}
           className="block text-center py-4 bg-[#78BE20] text-black font-display text-lg tracking-widest hover:bg-[#5a9018] transition-colors duration-200"
         >
-          BOOK TEST RIDE
+          RESERVE A TEST RIDE
         </Link>
       </div>
 
@@ -372,7 +372,7 @@ export default function Navigation() {
               className="px-4 py-2 text-xs uppercase tracking-[0.15em] bg-[#78BE20] text-black hover:bg-[#5a9018] transition-all duration-200 btn-electric"
               style={{ fontFamily: "var(--font-ibm-mono)" }}
             >
-              Book Test Ride
+              Reserve a Test Ride
             </Link>
           </div>
 

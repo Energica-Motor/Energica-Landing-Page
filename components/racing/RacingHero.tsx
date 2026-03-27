@@ -19,7 +19,7 @@ export default function RacingHero() {
           fill
           priority
           className="object-cover"
-          style={{ objectPosition: "center center" }}
+          style={{ objectPosition: "60% center" }}
           sizes="100vw"
         />
       </div>
@@ -36,7 +36,7 @@ export default function RacingHero() {
             MotoE · MotoAmerica · Racing Heritage
           </span>
           <h1
-            className="font-display text-white leading-[0.93] mb-6 whitespace-nowrap"
+            className="font-display text-white leading-[0.93] mb-6"
             style={{ fontSize: "clamp(40px, 6.5vw, 100px)" }}
           >
             Born on the grid.<br />

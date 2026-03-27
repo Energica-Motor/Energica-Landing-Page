@@ -181,6 +181,18 @@ export default function TestRideForm() {
   };
 
   return (
+    <>
+    {/* Mobile hero image — shown above form on mobile, hidden on lg+ */}
+    <div className="relative h-[35vh] lg:hidden overflow-hidden">
+      <Image
+        src="/images/Pagina%20Experia/Experia_MM_0218.jpg"
+        alt="Energica test ride"
+        fill
+        className="object-cover object-center"
+        sizes="100vw"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a]/80 to-transparent" />
+    </div>
     <div ref={formRef} className="grid lg:grid-cols-2 min-h-screen">
 
       {/* ── LEFT: Brand image panel ──────────────────────── */}
@@ -355,5 +367,6 @@ export default function TestRideForm() {
         )}
       </div>
     </div>
+    </>
   );
 }
