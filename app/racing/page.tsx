@@ -177,7 +177,7 @@ export default function RacingPage() {
                 className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
                 sizes="66vw"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/25 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             </div>
 
             {/* Small cell 1 */}

@@ -26,47 +26,27 @@ export default function MotoAmericaSection() {
   useGSAP(
     () => {
       gsap.from(".ma-eyebrow", {
-        y: 24,
-        opacity: 0,
-        duration: 0.6,
-        ease: "power3.out",
+        y: 24, opacity: 0, duration: 0.6, ease: "power3.out", immediateRender: false,
         scrollTrigger: { trigger: ".ma-eyebrow", start: "top 88%" },
       });
       gsap.from(".ma-headline", {
-        y: 40,
-        opacity: 0,
-        duration: 0.85,
-        ease: "power3.out",
+        y: 40, opacity: 0, duration: 0.85, ease: "power3.out", immediateRender: false,
         scrollTrigger: { trigger: ".ma-headline", start: "top 88%" },
       });
       gsap.from(".ma-para", {
-        y: 30,
-        opacity: 0,
-        stagger: 0.12,
-        duration: 0.75,
-        ease: "power3.out",
+        y: 30, opacity: 0, stagger: 0.12, duration: 0.75, ease: "power3.out", immediateRender: false,
         scrollTrigger: { trigger: ".ma-copy", start: "top 82%" },
       });
       gsap.from(".ma-cta", {
-        y: 20,
-        opacity: 0,
-        duration: 0.6,
-        ease: "power3.out",
+        y: 20, opacity: 0, duration: 0.6, ease: "power3.out", immediateRender: false,
         scrollTrigger: { trigger: ".ma-cta", start: "top 90%" },
       });
       gsap.from(".ma-hero-img", {
-        scale: 1.05,
-        opacity: 0,
-        duration: 1,
-        ease: "power3.out",
+        scale: 1.05, opacity: 0, duration: 1, ease: "power3.out", immediateRender: false,
         scrollTrigger: { trigger: ".ma-hero-img", start: "top 82%" },
       });
       gsap.from(".ma-cell", {
-        y: 50,
-        opacity: 0,
-        stagger: 0.08,
-        duration: 0.85,
-        ease: "power3.out",
+        y: 50, opacity: 0, stagger: 0.08, duration: 0.85, ease: "power3.out", immediateRender: false,
         scrollTrigger: { trigger: ".ma-grid", start: "top 78%" },
       });
     },
@@ -133,7 +113,7 @@ export default function MotoAmericaSection() {
               <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-[#78BE20]" />
               <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-[#78BE20]" />
               <div className="absolute bottom-4 left-4">
-                <span className="mono-tag">Super Hooligan National Championship</span>
+                <span className="mono-tag" style={{ background: "rgba(0,0,0,0.65)", backdropFilter: "blur(4px)" }}>Super Hooligan National Championship</span>
               </div>
             </div>
 
