@@ -509,12 +509,9 @@ export default function BikeShowcase() {
       {/* Left nav dots */}
       <div className="absolute left-6 md:left-10 top-1/2 -translate-y-1/2 z-30 hidden md:flex flex-col items-start gap-4">
         {bikes.map((bike, i) => (
-          <button key={bike.id} onClick={() => goTo(i)} aria-label={`Go to ${bike.name}`} className="group flex items-center gap-3">
+          <button key={bike.id} onClick={() => goTo(i)} aria-label={`Go to ${bike.name}`} className="group">
             <div className="rounded-full transition-all duration-300"
               style={{ width: i === activeIndex ? "6px" : "4px", height: i === activeIndex ? "32px" : "12px", backgroundColor: i === activeIndex ? activeBike.accent : "rgba(255,255,255,0.30)" }} />
-            <span className={`hidden xl:block text-[9px] tracking-[0.3em] uppercase whitespace-nowrap transition-all duration-200 ${i === activeIndex ? "text-white" : "text-white/0 group-hover:text-white/35"}`}>
-              {bike.name}
-            </span>
           </button>
         ))}
       </div>
