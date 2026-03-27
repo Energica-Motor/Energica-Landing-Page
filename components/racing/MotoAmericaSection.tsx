@@ -190,11 +190,6 @@ export default function MotoAmericaSection() {
                 style={{ objectPosition: "center 65%" }}
                 sizes="100vw"
               />
-              <div className="absolute inset-x-0 bottom-0 p-5 translate-y-full group-hover:translate-y-0 transition-transform duration-500 bg-gradient-to-t from-black/80 to-transparent">
-                <p className="text-[10px] uppercase tracking-[0.3em] text-white/60 font-mono">
-                  MotoAmerica — Race Action
-                </p>
-              </div>
               <div className="absolute inset-x-0 bottom-0 h-[2px] bg-[#78BE20] scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
             </div>
 
@@ -212,11 +207,6 @@ export default function MotoAmericaSection() {
                   className="object-cover transition-transform duration-700 group-hover:scale-[1.05]"
                   sizes="(max-width: 768px) 100vw, 33vw"
                 />
-                <div className="absolute inset-x-0 bottom-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-500 bg-gradient-to-t from-black/80 to-transparent">
-                  <p className="text-[10px] uppercase tracking-[0.3em] text-white/60 font-mono">
-                    Super Hooligan · 202{3 + (i % 2)}
-                  </p>
-                </div>
                 <div className="absolute inset-x-0 bottom-0 h-[2px] bg-[#78BE20] scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
               </div>
             ))}
