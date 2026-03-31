@@ -291,10 +291,12 @@ export default function BikeShowcase() {
 
     function onTouchStart(e: TouchEvent) {
       const rect = section.getBoundingClientRect();
-      if (!lockedRef.current && rect.top >= 0 && rect.top < 40) {
+      /* Widen lock gate: lock whenever section is near the top (within 80px) */
+      if (!lockedRef.current && rect.top >= 0 && rect.top < 80) {
         lockedRef.current = true;
         const lenis = (window as any).__lenis;
         if (lenis) lenis.stop();
+        window.scrollTo({ top: section.offsetTop, behavior: "instant" as ScrollBehavior });
       }
       if (!lockedRef.current) return;
       touchStartY = e.touches[0].clientY; touching = true; pullYRef.current = 0;
@@ -307,6 +309,9 @@ export default function BikeShowcase() {
       applyDrift(pullYRef.current);
       if (pullYRef.current < -THRESHOLD && currentRef.current > 0)                  { touching = false; snapTo(currentRef.current - 1); }
       else if (pullYRef.current > THRESHOLD && currentRef.current < bikes.length - 1) { touching = false; snapTo(currentRef.current + 1); }
+      /* Boundary — release lock so user can scroll out of the showcase */
+      else if (pullYRef.current < -THRESHOLD && currentRef.current === 0)                  { touching = false; unlock(); }
+      else if (pullYRef.current > THRESHOLD  && currentRef.current === bikes.length - 1) { touching = false; unlock(); }
     }
     function onTouchEnd() {
       if (!lockedRef.current) return;
@@ -417,22 +422,31 @@ export default function BikeShowcase() {
       </div>
 
       {/* ── Image frame (mobile) ─────────────────────────────────── */}
+      {/* NOTE: opacity is driven by React state (activeIndex), NOT refs,
+          because desktop refs are hidden via CSS and not accessible on mobile. */}
       <div className="absolute inset-0 md:hidden" style={{ zIndex:1 }}>
         {bikes.map((bike, i) => (
           <div
             key={bike.id}
-            ref={el => { if (!imgWrapperRefs.current[i]) imgWrapperRefs.current[i] = el; }}
-            style={{ position:"absolute", inset:0, willChange:"transform, opacity", zIndex: i === activeIndex ? 2 : 0 }}
+            style={{
+              position:"absolute", inset:0,
+              willChange:"transform, opacity",
+              opacity: i === activeIndex ? 1 : 0,
+              transition: "opacity 0.35s ease",
+              zIndex: i === activeIndex ? 2 : 0,
+            }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={bike.image} alt={bike.name} style={{ position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"contain", objectPosition:"center 55%" }} />
+            <img src={bike.image} alt={bike.name} style={{ position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"contain", objectPosition:"center 50%" }} />
           </div>
         ))}
-        <div className="pointer-events-none" style={{ position:"absolute", inset:0, background:"linear-gradient(to top, #0A0A0A 20%, rgba(10,10,10,0.3) 50%, transparent)", zIndex:2 }} />
+        <div className="pointer-events-none" style={{ position:"absolute", inset:0, background:"linear-gradient(to top, #0A0A0A 30%, rgba(10,10,10,0.5) 55%, transparent 80%)", zIndex:2 }} />
       </div>
 
-      {/* Left gradient */}
+      {/* Left gradient — desktop */}
       <div className="absolute inset-0 hidden md:block pointer-events-none z-[2]" style={{ background:"linear-gradient(to right, #0A0A0A 32%, rgba(10,10,10,0.88) 44%, rgba(10,10,10,0.15) 58%, transparent 100%)" }} />
+      {/* Left gradient — mobile (narrower, protects text column) */}
+      <div className="absolute inset-0 md:hidden pointer-events-none z-[3]" style={{ background:"linear-gradient(to right, #0A0A0A 35%, rgba(10,10,10,0.6) 60%, transparent 100%)" }} />
 
       {/* Top label */}
       <div className="absolute top-0 left-0 right-0 z-20 max-w-[1440px] mx-auto px-6 md:px-12 lg:px-20 pt-14">
@@ -443,9 +457,9 @@ export default function BikeShowcase() {
       </div>
 
       {/* Text blocks */}
-      <div className="absolute inset-0 z-10 flex md:items-center items-end pb-20 md:pb-0">
+      <div className="absolute inset-0 z-10 flex md:items-center items-end pb-24 md:pb-0">
         <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-20 w-full">
-          <div className="relative md:max-w-[44%]" style={{ height:"clamp(320px,50vh,490px)" }}>
+          <div className="relative md:max-w-[44%]" style={{ height:"clamp(280px,45vh,490px)" }}>
             {bikes.map((bike, i) => (
               <div
                 key={bike.id}
@@ -458,7 +472,7 @@ export default function BikeShowcase() {
                   <div className="w-5 h-px bg-white/40" />
                   <span className="mono-tag">{bike.category}</span>
                 </div>
-                <h2 className="font-display text-[clamp(44px,9vw,124px)] text-white leading-[0.88] uppercase tracking-tight mb-3">{bike.name}</h2>
+                <h2 className="font-display text-[clamp(38px,9vw,124px)] text-white leading-[0.88] uppercase tracking-tight mb-3">{bike.name}</h2>
                 <div className="h-[2px] w-12 mb-4 md:mb-5" style={{ backgroundColor:bike.accent }} />
                 <p className="text-sm md:text-base text-white/65 mb-5 md:mb-7 font-light leading-relaxed tracking-wide" style={{ fontFamily:"var(--font-ibm-sans)" }}>{bike.tagline}</p>
                 <div className="mb-7 md:mb-9">

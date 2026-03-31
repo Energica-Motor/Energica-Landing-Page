@@ -52,11 +52,11 @@ function humanLabel(key: string): string {
 
 function SpecRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex justify-between py-3 border-b border-white/[0.05] group">
-      <span className="text-sm text-white/60 group-hover:text-white/80 transition-colors shrink-0 pr-4">
+    <div className="flex flex-col sm:flex-row sm:justify-between py-3 border-b border-white/[0.05] group gap-1 sm:gap-4">
+      <span className="text-xs sm:text-sm text-white/60 group-hover:text-white/80 transition-colors sm:shrink-0 sm:pr-4">
         {label}
       </span>
-      <span className="text-sm text-white text-right max-w-xs leading-snug">{value}</span>
+      <span className="text-sm text-white sm:text-right leading-snug">{value}</span>
     </div>
   );
 }
@@ -144,11 +144,11 @@ export default function SpecsAccordion({ specs }: SpecsAccordionProps) {
             <div
               className={cn(
                 "overflow-hidden transition-all duration-500",
-                isOpen ? "max-h-[800px] opacity-100" : "max-h-0 opacity-0"
+                isOpen ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
               )}
               style={{ transitionTimingFunction: "cubic-bezier(0.16,1,0.3,1)" }}
             >
-              <div className="pb-8 pl-9">
+              <div className="pb-8 pl-4 sm:pl-9">
                 {entries.length > 0 ? (
                   entries.map(([label, value]) => (
                     <SpecRow key={label} label={humanLabel(label)} value={value} />

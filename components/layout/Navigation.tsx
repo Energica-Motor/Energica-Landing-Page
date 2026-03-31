@@ -180,15 +180,15 @@ function MobileOverlay({
       )}
       style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}
     >
-      <nav className="flex flex-col gap-2">
+      <nav className="flex flex-col gap-1">
         {mobileLinks.map((link, i) => (
           <Link
             key={link.href}
             href={link.href}
             onClick={onClose}
             className={cn(
-              "font-display text-6xl text-white hover:text-[#78BE20] transition-all duration-300",
-              "border-b border-white/5 pb-4",
+              "font-display text-5xl sm:text-6xl text-white hover:text-[#78BE20] transition-all duration-300",
+              "border-b border-white/5 pb-3",
               "transform transition-all duration-500",
               open ? "translate-x-0 opacity-100" : "translate-x-8 opacity-0"
             )}

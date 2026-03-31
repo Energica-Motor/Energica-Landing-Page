@@ -37,8 +37,7 @@ export default function ColorSelector({ colors }: ColorSelectorProps) {
   return (
     <div
       ref={sectionRef}
-      className="flex flex-col lg:flex-row w-full"
-      style={{ minHeight: "calc(100vh - 80px)" }}
+      className="flex flex-col lg:flex-row w-full min-h-[560px] lg:min-h-[calc(100vh-80px)]"
     >
       {/* ── Left — controls ──────────────────────────────────── */}
       <div className="cs-left flex flex-col justify-center px-[clamp(24px,4vw,64px)] py-16 lg:py-0 lg:w-[340px] xl:w-[400px] shrink-0 border-r border-white/[0.04]">
@@ -101,7 +100,7 @@ export default function ColorSelector({ colors }: ColorSelectorProps) {
       </div>
 
       {/* ── Right — bike image ───────────────────────────────── */}
-      <div className="cs-right relative flex-1 bg-[#0f0f0f] overflow-hidden min-h-[420px]">
+      <div className="cs-right relative flex-1 bg-[#0f0f0f] overflow-hidden min-h-[260px] sm:min-h-[380px] lg:min-h-[420px]">
 
         {/* Subtle colour tint */}
         <div
@@ -124,7 +123,7 @@ export default function ColorSelector({ colors }: ColorSelectorProps) {
               src={color.image}
               alt={color.name}
               fill
-              className="object-contain p-8 lg:p-14"
+              className="object-contain p-4 sm:p-6 lg:p-14"
               sizes="(max-width: 1024px) 100vw, 70vw"
             />
           </div>

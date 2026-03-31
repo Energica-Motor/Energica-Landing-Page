@@ -100,7 +100,12 @@ export default function ModelHero({ model }: ModelHeroProps) {
       {/* ── Gradient overlay — protects text on mobile ───────── */}
       <div
         aria-hidden
-        className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/80 md:via-[#0a0a0a]/50 to-transparent pointer-events-none z-[1]"
+        className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/90 md:via-[#0a0a0a]/60 to-transparent pointer-events-none z-[1]"
+      />
+      {/* Extra bottom gradient on mobile to protect stats/CTAs */}
+      <div
+        aria-hidden
+        className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-[#0a0a0a] to-transparent pointer-events-none z-[1] md:hidden"
       />
 
       {/* ── Vertical accent line (large screens) ────────────── */}
@@ -154,7 +159,7 @@ export default function ModelHero({ model }: ModelHeroProps) {
         </div>
 
         {/* CTAs */}
-        <div className="flex flex-wrap gap-4">
+        <div className="flex flex-col sm:flex-row flex-wrap gap-3">
           <PrimaryButton href="/test-ride" className="mh-cta">Reserve a Test Ride</PrimaryButton>
           <Button variant="outline" size="lg" href="/dealers" className="mh-cta">Find Dealer</Button>
         </div>

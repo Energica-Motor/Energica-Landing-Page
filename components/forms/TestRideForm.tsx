@@ -236,7 +236,7 @@ export default function TestRideForm() {
       </div>
 
       {/* ── RIGHT: Form panel ───────────────────────────── */}
-      <div className="flex flex-col justify-center bg-[#0a0a0a] pt-28 pb-16 px-8 md:px-12 lg:px-16">
+      <div className="flex flex-col justify-center bg-[#0a0a0a] pt-8 pb-16 px-6 sm:px-8 md:px-12 lg:pt-28 lg:px-16">
         {submitted ? (
           <SuccessView email={data.email} onReset={reset} />
         ) : (

@@ -131,16 +131,16 @@ function MotorDiagram() {
     });
     gsap.from(".md-stator", {
       strokeDasharray: "0 1200", duration: 1.4, ease: "power2.out",
-      scrollTrigger: { trigger: svgRef.current, start: "top 78%" },
+      scrollTrigger: { trigger: svgRef.current, start: "top 60%" },
     });
     gsap.from(".md-rotor", {
       opacity: 0, scale: 0.7, svgOrigin: "200 200",
       duration: 0.9, ease: "back.out(1.7)", delay: 0.4,
-      scrollTrigger: { trigger: svgRef.current, start: "top 78%" },
+      scrollTrigger: { trigger: svgRef.current, start: "top 60%" },
     });
     gsap.from(".md-slot", {
       opacity: 0, duration: 0.35, stagger: 0.018, ease: "power2.out",
-      scrollTrigger: { trigger: svgRef.current, start: "top 78%" },
+      scrollTrigger: { trigger: svgRef.current, start: "top 60%" },
     });
     const fluxEls = svgRef.current?.querySelectorAll<SVGPathElement>(".md-flux");
     fluxEls?.forEach((p, i) => {
@@ -148,7 +148,7 @@ function MotorDiagram() {
       gsap.set(p, { strokeDasharray: len, strokeDashoffset: len });
       gsap.to(p, {
         strokeDashoffset: 0, duration: 0.8, delay: 0.6 + i * 0.08, ease: "power2.out",
-        scrollTrigger: { trigger: svgRef.current, start: "top 78%" },
+        scrollTrigger: { trigger: svgRef.current, start: "top 60%" },
       });
     });
   }, { scope: svgRef });
@@ -323,7 +323,7 @@ function BatteryGrid() {
         duration: 0.25,
         stagger: { each: 0.055, from: "end" },
         ease: "power1.out",
-        scrollTrigger: { trigger: ref.current, start: "top 75%" },
+        scrollTrigger: { trigger: ref.current, start: "top 50%" },
       });
     }
     const proxy = { n: 0 };
@@ -331,7 +331,7 @@ function BatteryGrid() {
     gsap.to(proxy, {
       n: 22.5, duration: 2.2, ease: "power2.out",
       onUpdate: () => { if (el) el.textContent = proxy.n.toFixed(1); },
-      scrollTrigger: { trigger: ref.current, start: "top 75%", once: true },
+      scrollTrigger: { trigger: ref.current, start: "top 50%", once: true },
     });
   }, { scope: ref });
 
@@ -374,17 +374,17 @@ function ChargingCurve() {
       gsap.set(curve, { strokeDasharray: len, strokeDashoffset: len });
       gsap.to(curve, {
         strokeDashoffset: 0, duration: 2.2, ease: "power2.out",
-        scrollTrigger: { trigger: ref.current, start: "top 75%" },
+        scrollTrigger: { trigger: ref.current, start: "top 50%" },
       });
     }
     gsap.from(".cc-dot", {
       opacity: 0, scale: 0, transformOrigin: "center", duration: 0.5, delay: 2,
       ease: "back.out(2)",
-      scrollTrigger: { trigger: ref.current, start: "top 75%" },
+      scrollTrigger: { trigger: ref.current, start: "top 50%" },
     });
     gsap.from(".cc-label", {
       opacity: 0, duration: 0.4, delay: 2.3,
-      scrollTrigger: { trigger: ref.current, start: "top 75%" },
+      scrollTrigger: { trigger: ref.current, start: "top 50%" },
     });
   }, { scope: ref });
 
@@ -438,10 +438,10 @@ function ThrottleGraph() {
       const len = el.getTotalLength();
       gsap.set(el, { strokeDasharray: len, strokeDashoffset: len });
       gsap.to(el, { strokeDashoffset: 0, duration: 1.6, delay: i * 0.4, ease: "power2.out",
-        scrollTrigger: { trigger: ref.current, start: "top 75%" } });
+        scrollTrigger: { trigger: ref.current, start: "top 50%" } });
     });
     gsap.from(".tg-label", { opacity: 0, duration: 0.5, delay: 1.8,
-      scrollTrigger: { trigger: ref.current, start: "top 75%" } });
+      scrollTrigger: { trigger: ref.current, start: "top 50%" } });
   }, { scope: ref });
 
   return (
@@ -533,7 +533,7 @@ function TechSection({
   useGSAP(() => {
     gsap.from(".ts-text > *", {
       y: 36, stagger: 0.1, duration: 0.8, ease: "power3.out",
-      scrollTrigger: { trigger: ref.current, start: "top 78%" },
+      scrollTrigger: { trigger: ref.current, start: "top 65%" },
     });
   }, { scope: ref });
 
@@ -610,7 +610,7 @@ export default function TechContent() {
             <span className="w-6 h-px bg-[#78BE20]" />
             <span className="text-[10px] uppercase tracking-[0.35em] text-white/65">Under the fairing</span>
           </p>
-          <h1 className="th-h1 font-display text-white leading-[0.9] mb-6 whitespace-nowrap" style={{ fontSize: "clamp(48px, 8vw, 120px)" }}>
+          <h1 className="th-h1 font-display text-white leading-[0.9] mb-6" style={{ fontSize: "clamp(48px, 8vw, 120px)" }}>
             <span className="block">OUR</span>
             <span className="block text-[#78BE20]">TECHNOLOGY</span>
           </h1>
@@ -682,7 +682,7 @@ export default function TechContent() {
 
       {/* ── 05 SAFETY ───────────────────────────────────────── */}
       <div className="border-t border-white/[0.04]">
-        <div className="max-w-[1600px] mx-auto px-[clamp(24px,4vw,64px)] py-[120px]">
+        <div className="max-w-[1600px] mx-auto px-[clamp(24px,4vw,64px)] py-[60px] md:py-[120px]">
           <div className="mb-14">
             <p className="inline-flex items-center gap-3 mb-6">
               <span className="font-display text-5xl text-white/[0.20]">05</span>
@@ -702,18 +702,18 @@ export default function TechContent() {
 
       {/* ── CTA ─────────────────────────────────────────────── */}
       <div className="border-t border-white/[0.04] bg-[#080808]">
-        <div className="max-w-[1600px] mx-auto px-[clamp(24px,4vw,64px)] py-[120px] flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
+        <div className="max-w-[1600px] mx-auto px-[clamp(24px,4vw,64px)] py-[60px] md:py-[120px] flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
           <div>
             <h3 className="font-display text-white leading-none mb-2" style={{ fontSize: "clamp(32px, 4vw, 56px)" }}>
               Ride one. 200+ locations worldwide.
             </h3>
             <p className="text-white/60 text-base">Book a free test ride at your nearest dealer.</p>
           </div>
-          <div className="flex gap-4 flex-shrink-0">
-            <Link href="/test-ride" className="px-8 py-4 bg-[#78BE20] text-black font-display text-sm uppercase tracking-widest hover:bg-[#5a9018] transition-colors duration-200">
+          <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto flex-shrink-0">
+            <Link href="/test-ride" className="px-8 py-4 bg-[#78BE20] text-black font-display text-sm uppercase tracking-widest hover:bg-[#5a9018] transition-colors duration-200 text-center">
               Reserve a Test Ride
             </Link>
-            <Link href="/models" className="px-8 py-4 border border-white/20 text-white font-display text-sm uppercase tracking-widest hover:border-white/50 transition-colors duration-200">
+            <Link href="/models" className="px-8 py-4 border border-white/20 text-white font-display text-sm uppercase tracking-widest hover:border-white/50 transition-colors duration-200 text-center">
               View Models
             </Link>
           </div>

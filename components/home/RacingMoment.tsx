@@ -16,7 +16,7 @@ export default function RacingMoment() {
 
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
 
-      <div className="absolute bottom-12 md:bottom-20 left-0 right-0 z-10">
+      <div className="absolute bottom-8 md:bottom-12 lg:bottom-20 left-0 right-0 z-10">
         <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-20">
           <Reveal>
             <span className="mono-tag mb-5 inline-block" style={{ backgroundColor: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)" }}>MotoE · MotoAmerica</span>
