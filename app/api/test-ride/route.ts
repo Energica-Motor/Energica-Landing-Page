@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const FROM = "Energica Website <noreply@energicamotor.com>";
+const FROM = "Energica Motor <hello@energicamotor.com>";
 const TO   = "keshav@energicamotor.com";
 
 const MODEL_NAMES: Record<string, string> = {
