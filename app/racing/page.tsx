@@ -244,13 +244,13 @@ export default function RacingPage() {
             className="font-display text-white leading-none mb-[24px]"
             style={{ fontSize: "var(--text-h1)" }}
           >
-            Ride one. 200+ locations worldwide.
+            Interested in Energica?
           </h2>
           <p className="text-white/60 text-[length:var(--text-body)] mb-[32px] max-w-[750px] mx-auto">
-            Book a free test ride at your nearest authorised dealer.
+            Get in touch and we&apos;ll connect you with the right person.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-            <PrimaryButton href="/test-ride">Book Test Ride</PrimaryButton>
+            <PrimaryButton href="/contact">Contact Us</PrimaryButton>
             <SecondaryButton href="/models">View All Models</SecondaryButton>
           </div>
         </Container>

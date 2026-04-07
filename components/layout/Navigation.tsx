@@ -166,7 +166,7 @@ function MobileOverlay({
     { label: "Models", href: "/models" },
     { label: "Technology", href: "/technology" },
     { label: "Racing", href: "/racing" },
-    { label: "Dealers", href: "/dealers" },
+    { label: "Contact", href: "/contact" },
   ];
 
   return (
@@ -213,18 +213,11 @@ function MobileOverlay({
         }}
       >
         <Link
-          href="/dealers"
-          onClick={onClose}
-          className="block text-center py-4 border border-[#78BE20] text-white font-display text-lg tracking-widest hover:bg-[#78BE20] hover:text-black transition-colors duration-200"
-        >
-          FIND A DEALER
-        </Link>
-        <Link
-          href="/test-ride"
+          href="/contact"
           onClick={onClose}
           className="block text-center py-4 bg-[#78BE20] text-black font-display text-lg tracking-widest hover:bg-[#5a9018] transition-colors duration-200"
         >
-          RESERVE A TEST RIDE
+          CONTACT US
         </Link>
       </div>
 
@@ -359,20 +352,12 @@ export default function Navigation() {
           {/* CTA Buttons */}
           <div className="hidden lg:flex items-center gap-3">
             <Link
-              href="/dealers"
-              data-magnetic
-              className="px-4 py-2 text-xs uppercase tracking-[0.15em] border border-[#78BE20] text-white hover:bg-[#78BE20] hover:text-black transition-all duration-200"
-              style={{ fontFamily: "var(--font-ibm-mono)" }}
-            >
-              Find a Dealer
-            </Link>
-            <Link
-              href="/test-ride"
+              href="/contact"
               data-magnetic
               className="px-4 py-2 text-xs uppercase tracking-[0.15em] bg-[#78BE20] text-black hover:bg-[#5a9018] transition-all duration-200 btn-electric"
               style={{ fontFamily: "var(--font-ibm-mono)" }}
             >
-              Reserve a Test Ride
+              Contact Us
             </Link>
           </div>
 

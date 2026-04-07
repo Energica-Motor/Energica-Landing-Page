@@ -33,8 +33,8 @@ export default function TechStrip() {
           <div>
             <span className="mono-tag mb-4 inline-block">Engineering</span>
             <h2 className="font-display text-[clamp(28px,5vw,56px)] text-white leading-tight uppercase">
-              The numbers<br />
-              <span className="text-white/45">are real.</span>
+              Real Numbers.<br />
+              <span className="text-white/45">Unreal Performance.</span>
             </h2>
           </div>
           <Link

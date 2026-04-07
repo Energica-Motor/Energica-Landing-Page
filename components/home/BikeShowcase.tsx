@@ -382,9 +382,8 @@ export default function BikeShowcase() {
         className="absolute hidden md:block"
         style={{ right:"2%", top:"50%", transform:"translateY(-50%)", width:"62%", height:"78%", zIndex:1 }}
       >
-        <div style={{ position:"absolute", inset:0, background:"radial-gradient(ellipse 70% 65% at 58% 55%, rgba(120,190,32,0.10) 0%, rgba(120,190,32,0.03) 50%, transparent 75%)", pointerEvents:"none" }} />
-        <div style={{ position:"absolute", bottom:0, left:0, right:0, height:"22%", background:"linear-gradient(to top, #0A0A0A 0%, rgba(10,10,10,0.5) 60%, transparent 100%)", zIndex:3, pointerEvents:"none" }} />
-        <div style={{ position:"absolute", top:0, left:0, right:0, height:"12%", background:"linear-gradient(to bottom, #0A0A0A 0%, transparent 100%)", zIndex:3, pointerEvents:"none" }} />
+        <div style={{ position:"absolute", inset:0, background:"radial-gradient(ellipse 70% 65% at 58% 55%, rgba(120,190,32,0.05) 0%, transparent 70%)", pointerEvents:"none" }} />
+        <div style={{ position:"absolute", bottom:0, left:0, right:0, height:"10%", background:"linear-gradient(to top, #0A0A0A 0%, transparent 100%)", zIndex:3, pointerEvents:"none" }} />
 
         {bikes.map((bike, i) => (
           <div
@@ -440,13 +439,13 @@ export default function BikeShowcase() {
             <img src={bike.image} alt={bike.name} style={{ position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"contain", objectPosition:"center 50%" }} />
           </div>
         ))}
-        <div className="pointer-events-none" style={{ position:"absolute", inset:0, background:"linear-gradient(to top, #0A0A0A 30%, rgba(10,10,10,0.5) 55%, transparent 80%)", zIndex:2 }} />
+        <div className="pointer-events-none" style={{ position:"absolute", inset:0, background:"linear-gradient(to top, #0A0A0A 15%, rgba(10,10,10,0.3) 40%, transparent 70%)", zIndex:2 }} />
       </div>
 
       {/* Left gradient — desktop */}
-      <div className="absolute inset-0 hidden md:block pointer-events-none z-[2]" style={{ background:"linear-gradient(to right, #0A0A0A 32%, rgba(10,10,10,0.88) 44%, rgba(10,10,10,0.15) 58%, transparent 100%)" }} />
+      <div className="absolute inset-0 hidden md:block pointer-events-none z-[2]" style={{ background:"linear-gradient(to right, #0A0A0A 28%, rgba(10,10,10,0.75) 40%, rgba(10,10,10,0.05) 52%, transparent 100%)" }} />
       {/* Left gradient — mobile (narrower, protects text column) */}
-      <div className="absolute inset-0 md:hidden pointer-events-none z-[3]" style={{ background:"linear-gradient(to right, #0A0A0A 35%, rgba(10,10,10,0.6) 60%, transparent 100%)" }} />
+      <div className="absolute inset-0 md:hidden pointer-events-none z-[3]" style={{ background:"linear-gradient(to right, #0A0A0A 30%, rgba(10,10,10,0.5) 55%, transparent 100%)" }} />
 
       {/* Top label */}
       <div className="absolute top-0 left-0 right-0 z-20 max-w-[1440px] mx-auto px-6 md:px-12 lg:px-20 pt-14">
@@ -494,11 +493,11 @@ export default function BikeShowcase() {
       </div>
 
       {/* Ghost watermark */}
-      <div className="absolute bottom-0 right-3 md:right-14 lg:right-20 z-0 select-none pointer-events-none overflow-hidden h-[160px] md:h-[220px]">
+      <div className="absolute bottom-0 left-[36%] md:left-[38%] z-[2] select-none pointer-events-none overflow-hidden h-[160px] md:h-[220px]">
         {bikes.map((bike, i) => (
-          <span key={bike.id} className="absolute bottom-0 right-0 font-display text-[clamp(110px,15vw,190px)] leading-none"
-            style={{ color:"transparent", WebkitTextStroke:"1px rgba(120,190,32,0.12)", opacity: i === activeIndex ? 1 : 0, transition:"opacity 0.35s ease" }}>
-            {bike.index}
+          <span key={bike.id} className="absolute bottom-0 left-0 font-display text-[clamp(110px,15vw,190px)] leading-none"
+            style={{ color:"transparent", WebkitTextStroke:"1px rgba(255,255,255,0.07)", opacity: i === activeIndex ? 1 : 0, transition:"opacity 0.35s ease" }}>
+            {bike.name}
           </span>
         ))}
       </div>

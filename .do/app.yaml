@@ -1,0 +1,35 @@
+name: energica-website
+region: fra
+
+services:
+  - name: web
+    source_dir: /
+    github:
+      repo: PravaigDynamics/Energica-Website
+      branch: main
+      deploy_on_push: true
+    build_command: npm install -g pnpm && pnpm install --frozen-lockfile && pnpm build
+    run_command: node .next/standalone/server.js
+    environment_slug: node-js
+    # basic-xxs = 512MB RAM, $5/mo (fine for launch)
+    # basic-xs  = 1GB RAM, $10/mo (upgrade when live)
+    instance_size_slug: basic-xxs
+    instance_count: 1
+    http_port: 3000
+    health_check:
+      http_path: /
+      initial_delay_seconds: 30
+      period_seconds: 30
+      failure_threshold: 3
+    envs:
+      - key: NODE_ENV
+        value: production
+        scope: RUN_AND_BUILD_TIME
+      - key: NEXT_PUBLIC_SITE_URL
+          value: https://energicamotor.com
+        scope: RUN_AND_BUILD_TIME
+      - key: RESEND_API_KEY
+        # Set this value in the DigitalOcean dashboard — NOT here
+        # Dashboard > App > Settings > Environment Variables > Add (Secret)
+        type: SECRET
+        scope: RUN_AND_BUILD_TIME

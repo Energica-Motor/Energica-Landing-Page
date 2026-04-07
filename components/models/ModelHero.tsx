@@ -160,8 +160,7 @@ export default function ModelHero({ model }: ModelHeroProps) {
 
         {/* CTAs */}
         <div className="flex flex-col sm:flex-row flex-wrap gap-3">
-          <PrimaryButton href="/test-ride" className="mh-cta">Reserve a Test Ride</PrimaryButton>
-          <Button variant="outline" size="lg" href="/dealers" className="mh-cta">Find Dealer</Button>
+          <PrimaryButton href="/contact" className="mh-cta">Enquire Now</PrimaryButton>
         </div>
       </div>
 

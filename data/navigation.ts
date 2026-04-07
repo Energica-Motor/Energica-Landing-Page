@@ -42,8 +42,8 @@ export const navItems: NavItem[] = [
     href: "/racing",
   },
   {
-    label: "Dealers",
-    href: "/dealers",
+    label: "Contact",
+    href: "/contact",
   },
 ];
 
@@ -56,10 +56,10 @@ export const footerLinks = {
     { label: "Careers", href: "/careers" },
   ],
   support: [
-    { label: "Find a Dealer", href: "/dealers" },
-    { label: "Reserve a Test Ride", href: "/test-ride" },
+    { label: "Contact Us", href: "/contact" },
     { label: "Configurator", href: "/configurator" },
     { label: "Owners", href: "/owners" },
+    { label: "Warranty", href: "/warranty" },
   ],
   legal: [
     { label: "Privacy Policy", href: "/privacy" },

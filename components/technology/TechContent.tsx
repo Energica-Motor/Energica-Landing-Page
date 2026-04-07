@@ -705,13 +705,13 @@ export default function TechContent() {
         <div className="max-w-[1600px] mx-auto px-[clamp(24px,4vw,64px)] py-[60px] md:py-[120px] flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
           <div>
             <h3 className="font-display text-white leading-none mb-2" style={{ fontSize: "clamp(32px, 4vw, 56px)" }}>
-              Ride one. 200+ locations worldwide.
+              Want to know more?
             </h3>
-            <p className="text-white/60 text-base">Book a free test ride at your nearest dealer.</p>
+            <p className="text-white/60 text-base">Get in touch. We&apos;ll connect you with the right person.</p>
           </div>
           <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto flex-shrink-0">
-            <Link href="/test-ride" className="px-8 py-4 bg-[#78BE20] text-black font-display text-sm uppercase tracking-widest hover:bg-[#5a9018] transition-colors duration-200 text-center">
-              Reserve a Test Ride
+            <Link href="/contact" className="px-8 py-4 bg-[#78BE20] text-black font-display text-sm uppercase tracking-widest hover:bg-[#5a9018] transition-colors duration-200 text-center">
+              Contact Us
             </Link>
             <Link href="/models" className="px-8 py-4 border border-white/20 text-white font-display text-sm uppercase tracking-widest hover:border-white/50 transition-colors duration-200 text-center">
               View Models

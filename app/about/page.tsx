@@ -170,11 +170,10 @@ export default function AboutPage() {
             Experience Energica.
           </h2>
           <p className="text-white/60 text-base mb-10 max-w-[600px] mx-auto leading-relaxed">
-            Book a free test ride at your nearest authorised dealer and feel
-            what Motor Valley engineering delivers on the road.
+            Have a question or want to know more? Get in touch and we&apos;ll connect you with the right person.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-            <PrimaryButton href="/models">View All Models</PrimaryButton>
+            <PrimaryButton href="/contact">Contact Us</PrimaryButton>
             <SecondaryButton href="/racing">Racing Heritage</SecondaryButton>
           </div>
         </Container>

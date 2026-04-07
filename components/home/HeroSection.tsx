@@ -95,7 +95,7 @@ export default function HeroSection() {
           </h1>
 
           <p className="text-sm text-white/70 font-light tracking-wide mb-7 max-w-md" style={{ fontFamily: "var(--font-ibm-sans)" }}>
-            Built in Modena. Proven in MotoE.{" "}<br className="hidden md:block" />Four seasons, one supplier.
+            Born in Modena. Proven on the racetrack.{" "}<br className="hidden md:block" />Exclusive MotoE supplier. Four seasons.
           </p>
 
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
@@ -108,11 +108,11 @@ export default function HeroSection() {
             </Link>
             <span className="hidden sm:inline text-white/20">·</span>
             <Link
-              href="/test-ride"
+              href="/contact"
               className="text-xs tracking-[0.25em] uppercase text-[#78BE20] border-b border-[#78BE20]/40 pb-0.5 hover:border-[#78BE20] transition-colors duration-200"
               style={{ fontFamily: "var(--font-ibm-mono)" }}
             >
-              Reserve a test ride
+              Contact us
             </Link>
           </div>
         </div>

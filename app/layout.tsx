@@ -32,7 +32,7 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://energica-motor.com"),
+  metadataBase: new URL("https://energicamotor.com"),
   title: {
     default: "ENERGICA — Progress, Ridden.",
     template: "%s | ENERGICA",

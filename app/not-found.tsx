@@ -42,7 +42,7 @@ export default function NotFound() {
       <div className="flex flex-wrap items-center justify-center gap-4">
         <PrimaryButton href="/">Back Home</PrimaryButton>
         <SecondaryButton href="/models">Our Models</SecondaryButton>
-        <SecondaryButton href="/dealers">Find a Dealer</SecondaryButton>
+        <SecondaryButton href="/contact">Contact Us</SecondaryButton>
       </div>
 
       {/* Red decorative line */}

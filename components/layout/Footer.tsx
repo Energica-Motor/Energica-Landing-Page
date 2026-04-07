@@ -156,10 +156,10 @@ export default function Footer() {
                 Stay Updated
               </p>
               <Link
-                href="/test-ride"
+                href="/contact"
                 className="inline-flex items-center gap-2 text-xs text-[#78BE20]/90 hover:text-[#78BE20] transition-colors duration-200"
               >
-                Reserve a test ride →
+                Get in touch →
               </Link>
             </div>
           </div>

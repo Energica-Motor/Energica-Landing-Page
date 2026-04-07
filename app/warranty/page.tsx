@@ -28,7 +28,7 @@ export default function WarrantyPage() {
         </p>
         <div className="flex flex-wrap gap-4">
           <PrimaryButton href="mailto:support@energicamotor.com">Contact Support</PrimaryButton>
-          <SecondaryButton href="/dealers">Find a Dealer</SecondaryButton>
+          <SecondaryButton href="/contact">Contact Us</SecondaryButton>
         </div>
       </Container>
     </main>

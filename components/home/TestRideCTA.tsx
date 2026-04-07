@@ -8,19 +8,15 @@ export default function TestRideCTA() {
         <Reveal className="max-w-2xl">
 
           <p className="text-[10px] tracking-[0.4em] text-white/65 uppercase mb-6">
-            Free · No commitment
+            Book a test ride
           </p>
 
-          <h2 className="font-display text-[clamp(36px,8vw,96px)] text-white leading-tight uppercase mb-4">
-            Ride one.
-          </h2>
-
-          <p className="text-white/60 text-lg mb-12">
-            Ride one. 200+ authorised locations worldwide.
+<p className="text-white/60 text-lg mb-12">
+            200+ authorised locations worldwide.
           </p>
 
           <Link
-            href="/test-ride"
+            href="/contact"
             className="inline-flex items-center justify-center gap-4 w-full sm:w-auto px-10 py-4 bg-[#78BE20] text-black text-xs tracking-[0.3em] uppercase font-medium hover:bg-[#5a9018] transition-colors duration-200"
           >
             Reserve a Test Ride

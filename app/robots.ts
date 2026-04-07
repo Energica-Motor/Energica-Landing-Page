@@ -9,6 +9,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/api/", "/_next/"],
       },
     ],
-    sitemap: "https://energica-motor.com/sitemap.xml",
+    sitemap: "https://energicamotor.com/sitemap.xml",
   };
 }

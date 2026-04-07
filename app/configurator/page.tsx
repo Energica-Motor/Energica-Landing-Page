@@ -55,11 +55,11 @@ export default function ConfiguratorPage() {
         </p>
         <p className="text-white/40 text-sm max-w-[540px] leading-relaxed mb-12">
           The configurator is currently in development. In the meantime, our
-          dealers can walk you through every option in person.
+          our team can walk you through every option directly.
         </p>
 
         <div className="flex flex-wrap gap-4">
-          <SecondaryButton href="/dealers">Find a Dealer</SecondaryButton>
+          <SecondaryButton href="/contact">Contact Us</SecondaryButton>
           <SecondaryButton href="/models">Explore Models</SecondaryButton>
         </div>
 
