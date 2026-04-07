@@ -9,22 +9,46 @@ export const metadata: Metadata = {
 export default function ContactPage() {
   return (
     <main className="min-h-screen bg-[#0A0A0A] pt-32 pb-24">
-      <div className="max-w-[860px] mx-auto px-6 md:px-12 lg:px-20">
+      <div className="max-w-[1400px] mx-auto px-6 md:px-12 lg:px-20">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-start">
 
-        {/* Header */}
-        <div className="mb-14">
-          <span className="mono-tag mb-5 inline-block">Get in touch</span>
-          <h1 className="font-display text-[clamp(40px,8vw,100px)] text-white leading-[0.88] uppercase mb-6">
-            Let&apos;s<br />
-            <span className="text-[#78BE20]">Talk.</span>
-          </h1>
-          <p className="text-white/60 text-base max-w-[520px] leading-relaxed" style={{ fontFamily: "var(--font-ibm-sans)" }}>
-            Tell us what you&apos;re interested in. We&apos;ll get back to you within 24 hours.
-          </p>
+          {/* Left: Header + Info */}
+          <div className="lg:sticky lg:top-32">
+            <span className="mono-tag mb-5 inline-block">Get in touch</span>
+            <h1 className="font-display text-[clamp(56px,7vw,110px)] text-white leading-[0.88] uppercase mb-8">
+              Let&apos;s<br />
+              <span className="text-[#78BE20]">Talk.</span>
+            </h1>
+            <p className="text-white/60 text-base max-w-[420px] leading-relaxed mb-12" style={{ fontFamily: "var(--font-ibm-sans)" }}>
+              Tell us what you&apos;re interested in. We&apos;ll get back to you within 24 hours.
+            </p>
+
+            {/* Contact details */}
+            <div className="space-y-6 border-t border-white/10 pt-10">
+              <div>
+                <p className="text-[11px] tracking-[0.3em] text-white/40 uppercase mb-1" style={{ fontFamily: "var(--font-ibm-mono)" }}>Email</p>
+                <p className="text-white/80 text-sm" style={{ fontFamily: "var(--font-ibm-sans)" }}>info@energicamotor.com</p>
+              </div>
+              <div>
+                <p className="text-[11px] tracking-[0.3em] text-white/40 uppercase mb-1" style={{ fontFamily: "var(--font-ibm-mono)" }}>Headquarters</p>
+                <p className="text-white/80 text-sm leading-relaxed" style={{ fontFamily: "var(--font-ibm-sans)" }}>
+                  Via Cesare Pavese 2/5<br />
+                  41126 Modena, Italy
+                </p>
+              </div>
+              <div>
+                <p className="text-[11px] tracking-[0.3em] text-white/40 uppercase mb-1" style={{ fontFamily: "var(--font-ibm-mono)" }}>Response time</p>
+                <p className="text-white/80 text-sm" style={{ fontFamily: "var(--font-ibm-sans)" }}>Within 24 hours</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Right: Form */}
+          <div>
+            <ContactForm />
+          </div>
+
         </div>
-
-        <ContactForm />
-
       </div>
     </main>
   );
