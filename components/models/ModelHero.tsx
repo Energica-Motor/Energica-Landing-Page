@@ -75,11 +75,11 @@ export default function ModelHero({ model }: ModelHeroProps) {
       {/* ── Ghost watermark name ─────────────────────────────── */}
       <div
         aria-hidden
-        className="absolute inset-0 flex items-center justify-end overflow-hidden pointer-events-none select-none"
-        style={{ paddingRight: "clamp(24px, 4vw, 64px)" }}
+        className="absolute inset-0 overflow-hidden pointer-events-none select-none"
+        style={{ left: "42%" }}
       >
         <span
-          className="font-display text-white/[0.07] leading-none"
+          className="font-display text-white/[0.07] leading-none absolute top-1/2 -translate-y-1/2"
           style={{ fontSize: "clamp(120px, 22vw, 320px)" }}
         >
           {model.name.replace(/[\s+]/g, "")}
