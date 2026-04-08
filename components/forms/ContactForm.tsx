@@ -92,7 +92,7 @@ export default function ContactForm() {
   return (
     <div className="relative">
       {/* Success state */}
-      <div ref={successRef} className="opacity-0 text-center py-16">
+      <div ref={successRef} className="opacity-0 absolute inset-0 flex flex-col items-center justify-center text-center py-16 pointer-events-none">
         <div className="w-12 h-12 rounded-full border border-[#78BE20] flex items-center justify-center mx-auto mb-6">
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
             <path d="M4 10l4 4 8-8" stroke="#78BE20" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
