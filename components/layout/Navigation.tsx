@@ -321,7 +321,7 @@ export default function Navigation() {
                   onMouseLeave={handleModelsLeave}
                   onClick={() => setMegaOpen((v) => !v)}
                   className={cn(
-                    "text-xs uppercase tracking-[0.2em] transition-colors duration-200 flex items-center gap-1 cursor-none",
+                    "text-sm uppercase tracking-[0.2em] transition-colors duration-200 flex items-center gap-1 cursor-none",
                     megaOpen ? "text-[#78BE20]" : "text-white/60 hover:text-white"
                   )}
                   style={{ fontFamily: "var(--font-ibm-mono)" }}
