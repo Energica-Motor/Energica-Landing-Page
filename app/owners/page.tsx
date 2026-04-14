@@ -24,48 +24,35 @@ export default function OwnersPage() {
           For urgent technical issues, use the form below to contact our support team directly.
         </p>
 
-        {/* Community Videos */}
-        <div className="mb-[80px]">
-          <p className="inline-flex items-center gap-3 mb-6">
-            <span className="w-6 h-px bg-[#78BE20]" />
-            <span className="text-[10px] uppercase tracking-[0.4em] text-white/65">From the Road</span>
-          </p>
-          <h2 className="font-display text-white text-[clamp(28px,4vw,48px)] leading-none uppercase mb-3">
-            Community Rides
-          </h2>
-          <p className="text-white/55 text-sm max-w-[520px] leading-relaxed mb-10" style={{ fontFamily: "var(--font-ibm-sans)" }}>
-            Real journeys from Energica owners around the world. No scripts — just the road.
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {[
-              { id: "7tgEhL7jij8", title: "Mark's Ride — Europe" },
-            ].map((video) => (
-              <div key={video.id} className="group">
-                <div className="relative aspect-video bg-[#111] overflow-hidden border border-white/[0.06] group-hover:border-[#78BE20]/30 transition-colors duration-300">
-                  <iframe
-                    src={`https://www.youtube.com/embed/${video.id}`}
-                    title={video.title}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    className="absolute inset-0 w-full h-full"
-                  />
-                </div>
-                <p className="text-white/55 text-[11px] tracking-[0.15em] uppercase mt-3" style={{ fontFamily: "var(--font-ibm-mono)" }}>
-                  {video.title}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-
         {/* Contact Form */}
-        <div className="max-w-[640px]">
-          <p className="inline-flex items-center gap-3 mb-8">
-            <span className="w-6 h-px bg-[#78BE20]" />
-            <span className="text-[10px] uppercase tracking-[0.35em] text-white/65 font-mono">
-              Contact Support
-            </span>
-          </p>
+        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-12 lg:gap-20 max-w-[900px]">
+
+          {/* Left: support info */}
+          <div className="pt-1">
+            <p className="inline-flex items-center gap-3 mb-8">
+              <span className="w-6 h-px bg-[#78BE20]" />
+              <span className="text-[10px] uppercase tracking-[0.35em] text-white/65 font-mono">
+                Contact Support
+              </span>
+            </p>
+            <div className="space-y-6 text-sm" style={{ fontFamily: "var(--font-ibm-sans)" }}>
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.3em] text-white/35 mb-1" style={{ fontFamily: "var(--font-ibm-mono)" }}>Service</p>
+                <p className="text-white/70">service-eu@energicamotor.com</p>
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.3em] text-white/35 mb-1" style={{ fontFamily: "var(--font-ibm-mono)" }}>Response</p>
+                <p className="text-white/70">Within 2 business days</p>
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.3em] text-white/35 mb-1" style={{ fontFamily: "var(--font-ibm-mono)" }}>HQ</p>
+                <p className="text-white/70 leading-relaxed">37 Via dell&apos;Artigianato<br />41042 Fiorano (MO), Italy</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Right: form */}
+          <div>
 
           {submitted ? (
             <div className="border border-[#78BE20]/30 bg-[#78BE20]/5 p-8">
@@ -160,6 +147,7 @@ export default function OwnersPage() {
               </div>
             </form>
           )}
+          </div>
         </div>
       </Container>
     </main>

@@ -24,6 +24,7 @@ const CULTURAL: CulturalItem[] = [
   { label: "Video Game", title: "RIDE 4 — Energica EGO", sub: "Milestone · PS4 / PS5 / PC", url: "https://www.youtube.com/watch?v=22XzuIWcKrw", ytId: "22XzuIWcKrw" },
   { label: "Highlights", title: "EGO vs ZX10R & Lamborghini", sub: "Drag race · Road test", url: "https://youtu.be/QtDBURP_Drk", ytId: "QtDBURP_Drk" },
   { label: "Highlights", title: "Mugello with Bob Sinclair", sub: "Track experience", url: "https://www.youtube.com/watch?v=hR-j6rSota4", ytId: "hR-j6rSota4" },
+  { label: "Owner Journey", title: "I Bought the World's First Electric Touring Bike", sub: "Mark's Travels · YouTube", url: "https://www.youtube.com/watch?v=7tgEhL7jij8", ytId: "7tgEhL7jij8" },
 ];
 
 export default function AboutPage() {
