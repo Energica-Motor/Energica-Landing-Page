@@ -10,48 +10,71 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger);
 
 export default function HeroSection() {
+  const sectionRef = useRef<HTMLElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const mediaRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const tagRef = useRef<HTMLSpanElement>(null);
+
   const [videoLoaded, setVideoLoaded] = useState(false);
   const [scrambleTrigger, setScrambleTrigger] = useState(false);
 
   const h1Ref = useScramble("PROGRESS,\nRIDDEN.", scrambleTrigger);
 
   useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.play().catch(() => {});
-    }
+    if (videoRef.current) videoRef.current.play().catch(() => {});
     const t = setTimeout(() => setScrambleTrigger(true), 700);
     return () => clearTimeout(t);
   }, []);
 
-  // Parallax: video drifts up as the wrapper scrolls, giving motion feedback
   useEffect(() => {
-    const wrapper = document.querySelector("[data-hero-wrapper]");
-    if (!wrapper || !mediaRef.current) return;
+    const section = sectionRef.current;
+    if (!section) return;
 
     const ctx = gsap.context(() => {
+      // ── Background parallax ──────────────────────────────────────
+      // Background moves at ~40% of scroll speed — creates depth.
+      // Scale 1.15 so the top/bottom edges don't show as it drifts.
       gsap.to(mediaRef.current, {
-        yPercent: -15, // drifts up 15% of its height — visible but subtle
+        yPercent: 25,
         ease: "none",
         scrollTrigger: {
-          trigger: wrapper,
+          trigger: section,
           start: "top top",
-          end: "bottom bottom",
-          scrub: true,
+          end: "bottom top",
+          scrub: 0.8,
         },
       });
-    });
+
+      // ── Content parallax ─────────────────────────────────────────
+      // Text rises faster than the background + fades — layered depth.
+      gsap.to(contentRef.current, {
+        yPercent: -40,
+        opacity: 0,
+        ease: "none",
+        scrollTrigger: {
+          trigger: section,
+          start: "top top",
+          end: "60% top",   // fades out in the first 60% of the scroll
+          scrub: 0.8,
+        },
+      });
+    }, section);
 
     return () => ctx.revert();
   }, []);
 
   return (
-    <section className="relative w-full h-dvh overflow-hidden bg-black">
-
-      {/* Media layer — slightly oversized so the upward drift has room */}
-      <div ref={mediaRef} className="absolute inset-0 scale-[1.2] origin-center will-change-transform">
-        {/* LAYER 1: Static poster */}
+    <section
+      ref={sectionRef}
+      className="relative w-full h-dvh overflow-hidden bg-black"
+    >
+      {/* ── BACKGROUND — oversized so parallax drift has room ────── */}
+      <div
+        ref={mediaRef}
+        className="absolute inset-0 will-change-transform"
+        style={{ scale: "1.15", transformOrigin: "center center" }}
+      >
         <Image
           src="/images/new/home-slide-1.jpg"
           alt="Energica — Progress, Ridden."
@@ -61,13 +84,11 @@ export default function HeroSection() {
           sizes="100vw"
         />
 
-        {/* LAYER 2: Local video */}
         <video
           ref={videoRef}
           className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
             videoLoaded ? "opacity-100" : "opacity-0"
           }`}
-          style={{ willChange: "transform", transform: "translateZ(0)" }}
           src="/videos/energica-hero.mp4"
           autoPlay
           muted
@@ -77,7 +98,6 @@ export default function HeroSection() {
           onLoadedData={() => setVideoLoaded(true)}
         />
 
-        {/* LAYER 3: YouTube iframe fallback */}
         {!videoLoaded && (
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <iframe
@@ -98,14 +118,19 @@ export default function HeroSection() {
         )}
       </div>
 
-      {/* Gradient overlays */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/85 z-10" />
+      {/* ── GRADIENT ─────────────────────────────────────────────── */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80 z-10 pointer-events-none" />
 
-      {/* Text content */}
-      <div className="absolute bottom-0 left-0 right-0 z-20 pb-[max(4rem,env(safe-area-inset-bottom,0px)+2rem)] md:pb-20">
+      {/* ── CONTENT ──────────────────────────────────────────────── */}
+      <div
+        ref={contentRef}
+        className="absolute bottom-0 left-0 right-0 z-20 will-change-transform pb-[max(4rem,env(safe-area-inset-bottom,0px)+2rem)] md:pb-20"
+      >
         <div className="max-w-[1600px] mx-auto px-[clamp(24px,4vw,64px)]">
 
-          <span className="mono-tag mb-5 block">Modena, Italy · Est. 2009</span>
+          <span ref={tagRef} className="mono-tag mb-5 block">
+            Modena, Italy · Est. 2009
+          </span>
 
           <h1
             ref={h1Ref as React.RefObject<HTMLHeadingElement>}
@@ -114,8 +139,13 @@ export default function HeroSection() {
             {scrambleTrigger ? "PROGRESS,\nRIDDEN." : "·········\n·······"}
           </h1>
 
-          <p className="text-sm text-white/70 font-light tracking-wide mb-7 max-w-md" style={{ fontFamily: "var(--font-ibm-sans)" }}>
-            Born in Modena. Proven on the racetrack.{" "}<br className="hidden md:block" />Exclusive MotoE supplier. Four seasons.
+          <p
+            className="text-sm text-white/70 font-light tracking-wide mb-7 max-w-md"
+            style={{ fontFamily: "var(--font-ibm-sans)" }}
+          >
+            Born in Modena. Proven on the racetrack.{" "}
+            <br className="hidden md:block" />
+            Exclusive MotoE supplier. Four seasons.
           </p>
 
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
@@ -138,7 +168,7 @@ export default function HeroSection() {
         </div>
       </div>
 
-      {/* Scroll indicator */}
+      {/* ── SCROLL INDICATOR ─────────────────────────────────────── */}
       <div className="absolute bottom-8 right-8 md:right-12 lg:right-20 z-20 hidden sm:flex flex-col items-center gap-2">
         <div className="w-px h-12 bg-white/20 relative overflow-hidden">
           <div
@@ -154,7 +184,6 @@ export default function HeroSection() {
           Scroll
         </span>
       </div>
-
     </section>
   );
 }
