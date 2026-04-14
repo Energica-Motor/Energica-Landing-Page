@@ -4,8 +4,15 @@ import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useScramble } from "@/lib/use-scramble";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 export default function HeroSection() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const mediaRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoLoaded, setVideoLoaded] = useState(false);
   const [scrambleTrigger, setScrambleTrigger] = useState(false);
@@ -18,54 +25,97 @@ export default function HeroSection() {
     return () => clearTimeout(t);
   }, []);
 
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    const ctx = gsap.context(() => {
+      // Video zooms OUT as the section scrolls away.
+      // Starts at scale 1.35 (zoomed in), ends at scale 1.0 (natural).
+      // scrub: true = perfectly tied to scroll, fully bidirectional.
+      gsap.fromTo(
+        mediaRef.current,
+        { scale: 1.35 },
+        {
+          scale: 1.0,
+          ease: "none",
+          scrollTrigger: {
+            trigger: section,
+            start: "top top",
+            end: "bottom top",
+            scrub: true,
+          },
+        }
+      );
+
+      // Text gently rises and fades as section exits
+      gsap.to(contentRef.current, {
+        y: -50,
+        opacity: 0,
+        ease: "none",
+        scrollTrigger: {
+          trigger: section,
+          start: "top top",
+          end: "bottom top",
+          scrub: true,
+        },
+      });
+    }, section);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <section className="relative w-full h-dvh overflow-hidden bg-black">
+    <section ref={sectionRef} className="relative w-full h-dvh overflow-hidden bg-black">
 
-      <Image
-        src="/images/new/home-slide-1.jpg"
-        alt="Energica — Progress, Ridden."
-        fill
-        priority
-        className="object-cover object-center opacity-70"
-        sizes="100vw"
-      />
+      {/* Background — starts zoomed in, zooms out on scroll */}
+      <div ref={mediaRef} className="absolute inset-0 will-change-transform">
+        <Image
+          src="/images/new/home-slide-1.jpg"
+          alt="Energica — Progress, Ridden."
+          fill
+          priority
+          className="object-cover object-center opacity-70"
+          sizes="100vw"
+        />
 
-      <video
-        ref={videoRef}
-        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
-          videoLoaded ? "opacity-100" : "opacity-0"
-        }`}
-        src="/videos/energica-hero.mp4"
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="auto"
-        onLoadedData={() => setVideoLoaded(true)}
-      />
+        <video
+          ref={videoRef}
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
+            videoLoaded ? "opacity-100" : "opacity-0"
+          }`}
+          src="/videos/energica-hero.mp4"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          onLoadedData={() => setVideoLoaded(true)}
+        />
 
-      {!videoLoaded && (
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <iframe
-            style={{
-              position: "absolute",
-              width: "max(100%, calc(100dvh * 16 / 9))",
-              height: "max(100%, calc(100dvw * 9 / 16))",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              border: "none",
-            }}
-            src="https://www.youtube-nocookie.com/embed/vKfU7NPIEI4?autoplay=1&mute=1&loop=1&playlist=vKfU7NPIEI4&controls=0&showinfo=0&rel=0&start=12&modestbranding=1"
-            allow="autoplay; encrypted-media"
-            title="Energica"
-          />
-        </div>
-      )}
+        {!videoLoaded && (
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <iframe
+              style={{
+                position: "absolute",
+                width: "max(100%, calc(100dvh * 16 / 9))",
+                height: "max(100%, calc(100dvw * 9 / 16))",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                border: "none",
+              }}
+              src="https://www.youtube-nocookie.com/embed/vKfU7NPIEI4?autoplay=1&mute=1&loop=1&playlist=vKfU7NPIEI4&controls=0&showinfo=0&rel=0&start=12&modestbranding=1"
+              allow="autoplay; encrypted-media"
+              title="Energica"
+            />
+          </div>
+        )}
+      </div>
 
-      <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/85 z-10" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/85 z-10 pointer-events-none" />
 
-      <div className="absolute bottom-0 left-0 right-0 z-20 pb-[max(4rem,env(safe-area-inset-bottom,0px)+2rem)] md:pb-20">
+      <div ref={contentRef} className="absolute bottom-0 left-0 right-0 z-20 will-change-transform pb-[max(4rem,env(safe-area-inset-bottom,0px)+2rem)] md:pb-20">
         <div className="max-w-[1600px] mx-auto px-[clamp(24px,4vw,64px)]">
           <span className="mono-tag mb-5 block">Modena, Italy · Est. 2009</span>
           <h1
