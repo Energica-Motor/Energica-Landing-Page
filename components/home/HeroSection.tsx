@@ -4,9 +4,14 @@ import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useScramble } from "@/lib/use-scramble";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 export default function HeroSection() {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const mediaRef = useRef<HTMLDivElement>(null);
   const [videoLoaded, setVideoLoaded] = useState(false);
   const [scrambleTrigger, setScrambleTrigger] = useState(false);
 
@@ -20,54 +25,78 @@ export default function HeroSection() {
     return () => clearTimeout(t);
   }, []);
 
+  // Parallax: video drifts up as the wrapper scrolls, giving motion feedback
+  useEffect(() => {
+    const wrapper = document.querySelector("[data-hero-wrapper]");
+    if (!wrapper || !mediaRef.current) return;
+
+    const ctx = gsap.context(() => {
+      gsap.to(mediaRef.current, {
+        yPercent: -15, // drifts up 15% of its height — visible but subtle
+        ease: "none",
+        scrollTrigger: {
+          trigger: wrapper,
+          start: "top top",
+          end: "bottom bottom",
+          scrub: true,
+        },
+      });
+    });
+
+    return () => ctx.revert();
+  }, []);
+
   return (
     <section className="relative w-full h-dvh overflow-hidden bg-black">
 
-      {/* LAYER 1: Static poster */}
-      <Image
-        src="/images/new/home-slide-1.jpg"
-        alt="Energica — Progress, Ridden."
-        fill
-        priority
-        className="object-cover object-center opacity-70"
-        sizes="100vw"
-      />
+      {/* Media layer — slightly oversized so the upward drift has room */}
+      <div ref={mediaRef} className="absolute inset-0 scale-[1.2] origin-center will-change-transform">
+        {/* LAYER 1: Static poster */}
+        <Image
+          src="/images/new/home-slide-1.jpg"
+          alt="Energica — Progress, Ridden."
+          fill
+          priority
+          className="object-cover object-center opacity-70"
+          sizes="100vw"
+        />
 
-      {/* LAYER 2: Local video */}
-      <video
-        ref={videoRef}
-        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
-          videoLoaded ? "opacity-100" : "opacity-0"
-        }`}
-        style={{ willChange: "transform", transform: "translateZ(0)" }}
-        src="/videos/energica-hero.mp4"
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="auto"
-        onLoadedData={() => setVideoLoaded(true)}
-      />
+        {/* LAYER 2: Local video */}
+        <video
+          ref={videoRef}
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
+            videoLoaded ? "opacity-100" : "opacity-0"
+          }`}
+          style={{ willChange: "transform", transform: "translateZ(0)" }}
+          src="/videos/energica-hero.mp4"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          onLoadedData={() => setVideoLoaded(true)}
+        />
 
-      {/* LAYER 3: YouTube iframe fallback */}
-      {!videoLoaded && (
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <iframe
-            style={{
-              position: "absolute",
-              width: "max(100%, calc(100dvh * 16 / 9))",
-              height: "max(100%, calc(100dvw * 9 / 16))",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              border: "none",
-            }}
-            src="https://www.youtube-nocookie.com/embed/vKfU7NPIEI4?autoplay=1&mute=1&loop=1&playlist=vKfU7NPIEI4&controls=0&showinfo=0&rel=0&start=12&modestbranding=1"
-            allow="autoplay; encrypted-media"
-            title="Energica"
-          />
-        </div>
-      )}
+        {/* LAYER 3: YouTube iframe fallback */}
+        {!videoLoaded && (
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <iframe
+              style={{
+                position: "absolute",
+                width: "max(100%, calc(100dvh * 16 / 9))",
+                height: "max(100%, calc(100dvw * 9 / 16))",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                border: "none",
+              }}
+              src="https://www.youtube-nocookie.com/embed/vKfU7NPIEI4?autoplay=1&mute=1&loop=1&playlist=vKfU7NPIEI4&controls=0&showinfo=0&rel=0&start=12&modestbranding=1"
+              allow="autoplay; encrypted-media"
+              title="Energica"
+            />
+          </div>
+        )}
+      </div>
 
       {/* Gradient overlays */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/85 z-10" />
