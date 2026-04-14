@@ -31,31 +31,30 @@ export default function HeroSection() {
     const section = sectionRef.current;
     if (!section) return;
 
+    const wrapper = document.querySelector("[data-hero-wrapper]") ?? section;
+
     const ctx = gsap.context(() => {
-      // ── Background parallax ──────────────────────────────────────
-      // Background moves at ~40% of scroll speed — creates depth.
-      // Scale 1.15 so the top/bottom edges don't show as it drifts.
+      // ── Background parallax across full 300vh wrapper ────────────
       gsap.to(mediaRef.current, {
         yPercent: 25,
         ease: "none",
         scrollTrigger: {
-          trigger: section,
+          trigger: wrapper,
           start: "top top",
-          end: "bottom top",
+          end: "bottom bottom",
           scrub: 0.8,
         },
       });
 
-      // ── Content parallax ─────────────────────────────────────────
-      // Text rises faster than the background + fades — layered depth.
+      // ── Text fades out over first third of the scroll ────────────
       gsap.to(contentRef.current, {
-        yPercent: -40,
+        yPercent: -30,
         opacity: 0,
         ease: "none",
         scrollTrigger: {
-          trigger: section,
+          trigger: wrapper,
           start: "top top",
-          end: "60% top",   // fades out in the first 60% of the scroll
+          end: "33% bottom",
           scrub: 0.8,
         },
       });
