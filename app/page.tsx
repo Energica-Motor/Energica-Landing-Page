@@ -7,7 +7,11 @@ import RacingMoment from "@/components/home/RacingMoment";
 export default function HomePage() {
   return (
     <main className="bg-[#0A0A0A]">
-      <HeroSection />
+      <div data-hero-wrapper className="relative h-[200vh]">
+        <div className="sticky top-0 h-dvh overflow-hidden">
+          <HeroSection />
+        </div>
+      </div>
       <BikeShowcase />
       <TechStrip />
       <RacingMoment />

@@ -29,35 +29,36 @@ export default function HeroSection() {
     const section = sectionRef.current;
     if (!section) return;
 
+    const wrapper = document.querySelector("[data-hero-wrapper]") ?? section;
+
     const ctx = gsap.context(() => {
-      // Video zooms OUT as the section scrolls away.
-      // Starts at scale 1.35 (zoomed in), ends at scale 1.0 (natural).
-      // scrub: true = perfectly tied to scroll, fully bidirectional.
+      // Zoom out plays across the full 200vh wrapper — always moving,
+      // never frozen. Scale 1.4 → 1.0 gives a clear cinematic pull-back.
       gsap.fromTo(
         mediaRef.current,
-        { scale: 1.35 },
+        { scale: 1.4 },
         {
           scale: 1.0,
           ease: "none",
           scrollTrigger: {
-            trigger: section,
+            trigger: wrapper,
             start: "top top",
-            end: "bottom top",
-            scrub: true,
+            end: "bottom bottom",
+            scrub: 1,
           },
         }
       );
 
-      // Text gently rises and fades as section exits
+      // Text fades in the first half of the scroll
       gsap.to(contentRef.current, {
-        y: -50,
+        y: -60,
         opacity: 0,
         ease: "none",
         scrollTrigger: {
-          trigger: section,
+          trigger: wrapper,
           start: "top top",
-          end: "bottom top",
-          scrub: true,
+          end: "50% bottom",
+          scrub: 1,
         },
       });
     }, section);
