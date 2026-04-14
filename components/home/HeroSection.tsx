@@ -4,9 +4,18 @@ import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useScramble } from "@/lib/use-scramble";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 export default function HeroSection() {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  const mediaRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
+
   const [videoLoaded, setVideoLoaded] = useState(false);
   const [scrambleTrigger, setScrambleTrigger] = useState(false);
 
@@ -16,75 +25,108 @@ export default function HeroSection() {
     if (videoRef.current) {
       videoRef.current.play().catch(() => {});
     }
-    // Trigger scramble after 700ms
     const t = setTimeout(() => setScrambleTrigger(true), 700);
     return () => clearTimeout(t);
   }, []);
 
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      // Trigger on the tall wrapper div, not the sticky section itself.
+      // The wrapper is h-[250vh] so scroll distance = 1.5 × viewport.
+      const wrapper = document.querySelector("[data-hero-wrapper]");
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: wrapper,
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 1.2,
+        },
+      });
+
+      // 1. Slowly zoom the video/image in
+      tl.to(mediaRef.current, {
+        scale: 1.12,
+        ease: "none",
+      }, 0);
+
+      // 2. Darken the overlay so the content fade looks cinematic
+      tl.to(overlayRef.current, {
+        opacity: 1,
+        ease: "none",
+      }, 0);
+
+      // 3. Fade + lift the text content out in the second half of the scroll
+      tl.to(contentRef.current, {
+        y: -60,
+        opacity: 0,
+        ease: "power2.in",
+      }, 0.4); // start at 40% through the scroll range
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
-    /* h-dvh = 100dvh — always equals the VISIBLE viewport on mobile (address bar aware).
-       Fixes the classic iOS 100vh bug where h-screen is too tall. */
-    <section className="relative w-full h-dvh overflow-hidden bg-black">
+    <section ref={sectionRef} className="relative w-full h-dvh overflow-hidden bg-black">
 
-      {/* ── LAYER 1: Static poster — always visible, guarantees a background
-           when video is loading, blocked, or not deployed. ───────────────── */}
-      <Image
-        src="/images/new/home-slide-1.jpg"
-        alt="Energica — Progress, Ridden."
-        fill
-        priority
-        className="object-cover object-center opacity-70"
-        sizes="100vw"
-      />
+      {/* Media wrapper — this is what scales */}
+      <div ref={mediaRef} className="absolute inset-0 will-change-transform">
+        {/* LAYER 1: Static poster */}
+        <Image
+          src="/images/new/home-slide-1.jpg"
+          alt="Energica — Progress, Ridden."
+          fill
+          priority
+          className="object-cover object-center opacity-70"
+          sizes="100vw"
+        />
 
-      {/* ── LAYER 2: Local video — overlays poster once loaded ────────────── */}
-      <video
-        ref={videoRef}
-        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
-          videoLoaded ? "opacity-100" : "opacity-0"
-        }`}
-        style={{ willChange: "transform", transform: "translateZ(0)" }}
-        src="/videos/energica-hero.mp4"
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="auto"
-        onLoadedData={() => setVideoLoaded(true)}
-      />
+        {/* LAYER 2: Local video */}
+        <video
+          ref={videoRef}
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
+            videoLoaded ? "opacity-100" : "opacity-0"
+          }`}
+          style={{ willChange: "transform", transform: "translateZ(0)" }}
+          src="/videos/energica-hero.mp4"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          onLoadedData={() => setVideoLoaded(true)}
+        />
 
-      {/* ── LAYER 3: YouTube iframe — portrait-safe object-cover sizing.
-           Only shown while local video is unavailable.
-           Uses CSS max() so the 16:9 video always covers the viewport,
-           whether in portrait or landscape orientation. ─────────────────── */}
-      {!videoLoaded && (
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <iframe
-            style={{
-              position: "absolute",
-              /* These formulas ensure the 16:9 video covers the full viewport:
-                 - Portrait: width = 100vh × 16/9 (wider than vw, covers horizontally)
-                 - Landscape: height = 100vw × 9/16 (taller than vh, covers vertically)
-                 max() picks whichever dimension needs to grow to achieve coverage. */
-              width: "max(100%, calc(100dvh * 16 / 9))",
-              height: "max(100%, calc(100dvw * 9 / 16))",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              border: "none",
-            }}
-            src="https://www.youtube-nocookie.com/embed/vKfU7NPIEI4?autoplay=1&mute=1&loop=1&playlist=vKfU7NPIEI4&controls=0&showinfo=0&rel=0&start=12&modestbranding=1"
-            allow="autoplay; encrypted-media"
-            title="Energica"
-          />
-        </div>
-      )}
+        {/* LAYER 3: YouTube iframe fallback */}
+        {!videoLoaded && (
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <iframe
+              style={{
+                position: "absolute",
+                width: "max(100%, calc(100dvh * 16 / 9))",
+                height: "max(100%, calc(100dvw * 9 / 16))",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                border: "none",
+              }}
+              src="https://www.youtube-nocookie.com/embed/vKfU7NPIEI4?autoplay=1&mute=1&loop=1&playlist=vKfU7NPIEI4&controls=0&showinfo=0&rel=0&start=12&modestbranding=1"
+              allow="autoplay; encrypted-media"
+              title="Energica"
+            />
+          </div>
+        )}
+      </div>
 
-      {/* ── GRADIENT OVERLAYS ────────────────────────────────────────────── */}
+      {/* Gradient overlays */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/85 z-10" />
 
-      {/* ── TEXT — bottom left, safe-area aware on notched phones ────────── */}
-      <div className="absolute bottom-0 left-0 right-0 z-20 pb-[max(4rem,env(safe-area-inset-bottom,0px)+2rem)] md:pb-20">
+      {/* Scroll-driven dark overlay — starts transparent, deepens as user scrolls */}
+      <div ref={overlayRef} className="absolute inset-0 bg-black z-10 opacity-0" />
+
+      {/* Text content */}
+      <div ref={contentRef} className="absolute bottom-0 left-0 right-0 z-20 pb-[max(4rem,env(safe-area-inset-bottom,0px)+2rem)] md:pb-20">
         <div className="max-w-[1600px] mx-auto px-[clamp(24px,4vw,64px)]">
 
           <span className="mono-tag mb-5 block">Modena, Italy · Est. 2009</span>
@@ -120,7 +162,7 @@ export default function HeroSection() {
         </div>
       </div>
 
-      {/* ── SCROLL INDICATOR — desktop/tablet only ───────────────────────── */}
+      {/* Scroll indicator */}
       <div className="absolute bottom-8 right-8 md:right-12 lg:right-20 z-20 hidden sm:flex flex-col items-center gap-2">
         <div className="w-px h-12 bg-white/20 relative overflow-hidden">
           <div
