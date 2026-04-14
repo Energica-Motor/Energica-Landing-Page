@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Energica — Brand Voice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green:   #78BE20;
+    --green-d: #5a9118;
+    --black:   #0a0a0a;
+    --bg:      #111111;
+    --surface: #181818;
+    --border:  rgba(255,255,255,0.07);
+    --text:    #e8e8e8;
+    --muted:   rgba(232,232,232,0.4);
+    --mono:    'IBM Plex Mono', monospace;
+    --sans:    'IBM Plex Sans', sans-serif;
+    --cond:    'Barlow Condensed', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+
+  body {
+    background: var(--black);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── NAV ── */
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 40px;
+    border-bottom: 1px solid var(--border);
+  }
+  nav img { height: 28px; opacity: 0.9; }
+  .nav-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 72px 40px 56px;
+    border-bottom: 1px solid var(--border);
+    max-width: 900px;
+  }
+  .hero-eyebrow {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--green);
+    margin-bottom: 20px;
+  }
+  .hero h1 {
+    font-family: var(--cond);
+    font-size: clamp(40px, 6vw, 72px);
+    font-weight: 700;
+    line-height: 0.95;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+  }
+  .hero h1 em {
+    font-style: italic;
+    color: var(--green);
+  }
+  .hero-sub {
+    margin-top: 20px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--muted);
+    max-width: 560px;
+    font-weight: 300;
+  }
+
+  /* ── STEPS ── */
+  .steps {
+    display: flex;
+    gap: 0;
+    padding: 0 40px;
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+  }
+  .step {
+    padding: 18px 24px 18px 0;
+    margin-right: 32px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    white-space: nowrap;
+    letter-spacing: 0.04em;
+  }
+  .step span {
+    color: var(--green);
+    margin-right: 8px;
+    font-weight: 500;
+  }
+
+  /* ── TOOL ── */
+  .tool {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    flex: 1;
+    min-height: 0;
+  }
+  @media (max-width: 768px) {
+    .tool { grid-template-columns: 1fr; }
+    nav, .hero, .steps { padding-left: 20px; padding-right: 20px; }
+  }
+
+  /* ── PANEL ── */
+  .panel {
+    padding: 32px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    border-right: 1px solid var(--border);
+  }
+  .panel:last-child { border-right: none; }
+  @media (max-width: 768px) {
+    .panel { padding: 24px 20px; border-right: none; border-bottom: 1px solid var(--border); }
+  }
+
+  .panel-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .panel-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── CHIPS ── */
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .chip {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 5px 10px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.15s;
+  }
+  .chip:hover { border-color: rgba(120,190,32,0.3); color: var(--text); }
+  .chip.on {
+    background: rgba(120,190,32,0.12);
+    border-color: var(--green);
+    color: var(--green);
+  }
+
+  /* ── TEXTAREA ── */
+  .input-wrap { flex: 1; position: relative; min-height: 200px; }
+  textarea {
+    width: 100%;
+    height: 100%;
+    min-height: 200px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.7;
+    font-weight: 300;
+    padding: 16px;
+    resize: none;
+    outline: none;
+    border-radius: 2px;
+    transition: border-color 0.15s;
+  }
+  textarea:focus { border-color: rgba(120,190,32,0.4); }
+  textarea::placeholder { color: var(--muted); }
+
+  .char-count {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    text-align: right;
+    letter-spacing: 0.06em;
+  }
+
+  /* ── BUTTON ── */
+  .review-btn {
+    font-family: var(--cond);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 13px 28px;
+    background: var(--green);
+    color: #000;
+    border: none;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: background 0.15s, opacity 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    align-self: flex-start;
+  }
+  .review-btn:hover:not(:disabled) { background: var(--green-d); }
+  .review-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  .review-btn.loading { opacity: 0.6; cursor: wait; }
+
+  .shortcut {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    opacity: 0.6;
+    background: rgba(0,0,0,0.25);
+    padding: 2px 5px;
+    border-radius: 2px;
+  }
+
+  /* ── PROGRESS ── */
+  .progress-track {
+    height: 1px;
+    background: var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%;
+    background: var(--green);
+    width: 0%;
+    transition: width 0.4s ease;
+  }
+
+  /* ── OUTPUT ── */
+  .output-wrap {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 16px;
+    min-height: 200px;
+    border-radius: 2px;
+    position: relative;
+  }
+  #out {
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.7;
+    font-weight: 300;
+    white-space: pre-wrap;
+    color: var(--text);
+    min-height: 1em;
+  }
+  #out.empty::after {
+    content: 'Your revised copy will appear here.';
+    color: var(--muted);
+    font-style: italic;
+  }
+  #out.error { color: rgba(255,80,80,0.75); }
+
+  .copy-btn {
+    display: none;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 7px 14px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.15s;
+    align-self: flex-start;
+  }
+  .copy-btn:hover { border-color: var(--green); color: var(--green); }
+  .copy-btn.copied { border-color: var(--green); color: var(--green); }
+
+  /* ── HOW IT WORKS ── */
+  .info-section {
+    padding: 64px 40px;
+    border-top: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 64px;
+  }
+  @media (max-width: 768px) {
+    .info-section { grid-template-columns: 1fr; gap: 40px; padding: 40px 20px; }
+  }
+
+  .info-block h2 {
+    font-family: var(--cond);
+    font-size: 22px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 28px;
+    color: var(--text);
+  }
+  .info-item {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .info-num {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--green);
+    letter-spacing: 0.08em;
+    padding-top: 2px;
+    flex-shrink: 0;
+    width: 20px;
+  }
+  .info-text { font-size: 13px; line-height: 1.6; color: var(--muted); font-weight: 300; }
+
+  .who-item {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .who-item:last-child { border-bottom: none; margin-bottom: 0; }
+  .who-mark { color: var(--green); font-size: 12px; flex-shrink: 0; padding-top: 1px; }
+  .who-text { font-size: 13px; line-height: 1.5; }
+  .who-text strong { display: block; font-weight: 500; margin-bottom: 3px; color: var(--text); font-size: 12px; letter-spacing: 0.03em; }
+  .who-text span { color: var(--muted); font-weight: 300; font-size: 12px; }
+
+  /* ── FOOTER ── */
+  footer {
+    padding: 20px 40px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .footer-text {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+  @media (max-width: 768px) { footer { padding: 20px; } }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--surface);
+    border: 1px solid var(--green);
+    color: var(--green);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    padding: 10px 18px;
+    border-radius: 2px;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.2s, transform 0.2s;
+    pointer-events: none;
+    z-index: 100;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<nav>
+  <img src="https://energicamotor.com/images/Logo/energica-logo-horizontal.webp" alt="Energica">
+  <span class="nav-label">Brand Voice Tool</span>
+</nav>
+
+<div class="hero">
+  <div class="hero-eyebrow">Communications Review System</div>
+  <h1>Write it right.<em>Every time.</em></h1>
+  <p class="hero-sub">For Energica partners, vendors, and internal teams. Paste your draft — press release, product description, social post, event copy, or email — and receive a brand-aligned revision.</p>
+</div>
+
+<div class="steps">
+  <div class="step"><span>01</span>Paste draft</div>
+  <div class="step"><span>02</span>Select context</div>
+  <div class="step"><span>03</span>Receive revision</div>
+  <div class="step"><span>04</span>Copy &amp; deploy</div>
+</div>
+
+<div class="tool">
+  <!-- INPUT PANEL -->
+  <div class="panel">
+    <div class="panel-label">01 — Your Draft</div>
+
+    <div class="chips">
+      <button class="chip on" data-ctx="general">General</button>
+      <button class="chip" data-ctx="press">Press</button>
+      <button class="chip" data-ctx="social">Social</button>
+      <button class="chip" data-ctx="product">Product</button>
+      <button class="chip" data-ctx="email">Email</button>
+      <button class="chip" data-ctx="event">Event</button>
+      <button class="chip" data-ctx="dealer">Dealer</button>
+    </div>
+
+    <div class="input-wrap">
+      <textarea id="inp" maxlength="4000" placeholder="Paste any copy — tagline, caption, press quote, product description, event copy, email, or any written format Energica communications touch."></textarea>
+    </div>
+
+    <div class="char-count"><span id="cnt">0</span> / 4,000</div>
+
+    <button class="review-btn" id="reviewBtn" disabled>
+      Review Copy
+      <span class="shortcut">⌘ Enter</span>
+    </button>
+  </div>
+
+  <!-- OUTPUT PANEL -->
+  <div class="panel">
+    <div class="panel-label">02 — Revised Copy</div>
+    <div class="progress-track"><div class="progress-bar" id="pb"></div></div>
+    <div class="output-wrap">
+      <div id="out" class="empty"></div>
+    </div>
+    <button class="copy-btn" id="copyBtn">Copy to clipboard</button>
+  </div>
+</div>
+
+<div class="info-section">
+  <div class="info-block">
+    <h2>How it works</h2>
+    <div class="info-item">
+      <div class="info-num">01</div>
+      <div class="info-text">Any format. Headlines, captions, press quotes, product descriptions, event copy, email subject lines — any written format Energica communications touch.</div>
+    </div>
+    <div class="info-item">
+      <div class="info-num">02</div>
+      <div class="info-text">Instant revision. Returns a revised version of your copy — not a score, not a report. Ready to use. Structure and intent preserved. Voice corrected.</div>
+    </div>
+    <div class="info-item">
+      <div class="info-num">03</div>
+      <div class="info-text">No learning curve. The brand guidelines are built in. Write naturally, submit, use the output. The tool does not explain itself.</div>
+    </div>
+  </div>
+
+  <div class="info-block">
+    <h2>Who this is for</h2>
+    <div class="who-item">
+      <div class="who-mark">◈</div>
+      <div class="who-text"><strong>Dealerships & Distributors</strong><span>Localize global campaigns without drifting from brand voice.</span></div>
+    </div>
+    <div class="who-item">
+      <div class="who-mark">◈</div>
+      <div class="who-text"><strong>Press & Media Partners</strong><span>Verify co-authored materials and quotes align with Energica standards.</span></div>
+    </div>
+    <div class="who-item">
+      <div class="who-mark">◈</div>
+      <div class="who-text"><strong>Internal Marketing Teams</strong><span>First draft fast, brand-checked instantly.</span></div>
+    </div>
+    <div class="who-item">
+      <div class="who-mark">◈</div>
+      <div class="who-text"><strong>Event & Sponsorship Agencies</strong><span>Align all event materials before production.</span></div>
+    </div>
+    <div class="who-item">
+      <div class="who-mark">◈</div>
+      <div class="who-text"><strong>Vendors & Suppliers</strong><span>Product listings, technical descriptions, packaging copy.</span></div>
+    </div>
+    <div class="who-item">
+      <div class="who-mark">◈</div>
+      <div class="who-text"><strong>Translation & Localization</strong><span>Back-translate and check alignment before multilingual sign-off.</span></div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <span class="footer-text">Energica Motor Company S.p.A. — Modena, Italy</span>
+  <span class="footer-text">Internal Brand Compliance — Not for public distribution</span>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── STATE ──────────────────────────────────────────────────────────────────
+let ctx = 'general';
+let loading = false;
+let result = '';
+
+// ── CHIPS ──────────────────────────────────────────────────────────────────
+document.querySelectorAll('.chip').forEach(c => {
+  c.addEventListener('click', () => {
+    document.querySelectorAll('.chip').forEach(x => x.classList.remove('on'));
+    c.classList.add('on');
+    ctx = c.dataset.ctx;
+  });
+});
+
+// ── INPUT ──────────────────────────────────────────────────────────────────
+const inp = document.getElementById('inp');
+const cntEl = document.getElementById('cnt');
+const btn = document.getElementById('reviewBtn');
+
+inp.addEventListener('input', () => {
+  const n = inp.value.length;
+  cntEl.textContent = n.toLocaleString();
+  btn.disabled = n < 2 || loading;
+});
+
+inp.addEventListener('keydown', e => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter' && !btn.disabled) btn.click();
+});
+
+// ── TOAST ──────────────────────────────────────────────────────────────────
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── REVIEW ─────────────────────────────────────────────────────────────────
+btn.addEventListener('click', async () => {
+  if (loading || inp.value.trim().length < 2) return;
+
+  loading = true;
+  btn.disabled = true;
+  btn.classList.add('loading');
+
+  const out = document.getElementById('out');
+  const copyBtn = document.getElementById('copyBtn');
+  const pb = document.getElementById('pb');
+
+  out.textContent = '';
+  out.classList.remove('empty', 'error');
+  copyBtn.style.display = 'none';
+  result = '';
+
+  pb.style.transition = 'width 0.4s ease';
+  pb.style.width = '12%';
+  const t1 = setTimeout(() => pb.style.width = '38%', 250);
+  const t2 = setTimeout(() => pb.style.width = '65%', 700);
+
+  try {
+    const response = await fetch('/api/review', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ copy: inp.value.trim(), context: ctx }),
+    });
+
+    clearTimeout(t1); clearTimeout(t2);
+    pb.style.width = '90%';
+
+    const data = await response.json();
+
+    if (!response.ok || data.error) {
+      throw new Error(data.error || `HTTP ${response.status}`);
+    }
+
+    const text = data.result || '[No copy to review.]';
+    result = text;
+
+    // Typewriter
+    let i = 0;
+    const speed = Math.max(4, Math.min(18, Math.floor(1800 / text.length)));
+    const type = () => {
+      if (i < text.length) {
+        out.textContent += text[i++];
+        setTimeout(type, speed);
+      } else {
+        copyBtn.style.display = 'inline-block';
+        copyBtn.classList.remove('copied');
+        copyBtn.textContent = 'Copy to clipboard';
+      }
+    };
+    type();
+
+    pb.style.width = '100%';
+    setTimeout(() => {
+      pb.style.transition = 'none';
+      pb.style.width = '0%';
+      setTimeout(() => pb.style.transition = 'width 0.4s ease', 50);
+    }, 500);
+
+  } catch (err) {
+    clearTimeout(t1); clearTimeout(t2);
+    pb.style.width = '0%';
+    out.classList.add('error');
+    out.textContent = err.message || 'Connection error. Please try again.';
+  } finally {
+    loading = false;
+    btn.disabled = inp.value.trim().length < 2;
+    btn.classList.remove('loading');
+  }
+});
+
+// ── COPY ───────────────────────────────────────────────────────────────────
+document.getElementById('copyBtn').addEventListener('click', () => {
+  if (!result) return;
+  navigator.clipboard.writeText(result).then(() => {
+    const b = document.getElementById('copyBtn');
+    b.textContent = 'Copied';
+    b.classList.add('copied');
+    toast('Copied to clipboard');
+    setTimeout(() => {
+      b.textContent = 'Copy to clipboard';
+      b.classList.remove('copied');
+    }, 2000);
+  });
+});
+</script>
+</body>
+</html>
