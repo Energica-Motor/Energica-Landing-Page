@@ -26,15 +26,36 @@ export default function ContactPage() {
             {/* Contact details */}
             <div className="space-y-6 border-t border-white/10 pt-10">
               <div>
-                <p className="text-[11px] tracking-[0.3em] text-white/40 uppercase mb-1" style={{ fontFamily: "var(--font-ibm-mono)" }}>Email</p>
-                <p className="text-white/80 text-sm" style={{ fontFamily: "var(--font-ibm-sans)" }}>info@energicamotor.com</p>
+                <p className="text-[11px] tracking-[0.3em] text-white/40 uppercase mb-2" style={{ fontFamily: "var(--font-ibm-mono)" }}>Email</p>
+                <div className="space-y-1" style={{ fontFamily: "var(--font-ibm-sans)" }}>
+                  <p className="text-white/80 text-sm">info@energicamotor.com</p>
+                  <p className="text-white/80 text-sm">service-eu@energicamotor.com</p>
+                  <p className="text-white/80 text-sm">sales@energicamotor.com</p>
+                </div>
               </div>
               <div>
-                <p className="text-[11px] tracking-[0.3em] text-white/40 uppercase mb-1" style={{ fontFamily: "var(--font-ibm-mono)" }}>Headquarters</p>
-                <p className="text-white/80 text-sm leading-relaxed" style={{ fontFamily: "var(--font-ibm-sans)" }}>
-                  Via Cesare Pavese 2/5<br />
-                  41126 Modena, Italy
-                </p>
+                <p className="text-[11px] tracking-[0.3em] text-white/40 uppercase mb-2" style={{ fontFamily: "var(--font-ibm-mono)" }}>Headquarters</p>
+                <div className="space-y-3" style={{ fontFamily: "var(--font-ibm-sans)" }}>
+                  <div>
+                    <p className="text-[10px] tracking-[0.2em] text-white/35 uppercase mb-0.5" style={{ fontFamily: "var(--font-ibm-mono)" }}>HQ</p>
+                    <p className="text-white/80 text-sm leading-relaxed">
+                      37 Via dell&apos;Artigianato<br />
+                      41042 Fiorano (MO), Italy
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] tracking-[0.2em] text-white/35 uppercase mb-0.5" style={{ fontFamily: "var(--font-ibm-mono)" }}>Corporate</p>
+                    <p className="text-white/80 text-sm leading-relaxed">
+                      10 Anson Road, 33-10C<br />
+                      International Plaza<br />
+                      079903 Singapore
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] tracking-[0.2em] text-white/35 uppercase mb-0.5" style={{ fontFamily: "var(--font-ibm-mono)" }}>USA</p>
+                    <p className="text-white/80 text-sm">San Francisco</p>
+                  </div>
+                </div>
               </div>
               <div>
                 <p className="text-[11px] tracking-[0.3em] text-white/40 uppercase mb-1" style={{ fontFamily: "var(--font-ibm-mono)" }}>Response time</p>
