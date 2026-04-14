@@ -75,6 +75,11 @@ export default function Footer() {
               />
             </Link>
 
+            {/* Official label */}
+            <p className="text-[10px] uppercase tracking-[0.2em] text-white/35 mb-4">
+              Energica Official
+            </p>
+
             {/* Tagline */}
             <p className="text-[11px] uppercase tracking-[0.25em] text-[#78BE20]/85 mb-3">
               Progress, Ridden.
@@ -82,6 +87,15 @@ export default function Footer() {
             <p className="text-sm text-white/60 leading-relaxed max-w-xs">
               The world&rsquo;s most advanced electric motorcycles, engineered in Modena, Italy since 2009.
             </p>
+
+            {/* Locations */}
+            <div className="flex flex-wrap gap-x-4 gap-y-1 mt-5">
+              {["Singapore", "Modena — Italy", "San Francisco — USA"].map((loc) => (
+                <span key={loc} className="text-[10px] text-white/35 tracking-[0.08em]" style={{ fontFamily: "var(--font-ibm-mono)" }}>
+                  {loc}
+                </span>
+              ))}
+            </div>
 
             {/* Social icons */}
             <div className="flex gap-2 mt-6">
