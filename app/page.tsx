@@ -7,7 +7,13 @@ import RacingMoment from "@/components/home/RacingMoment";
 export default function HomePage() {
   return (
     <main className="bg-[#0A0A0A]">
-      <HeroSection />
+      {/* Tall wrapper keeps the hero pinned for ~1.5× viewport of scroll
+          before the BikeShowcase scrolls into view. */}
+      <div className="relative h-[250vh]">
+        <div className="sticky top-0 h-screen">
+          <HeroSection />
+        </div>
+      </div>
       <BikeShowcase />
       <TechStrip />
       <RacingMoment />
