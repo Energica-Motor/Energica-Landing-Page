@@ -37,7 +37,6 @@ export default function ContactPage() {
                 <p className="text-[11px] tracking-[0.3em] text-white/40 uppercase mb-2" style={{ fontFamily: "var(--font-ibm-mono)" }}>Headquarters</p>
                 <div className="space-y-3" style={{ fontFamily: "var(--font-ibm-sans)" }}>
                   <div>
-                    <p className="text-[10px] tracking-[0.2em] text-white/35 uppercase mb-0.5" style={{ fontFamily: "var(--font-ibm-mono)" }}>HQ</p>
                     <p className="text-white/80 text-sm leading-relaxed">
                       37 Via dell&apos;Artigianato<br />
                       41042 Fiorano (MO), Italy
@@ -56,10 +55,6 @@ export default function ContactPage() {
                     <p className="text-white/80 text-sm">San Francisco</p>
                   </div>
                 </div>
-              </div>
-              <div>
-                <p className="text-[11px] tracking-[0.3em] text-white/40 uppercase mb-1" style={{ fontFamily: "var(--font-ibm-mono)" }}>Response time</p>
-                <p className="text-white/80 text-sm" style={{ fontFamily: "var(--font-ibm-sans)" }}>Within 24 hours</p>
               </div>
             </div>
           </div>
