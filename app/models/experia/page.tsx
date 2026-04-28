@@ -1,4 +1,5 @@
 import { getModelById, models } from "@/data/models";
+import ModelSchema from "@/components/seo/ModelSchema";
 import ModelHero from "@/components/models/ModelHero";
 import SpecsBar from "@/components/models/SpecsBar";
 import StorySection from "@/components/models/StorySection";
@@ -23,6 +24,13 @@ export default function ExperiaPage() {
 
   return (
     <main className="bg-[#0a0a0a]">
+      <ModelSchema
+        name="Experia"
+        description="Europe's first electric touring motorcycle. 22.5 kWh battery, 420 km city range, 102 HP, CCS DC fast charging. Made in Modena, Italy."
+        image="/images/Pagina%20Experia/EXPERIA_Bormio%20Ice.webp"
+        url="/models/experia"
+        specs={{ power: "Peak 75 kW / 102 HP", torque: "115 Nm (900 Nm at wheel)", topSpeed: "180 km/h", range: "420 km city / 256 km combined" }}
+      />
       {/* § 1 — Hero */}
       <ModelHero model={model} />
 

@@ -1,0 +1,81 @@
+# Energica Motor Company
+
+> Italian electric motorcycle manufacturer. Founded 2009, Modena, Italy. Exclusive MotoE supplier for 4 seasons. Tagline: Progress, Ridden.
+
+## About
+
+Energica Motor Company S.p.A. designs and manufactures high-performance electric motorcycles in Modena, Italy — the same Motor Valley that produced Ferrari, Lamborghini, and Ducati. From 2019 to 2022, Energica was the exclusive motorcycle supplier to the FIM Enel MotoE World Cup, the electric class of MotoGP. Every technology developed on the race grid transfers directly to the road lineup.
+
+Energica is part of Ideanomics. Headquarters in Fiorano Modenese (MO), Italy. Corporate office in Singapore. US presence in San Francisco.
+
+## Motorcycles
+
+### Energica Experia
+- Type: Electric touring / adventure tourer
+- Battery: 22.5 kWh (largest of any production electric motorcycle)
+- Range: Up to 420 km city / 256 km combined
+- Power: Peak 75 kW / 102 HP
+- Torque: 115 Nm (900 Nm at wheel)
+- Top speed: 180 km/h (limited)
+- Fast charge: DC Level 3 CCS
+- Tagline: Further, quieter, faster.
+
+### Energica EsseEsse9 (SS9)
+- Type: Naked / streetfighter
+- Battery: 21.5 kWh
+- Power: Peak 80 kW / 107 HP
+- Torque: 207 Nm at wheel (instant, 0 rpm)
+- 0–100 km/h: under 3.5 seconds
+- Top speed: 180 km/h (limited)
+- Tagline: Naked. No apologies.
+
+### Energica Eva Ribelle
+- Type: Naked / urban performance
+- Motor architecture: EMCE (same as MotoE race machines)
+- Tagline: Rebel by design.
+
+### Energica Ego+
+- Type: Sport / superbike
+- The original Energica model. Track-derived geometry.
+- Tagline: Born on the track.
+
+## Technology
+
+- EMCE motor: Energica's proprietary permanent magnet AC motor
+- Liquid-cooled motor and battery
+- Onboard 3 kW AC charger (SAE J1772 / IEC 62196-2 compatible)
+- DC fast charge (CCS / CHAdeMO) standard across all models
+- Regenerative braking with adjustable maps
+- Riding modes, traction control, ABS, cruise control standard
+- Over-the-air software updates
+
+## Racing
+
+- Exclusive MotoE World Cup supplier: 2019, 2020, 2021, 2022
+- All 18 MotoE teams ran identical Energica Ego Corsa machines
+- Race technology transfer: motor architecture, battery management, thermal management
+
+## Cultural Presence
+
+- Featured in Jordan Peele's film Nope (2022)
+- Featured in GI Joe: Snake Eyes (Paramount, 2021)
+- Jay Leno's Garage — multiple features
+- Nico Rosberg (F1 World Champion) — owner and advocate
+- Featured in RIDE 4 video game (Milestone)
+
+## Locations
+
+- HQ: 37 Via dell'Artigianato, 41042 Fiorano (MO), Italy
+- Corporate: 10 Anson Road, 33-10C International Plaza, 079903 Singapore
+- USA: San Francisco
+
+## Contact
+
+- General: info@energicamotor.com
+- Service EU: service-eu@energicamotor.com
+- Sales: sales@energicamotor.com
+- Website: https://energicamotor.com
+
+## Brand Voice
+
+Direct. Declarative. Spec-forward. Performance brand first — electric is incidental. No emotional adjectives. Italian performance heritage register (Ducati, Ferrari), never startup register. Tagline: Progress, Ridden.

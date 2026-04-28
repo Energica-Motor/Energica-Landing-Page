@@ -1,4 +1,5 @@
 import { getModelById, models } from "@/data/models";
+import ModelSchema from "@/components/seo/ModelSchema";
 import ModelHero from "@/components/models/ModelHero";
 import SpecsBar from "@/components/models/SpecsBar";
 import StorySection from "@/components/models/StorySection";
@@ -24,6 +25,13 @@ export default function EsseEsse9Page() {
 
   return (
     <main className="bg-[#0a0a0a]">
+      <ModelSchema
+        name="EsseEsse9"
+        description="Naked electric streetfighter. 107 HP, 207 Nm at wheel from 0 rpm, 0–100 km/h in 3.2 seconds. EMCE motor architecture from MotoE. Made in Modena, Italy."
+        image="/images/Pagina%20SS9/EsseEsse9%20RS_Bormio%20Ice.webp"
+        url="/models/esseesse9"
+        specs={{ power: "Peak 80 kW / 107 HP", torque: "207 Nm at wheel", topSpeed: "200 km/h", range: "180 km city / 120 km combined" }}
+      />
       <ModelHero model={model} />
       <SpecsBar specs={model.keySpecs} />
       <StorySection model={model} />

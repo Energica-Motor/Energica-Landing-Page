@@ -65,6 +65,67 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${barlowCondensed.variable} ${ibmPlexSans.variable} ${ibmPlexMono.variable}`}>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@graph": [
+                {
+                  "@type": "Organization",
+                  "@id": "https://energicamotor.com/#organization",
+                  "name": "Energica Motor Company",
+                  "legalName": "Energica Motor Company S.p.A.",
+                  "url": "https://energicamotor.com",
+                  "logo": {
+                    "@type": "ImageObject",
+                    "url": "https://energicamotor.com/images/Logo/energica-logo@2x.png"
+                  },
+                  "description": "Italian high-performance electric motorcycle manufacturer. Founded 2009 in Modena, Italy. Exclusive MotoE World Cup supplier for 4 seasons.",
+                  "foundingDate": "2009",
+                  "foundingLocation": "Modena, Italy",
+                  "slogan": "Progress, Ridden.",
+                  "address": [
+                    {
+                      "@type": "PostalAddress",
+                      "addressLocality": "Fiorano Modenese",
+                      "addressRegion": "MO",
+                      "postalCode": "41042",
+                      "streetAddress": "37 Via dell'Artigianato",
+                      "addressCountry": "IT"
+                    }
+                  ],
+                  "contactPoint": [
+                    { "@type": "ContactPoint", "email": "info@energicamotor.com", "contactType": "customer support" },
+                    { "@type": "ContactPoint", "email": "sales@energicamotor.com", "contactType": "sales" },
+                    { "@type": "ContactPoint", "email": "service-eu@energicamotor.com", "contactType": "technical support" }
+                  ],
+                  "sameAs": [
+                    "https://www.instagram.com/energicamotorcompany/",
+                    "https://www.youtube.com/@ENERGICAMOTORCOMPANY",
+                    "https://www.facebook.com/EnergicaMotorCompany/",
+                    "https://www.linkedin.com/company/energica-motor-company/",
+                    "https://en.wikipedia.org/wiki/Energica_Motor_Company"
+                  ]
+                },
+                {
+                  "@type": "WebSite",
+                  "@id": "https://energicamotor.com/#website",
+                  "url": "https://energicamotor.com",
+                  "name": "Energica Motor Company",
+                  "publisher": { "@id": "https://energicamotor.com/#organization" },
+                  "potentialAction": {
+                    "@type": "SearchAction",
+                    "target": "https://energicamotor.com/models?q={search_term_string}",
+                    "query-input": "required name=search_term_string"
+                  }
+                }
+              ]
+            })
+          }}
+        />
+      </head>
       <body className="antialiased">
         {/* Loading overlay — renders until window.load fires */}
         <LoadingScreen />

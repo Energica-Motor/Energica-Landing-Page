@@ -1,4 +1,5 @@
 import { getModelById, models } from "@/data/models";
+import ModelSchema from "@/components/seo/ModelSchema";
 import ModelHero from "@/components/models/ModelHero";
 import SpecsBar from "@/components/models/SpecsBar";
 import StorySection from "@/components/models/StorySection";
@@ -24,6 +25,13 @@ export default function EgoPage() {
 
   return (
     <main className="bg-[#0a0a0a]">
+      <ModelSchema
+        name="Ego+"
+        description="MotoE-derived electric superbike. Track tested, street legal. 147 HP, 0–100 km/h in under 3 seconds. Made in Modena, Italy."
+        image="/images/Pagina%20EGO/EGO.webp"
+        url="/models/ego"
+        specs={{ power: "Peak 107 kW / 145 HP", torque: "215 Nm at wheel", topSpeed: "200 km/h", range: "180 km city / 120 km combined" }}
+      />
       <ModelHero model={model} />
       <SpecsBar specs={model.keySpecs} />
       <StorySection model={model} />

@@ -1,4 +1,5 @@
 import { getModelById, models } from "@/data/models";
+import ModelSchema from "@/components/seo/ModelSchema";
 import ModelHero from "@/components/models/ModelHero";
 import SpecsBar from "@/components/models/SpecsBar";
 import StorySection from "@/components/models/StorySection";
@@ -24,6 +25,13 @@ export default function EvaRibellePage() {
 
   return (
     <main className="bg-[#0a0a0a]">
+      <ModelSchema
+        name="Eva Ribelle"
+        description="Electric naked motorcycle with Italian design. 107 HP, 200 km/h top speed. EMCE motor from MotoE. Made in Modena, Italy."
+        image="/images/Pagina%20Eva/EVA_Ribelle.webp"
+        url="/models/eva-ribelle"
+        specs={{ power: "Peak 80 kW / 107 HP", torque: "200 Nm at wheel", topSpeed: "200 km/h", range: "180 km city / 120 km combined" }}
+      />
       <ModelHero model={model} />
       <SpecsBar specs={model.keySpecs} />
       <StorySection model={model} />
