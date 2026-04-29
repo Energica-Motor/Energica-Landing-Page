@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { gsap } from "@/lib/gsap";
 
@@ -397,10 +398,12 @@ export default function BikeShowcase() {
             }}
             data-cursor-view
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               src={bike.image} alt={bike.name}
-              style={{ width:"100%", height:"100%", objectFit:"contain", objectPosition:"center bottom", display:"block", filter:"brightness(0.9) contrast(1.05)", userSelect:"none", pointerEvents:"none" }}
+              fill
+              sizes="(max-width: 768px) 0vw, 62vw"
+              priority={i === 0}
+              style={{ objectFit:"contain", objectPosition:"center bottom", filter:"brightness(0.9) contrast(1.05)", userSelect:"none", pointerEvents:"none" }}
             />
 
             {/* Snap line */}
@@ -435,8 +438,13 @@ export default function BikeShowcase() {
               zIndex: i === activeIndex ? 2 : 0,
             }}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={bike.image} alt={bike.name} style={{ position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"contain", objectPosition:"center 50%" }} />
+            <Image
+                src={bike.image} alt={bike.name}
+                fill
+                sizes="100vw"
+                priority={i === 0}
+                style={{ objectFit:"contain", objectPosition:"center 50%" }}
+              />
           </div>
         ))}
         <div className="pointer-events-none" style={{ position:"absolute", inset:0, background:"linear-gradient(to top, #0A0A0A 15%, rgba(10,10,10,0.3) 40%, transparent 70%)", zIndex:2 }} />

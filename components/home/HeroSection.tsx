@@ -15,6 +15,7 @@ export default function HeroSection() {
   const contentRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoLoaded, setVideoLoaded] = useState(false);
+  const [iframeReady, setIframeReady] = useState(false);
   const [scrambleTrigger, setScrambleTrigger] = useState(false);
 
   // Scramble runs on aria-hidden overlay — real H1 stays stable for LCP
@@ -23,6 +24,17 @@ export default function HeroSection() {
   useEffect(() => {
     if (videoRef.current) videoRef.current.play().catch(() => {});
     setScrambleTrigger(true);
+    // Defer YouTube iframe until after first paint + idle
+    let ric: number;
+    if (typeof requestIdleCallback !== "undefined") {
+      ric = requestIdleCallback(() => setIframeReady(true), { timeout: 2000 });
+    } else {
+      ric = window.setTimeout(() => setIframeReady(true), 1500);
+    }
+    return () => {
+      if (typeof cancelIdleCallback !== "undefined") cancelIdleCallback(ric);
+      else clearTimeout(ric);
+    };
   }, []);
 
   useEffect(() => {
@@ -99,7 +111,7 @@ export default function HeroSection() {
           onLoadedData={() => setVideoLoaded(true)}
         />
 
-        {!videoLoaded && (
+        {!videoLoaded && iframeReady && (
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <iframe
               style={{
