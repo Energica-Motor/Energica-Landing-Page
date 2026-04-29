@@ -41,15 +41,14 @@ export default function LoadingScreen() {
     }
 
     if (document.readyState === "complete") {
-      // Page already loaded — short delay so the animation is visible
-      const t = setTimeout(dismiss, 400);
+      const t = setTimeout(dismiss, 150);
       return () => clearTimeout(t);
     }
 
     window.addEventListener("load", dismiss, { once: true });
 
-    // Hard fallback: never block the user more than 2 s
-    const fallback = setTimeout(dismiss, 2000);
+    // Hard fallback: 800ms max — never block LCP
+    const fallback = setTimeout(dismiss, 800);
 
     return () => {
       window.removeEventListener("load", dismiss);

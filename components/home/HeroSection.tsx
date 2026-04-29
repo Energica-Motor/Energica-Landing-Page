@@ -21,14 +21,16 @@ export default function HeroSection() {
 
   useEffect(() => {
     if (videoRef.current) videoRef.current.play().catch(() => {});
-    const t = setTimeout(() => setScrambleTrigger(true), 700);
-    return () => clearTimeout(t);
+    // Scramble triggers immediately — no delay so LCP text is real from first paint
+    setScrambleTrigger(true);
   }, []);
 
   useEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
 
+    // Defer GSAP init to after first paint — avoids forced reflow on load
+    const raf = requestAnimationFrame(() => {
     const wrapper = document.querySelector("[data-hero-wrapper]") ?? section;
 
     const ctx = gsap.context(() => {
@@ -64,6 +66,9 @@ export default function HeroSection() {
     }, section);
 
     return () => ctx.revert();
+    }); // end requestAnimationFrame
+
+    return () => cancelAnimationFrame(raf);
   }, []);
 
   return (
@@ -119,11 +124,12 @@ export default function HeroSection() {
       <div ref={contentRef} className="absolute bottom-0 left-0 right-0 z-20 will-change-transform pb-[max(4rem,env(safe-area-inset-bottom,0px)+2rem)] md:pb-20">
         <div className="max-w-[1600px] mx-auto px-[clamp(24px,4vw,64px)]">
           <span className="mono-tag mb-5 block">Modena, Italy · Est. 2009</span>
+          {/* Real text always in DOM for LCP — scramble animates over it client-side */}
           <h1
             ref={h1Ref as React.RefObject<HTMLHeadingElement>}
             className="font-display text-[clamp(52px,9vw,112px)] text-white leading-none uppercase tracking-wide mb-3 whitespace-pre-line"
           >
-            {scrambleTrigger ? "PROGRESS,\nRIDDEN." : "·········\n·······"}
+            PROGRESS,{"\n"}RIDDEN.
           </h1>
           <p className="text-sm text-white/70 font-light tracking-wide mb-7 max-w-md" style={{ fontFamily: "var(--font-ibm-sans)" }}>
             Born in Modena. Proven on the racetrack.{" "}<br className="hidden md:block" />Exclusive MotoE supplier. Four seasons.
