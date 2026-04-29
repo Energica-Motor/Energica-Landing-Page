@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Container } from "@/components/ui/Container";
-import { PrimaryButton, SecondaryButton } from "@/components/ui/Button";
+import { PrimaryButton } from "@/components/ui/Button";
 
 export const metadata: Metadata = {
   title: "Warranty | Energica Motor Company",
@@ -27,8 +27,7 @@ export default function WarrantyPage() {
           or our support team for current coverage details.
         </p>
         <div className="flex flex-wrap gap-4">
-          <PrimaryButton href="mailto:support@energicamotor.com">Contact Support</PrimaryButton>
-          <SecondaryButton href="/contact">Contact Us</SecondaryButton>
+          <PrimaryButton href="/contact">Contact Support</PrimaryButton>
         </div>
       </Container>
     </main>
