@@ -66,9 +66,8 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${barlowCondensed.variable} ${ibmPlexSans.variable} ${ibmPlexMono.variable}`}>
       <head>
-        {/* Preconnect to origins used on the homepage hero */}
-        <link rel="preconnect" href="https://www.youtube-nocookie.com" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        {/* youtube-nocookie.com crossorigin required for CORS preconnect to work */}
+        <link rel="preconnect" href="https://www.youtube-nocookie.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://i.ytimg.com" />
         <script
           type="application/ld+json"

@@ -40,15 +40,16 @@ export default function LoadingScreen() {
       });
     }
 
-    if (document.readyState === "complete") {
+    if (document.readyState === "complete" || document.readyState === "interactive") {
       const t = setTimeout(dismiss, 150);
       return () => clearTimeout(t);
     }
 
-    window.addEventListener("load", dismiss, { once: true });
+    // DOMContentLoaded fires when HTML is parsed — much earlier than window.load
+    document.addEventListener("DOMContentLoaded", dismiss, { once: true });
 
-    // Hard fallback: 800ms max — never block LCP
-    const fallback = setTimeout(dismiss, 800);
+    // Hard fallback: 500ms max — never block LCP
+    const fallback = setTimeout(dismiss, 500);
 
     return () => {
       window.removeEventListener("load", dismiss);

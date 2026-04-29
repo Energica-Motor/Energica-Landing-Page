@@ -17,11 +17,11 @@ export default function HeroSection() {
   const [videoLoaded, setVideoLoaded] = useState(false);
   const [scrambleTrigger, setScrambleTrigger] = useState(false);
 
-  const h1Ref = useScramble("PROGRESS,\nRIDDEN.", scrambleTrigger);
+  // Scramble runs on aria-hidden overlay — real H1 stays stable for LCP
+  const scrambleRef = useScramble("PROGRESS,\nRIDDEN.", scrambleTrigger);
 
   useEffect(() => {
     if (videoRef.current) videoRef.current.play().catch(() => {});
-    // Scramble triggers immediately — no delay so LCP text is real from first paint
     setScrambleTrigger(true);
   }, []);
 
@@ -124,13 +124,20 @@ export default function HeroSection() {
       <div ref={contentRef} className="absolute bottom-0 left-0 right-0 z-20 will-change-transform pb-[max(4rem,env(safe-area-inset-bottom,0px)+2rem)] md:pb-20">
         <div className="max-w-[1600px] mx-auto px-[clamp(24px,4vw,64px)]">
           <span className="mono-tag mb-5 block">Modena, Italy · Est. 2009</span>
-          {/* Real text always in DOM for LCP — scramble animates over it client-side */}
-          <h1
-            ref={h1Ref as React.RefObject<HTMLHeadingElement>}
-            className="font-display text-[clamp(52px,9vw,112px)] text-white leading-none uppercase tracking-wide mb-3 whitespace-pre-line"
-          >
-            PROGRESS,{"\n"}RIDDEN.
-          </h1>
+          {/* Real H1 — stable text for LCP, never mutated */}
+          <div className="relative mb-3">
+            <h1 className="font-display text-[clamp(52px,9vw,112px)] text-white leading-none uppercase tracking-wide whitespace-pre-line">
+              PROGRESS,{"\n"}RIDDEN.
+            </h1>
+            {/* Scramble overlay — aria-hidden so screen readers see real text only */}
+            <h1
+              ref={scrambleRef as React.RefObject<HTMLHeadingElement>}
+              aria-hidden="true"
+              className="font-display text-[clamp(52px,9vw,112px)] text-white leading-none uppercase tracking-wide whitespace-pre-line absolute inset-0 pointer-events-none"
+            >
+              PROGRESS,{"\n"}RIDDEN.
+            </h1>
+          </div>
           <p className="text-sm text-white/70 font-light tracking-wide mb-7 max-w-md" style={{ fontFamily: "var(--font-ibm-sans)" }}>
             Born in Modena. Proven on the racetrack.{" "}<br className="hidden md:block" />Exclusive MotoE supplier. Four seasons.
           </p>
