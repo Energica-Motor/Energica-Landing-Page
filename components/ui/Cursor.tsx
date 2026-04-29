@@ -171,8 +171,8 @@ export default function Cursor() {
     // ── Click burst ─────────────────────────────────────────
     const onPointerDown = () => {
       ring.classList.remove("cursor-burst");
-      void ring.offsetWidth; // force reflow
-      ring.classList.add("cursor-burst");
+      // Use requestAnimationFrame instead of offsetWidth forced reflow
+      requestAnimationFrame(() => ring.classList.add("cursor-burst"));
     };
     const onPointerUp = () => {
       setTimeout(() => ring.classList.remove("cursor-burst"), 380);
