@@ -17,9 +17,10 @@
 /.next/
 /out/
 
-# Large raw video assets — keep compressed version tracked
+# Large raw video assets — keep compressed versions tracked
 /public/videos/energica-hero-old.mp4
 /public/videos/Energica-Hero.mp4
+/public/videos/energica-hero-hq.mp4
 
 # production
 /build

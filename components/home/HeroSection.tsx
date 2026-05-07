@@ -91,14 +91,16 @@ export default function HeroSection() {
           className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
             videoLoaded ? "opacity-100" : "opacity-0"
           }`}
-          src="/videos/energica-hero-compressed.mp4"
           autoPlay
           muted
           loop
           playsInline
           preload="auto"
           onLoadedData={() => setVideoLoaded(true)}
-        />
+        >
+          <source src="/videos/energica-hero.webm" type="video/webm" />
+          <source src="/videos/energica-hero-compressed.mp4" type="video/mp4" />
+        </video>
       </div>
 
       <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/85 z-10 pointer-events-none" />
