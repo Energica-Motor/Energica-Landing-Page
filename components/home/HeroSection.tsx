@@ -15,7 +15,6 @@ export default function HeroSection() {
   const contentRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoLoaded, setVideoLoaded] = useState(false);
-  const [iframeReady, setIframeReady] = useState(false);
   const [scrambleTrigger, setScrambleTrigger] = useState(false);
 
   // Scramble runs on aria-hidden overlay — real H1 stays stable for LCP
@@ -24,17 +23,6 @@ export default function HeroSection() {
   useEffect(() => {
     if (videoRef.current) videoRef.current.play().catch(() => {});
     setScrambleTrigger(true);
-    // Defer YouTube iframe until after first paint + idle
-    let ric: number;
-    if (typeof requestIdleCallback !== "undefined") {
-      ric = requestIdleCallback(() => setIframeReady(true), { timeout: 2000 });
-    } else {
-      ric = window.setTimeout(() => setIframeReady(true), 1500);
-    }
-    return () => {
-      if (typeof cancelIdleCallback !== "undefined") cancelIdleCallback(ric);
-      else clearTimeout(ric);
-    };
   }, []);
 
   useEffect(() => {
@@ -88,12 +76,13 @@ export default function HeroSection() {
 
       {/* Background — starts zoomed in, zooms out on scroll */}
       <div ref={mediaRef} className="absolute inset-0 will-change-transform">
+        {/* Static image shown until video is ready */}
         <Image
           src="/images/new/home-slide-1.jpg"
           alt="Energica — Progress, Ridden."
           fill
           priority
-          className="object-cover object-center opacity-70"
+          className={`object-cover object-center transition-opacity duration-700 ${videoLoaded ? "opacity-0" : "opacity-70"}`}
           sizes="100vw"
         />
 
@@ -102,7 +91,7 @@ export default function HeroSection() {
           className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
             videoLoaded ? "opacity-100" : "opacity-0"
           }`}
-          src="/videos/energica-hero.mp4"
+          src="/videos/energica-hero-compressed.mp4"
           autoPlay
           muted
           loop
@@ -110,25 +99,6 @@ export default function HeroSection() {
           preload="auto"
           onLoadedData={() => setVideoLoaded(true)}
         />
-
-        {!videoLoaded && iframeReady && (
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <iframe
-              style={{
-                position: "absolute",
-                width: "max(100%, calc(100dvh * 16 / 9))",
-                height: "max(100%, calc(100dvw * 9 / 16))",
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-                border: "none",
-              }}
-              src="https://www.youtube-nocookie.com/embed/vKfU7NPIEI4?autoplay=1&mute=1&loop=1&playlist=vKfU7NPIEI4&controls=0&showinfo=0&rel=0&start=12&modestbranding=1"
-              allow="autoplay; encrypted-media"
-              title="Energica"
-            />
-          </div>
-        )}
       </div>
 
       <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/85 z-10 pointer-events-none" />
