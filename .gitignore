@@ -17,8 +17,9 @@
 /.next/
 /out/
 
-# Large video assets — host via CDN or streaming service
-/public/videos/
+# Large raw video assets — keep compressed version tracked
+/public/videos/energica-hero-old.mp4
+/public/videos/Energica-Hero.mp4
 
 # production
 /build
