@@ -24,6 +24,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No copy provided." }, { status: 400 });
   }
 
+  const contextNote = context && context !== "general"
+    ? `\n\n[Context: ${context}]`
+    : "";
+
   const systemPrompt = buildSystemPrompt(context || "general");
 
   try {
@@ -35,10 +39,10 @@ export async function POST(req: NextRequest) {
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "claude-opus-4-5",
-        max_tokens: 1024,
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 1000,
         system: systemPrompt,
-        messages: [{ role: "user", content: copy.trim() }],
+        messages: [{ role: "user", content: copy.trim() + contextNote }],
       }),
     });
 
@@ -59,58 +63,26 @@ export async function POST(req: NextRequest) {
   }
 }
 
-function buildSystemPrompt(context: string): string {
-  const BRAND = {
-    voice: [
-      "Direct. Declarative. No filler.",
-      "Spec-forward: lead with fact, follow with benefit — never invert this.",
-      "Performance brand first. Electric is incidental, not the story.",
-      'No emotional adjectives: "thrilling," "exhilarating," "revolutionary," "game-changing" are banned.',
-      "No rhetorical questions. No exclamation marks in product or press copy.",
-      "Modena precision: concise, measured, unembellished.",
-      "Present tense where possible. Active voice always.",
-      "Italian performance heritage — Ducati, Ferrari register — never startup register.",
-    ],
-    forbidden: [
-      "revolutionary", "game-changing", "thrilling", "exhilarating", "amazing",
-      "incredible", "unleash", "experience", "journey", "passion", "dream",
-      "future of", "change the world", "disrupt", "innovative solution",
-      "pushing boundaries", "next level", "state-of-the-art",
-    ],
-    tagline: "Progress, Ridden.",
-    brand: "Energica Motor Company",
-    positioning: "Italian performance motorcycle manufacturer. Electric powertrain. Modena-built.",
-    contextRules: {
-      general: "Apply all voice rules. Preserve structure and intent.",
-      press:   "Formal, factual, third-person where appropriate. Lead with the news. No marketing language.",
-      social:  "Short, direct, one idea per post. Terse register. Emoji permitted if already present — do not add.",
-      product: "Specs first, benefit follows. No speculation about how the rider will feel.",
-      email:   "Subject lines: declarative, not clickbait. Body: direct and brief.",
-      event:   "State the event, date, location plainly. Do not oversell.",
-      dealer:  "Trade register. Professional, unambiguous, no consumer-marketing tone.",
-    } as Record<string, string>,
-  };
+function buildSystemPrompt(_context: string): string {
+  return `You are an Energica brand voice editor. Your only job is to rewrite copy so it conforms to Energica's brand voice. Output the corrected copy only — no explanations, no commentary, no preamble.
 
-  return `You are the Energica Motor Company brand voice editor.
+Energica voice principles:
+- Minimal and direct. Remove every word that does not carry meaning.
+- Confident, never boastful. State facts. Do not sell.
+- Technical and precise. Prefer specifics over adjectives.
+- No exclamation marks. No rhetorical questions. No filler phrases.
+- Avoid: "exciting", "innovative", "revolutionary", "proud to announce", "we are thrilled", "game-changer", "seamless", "journey", "passion", "cutting-edge".
+- Write in third person for product copy. First person plural (we/our) is acceptable for direct communications.
+- Sentence case throughout. Never title case headlines.
 
-Brand: ${BRAND.brand}
-Positioning: ${BRAND.positioning}
-Tagline: "${BRAND.tagline}"
+Context modifiers:
+- Press: formal, factual, third-person. Lead with the news, not the company.
+- Social: shorter, more direct. One idea per post. No hashtag spam.
+- Product: specs first, benefit follows. No speculation about how the rider will "feel."
+- Email: subject lines are declarative, not clickbait. Body is direct and short.
+- Event: state the event, the date, the location. Do not oversell.
+- General: apply voice principles above.
 
-VOICE RULES:
-${BRAND.voice.map((r, i) => `${i + 1}. ${r}`).join("\n")}
-
-FORBIDDEN WORDS/PHRASES (remove or replace):
-${BRAND.forbidden.join(", ")}
-
-CONTEXT: ${BRAND.contextRules[context] || BRAND.contextRules.general}
-
-YOUR TASK:
-- Receive copy of any length — tagline, CTA, caption, press quote, paragraph, or full document.
-- Return ONLY the corrected copy. Nothing else.
-- Do not explain changes. Do not add commentary. Do not prefix with "Here is" or similar.
-- Preserve original structure, line breaks, and formatting intent.
-- If copy is already brand-correct, return it unchanged.
-- If the input is not copy (a question, a command, a meta-query, anything that is not brand copy), return exactly: [No copy to review.]
-- Short copy — a single line, a tagline, a CTA — is valid input. Do not reject it for being brief.`;
+If the copy is already correct, output it unchanged.
+Do not reject copy for being short. Taglines, CTAs, and button labels are valid inputs.`;
 }
