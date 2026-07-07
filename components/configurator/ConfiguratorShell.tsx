@@ -31,9 +31,9 @@ export default function ConfiguratorShell() {
     <div
       style={{
         minHeight: "100vh",
-        backgroundColor: "#fff",
+        backgroundColor: "#ffffff",
         color: "#121212",
-        fontFamily: "var(--font-barlow, 'Barlow Condensed', sans-serif)",
+        fontFamily: "'Barlow Condensed', sans-serif",
       }}
     >
       {/* Model selector tabs */}

@@ -138,8 +138,15 @@ const GROUP_CONFIG: Record<string, GroupConfig> = {
 const S = {
   root: {
     fontFamily: "var(--font-secondary, 'IBM Plex Sans', sans-serif)",
-    backgroundColor: "var(--bg-primary, #fff)",
-    color: "var(--text-primary, #121212)",
+    // Reset CSS variables so the landing page's dark-theme globals don't bleed in
+    ["--text-primary" as string]: "#121212",
+    ["--text-secondary" as string]: "#757575",
+    ["--bg-primary" as string]: "#ffffff",
+    ["--bg-secondary" as string]: "#f9f9f9",
+    ["--bg-tertiary" as string]: "#f5f5f5",
+    ["--border-color" as string]: "#eeeeee",
+    backgroundColor: "#ffffff",
+    color: "#121212",
     minHeight: "100vh",
     display: "flex",
     flexDirection: "column" as const,
