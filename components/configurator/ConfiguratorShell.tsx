@@ -37,13 +37,16 @@ export default function ConfiguratorShell() {
         paddingTop: "80px", // offset for the fixed navigation bar (h-20)
       }}
     >
-      {/* Model selector tabs */}
+      {/* Model selector tabs — sticky below the fixed landing page nav */}
       <nav
         style={{
           display: "flex",
           borderBottom: "1px solid #e5e5e5",
           backgroundColor: "#fff",
           padding: "0 40px",
+          position: "sticky",
+          top: "80px", // same as nav height so it sits flush underneath
+          zIndex: 40,
         }}
         aria-label="Model selector"
       >

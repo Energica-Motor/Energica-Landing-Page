@@ -874,7 +874,7 @@ export default function EnergiccaConfigurator({
 
       <div style={S.root}>
         {/* Header */}
-        <header style={S.header}>
+        <header style={{ ...S.header, display: "none" }}>
           <span style={S.headerBrand}>ENERGICA</span>
           <span style={S.headerModelTag}>{displayName} — Configure</span>
         </header>
