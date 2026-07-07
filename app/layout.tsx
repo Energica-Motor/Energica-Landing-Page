@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Barlow_Condensed, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
-import Navigation from "@/components/layout/Navigation";
-import Footer from "@/components/layout/Footer";
+import SiteChrome from "@/components/layout/SiteChrome";
 import Cursor from "@/components/ui/Cursor";
 import GrainOverlay from "@/components/ui/GrainOverlay";
 import LoadingScreen from "@/components/ui/LoadingScreen";
@@ -127,22 +126,14 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased">
-        {/* Loading overlay — renders until window.load fires */}
-        <LoadingScreen />
-
-        {/* Lenis smooth scroll + GSAP ScrollTrigger sync */}
-        <SmoothScroll />
-
-        {/* Cinematic grain texture overlay */}
-        <GrainOverlay />
-
-        <Cursor />
-        <Navigation />
-
-        {/* Page-level fade/y transitions on route changes */}
-        <PageTransition>{children}</PageTransition>
-
-        <Footer />
+        <SiteChrome
+          loadingScreen={<LoadingScreen />}
+          smoothScroll={<SmoothScroll />}
+          grainOverlay={<GrainOverlay />}
+          cursor={<Cursor />}
+        >
+          <PageTransition>{children}</PageTransition>
+        </SiteChrome>
       </body>
     </html>
   );
