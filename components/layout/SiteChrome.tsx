@@ -22,8 +22,16 @@ export default function SiteChrome({
   const pathname = usePathname();
   const isConfigurator = pathname.startsWith("/configurator");
 
+  // On the configurator page: show nav + footer for navigation continuity,
+  // but skip the heavy landing page effects (smooth scroll, grain, cursor, loading screen).
   if (isConfigurator) {
-    return <>{children}</>;
+    return (
+      <>
+        <Navigation />
+        {children}
+        <Footer />
+      </>
+    );
   }
 
   return (
