@@ -247,7 +247,7 @@ function SplitLabel({ label }: { label: string }) {
 }
 
 /* ── Main Navigation ──────────────────────────────────────── */
-export default function Navigation() {
+export default function Navigation({ alwaysDark = false }: { alwaysDark?: boolean }) {
   const [scrolled, setScrolled] = useState(false);
   const [megaOpen, setMegaOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -299,7 +299,7 @@ export default function Navigation() {
         ref={navRef}
         className={cn(
           "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-          scrolled
+          scrolled || alwaysDark
             ? "bg-[#0a0a0a]/95 nav-blur border-b border-white/5"
             : "bg-transparent"
         )}
