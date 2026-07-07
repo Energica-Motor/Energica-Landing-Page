@@ -34,6 +34,7 @@ export default function ConfiguratorShell() {
         backgroundColor: "#ffffff",
         color: "#121212",
         fontFamily: "'Barlow Condensed', sans-serif",
+        paddingTop: "80px", // offset for the fixed navigation bar (h-20)
       }}
     >
       {/* Model selector tabs */}
