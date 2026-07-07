@@ -1,0 +1,11 @@
+{
+  "functions": {
+    "api/backend.py": {
+      "maxDuration": 60,
+      "includeFiles": "backend/**"
+    }
+  },
+  "rewrites": [
+    { "source": "/api/backend/:path*", "destination": "/api/backend" }
+  ]
+}

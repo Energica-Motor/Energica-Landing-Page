@@ -12,8 +12,10 @@ const MODELS: { id: Model; label: string }[] = [
   { id: "experia",    label: "EXPERIA" },
 ];
 
+// Relative path — backend runs as a serverless function on the same domain.
+// Falls back to env var for local dev pointing at a local FastAPI server.
 const API_URL =
-  process.env.NEXT_PUBLIC_CONFIGURATOR_API_URL ?? "http://localhost:8000";
+  process.env.NEXT_PUBLIC_CONFIGURATOR_API_URL ?? "/api/backend";
 
 export default function ConfiguratorShell() {
   const [activeModel, setActiveModel] = useState<Model>("eva_ribelle");
