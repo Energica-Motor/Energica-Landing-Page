@@ -41,11 +41,11 @@ export default function ConfiguratorShell() {
       <nav
         style={{
           display: "flex",
-          borderBottom: "1px solid #e5e5e5",
-          backgroundColor: "#fff",
+          borderBottom: "1px solid #1a1a1a",
+          backgroundColor: "#0a0a0a",
           padding: "0 40px",
           position: "sticky",
-          top: "80px", // same as nav height so it sits flush underneath
+          top: "80px",
           zIndex: 40,
         }}
         aria-label="Model selector"
@@ -72,7 +72,7 @@ export default function ConfiguratorShell() {
                   ? "2px solid #78BE20"
                   : "2px solid transparent",
                 backgroundColor: "transparent",
-                color: active ? "#121212" : "#757575",
+                color: active ? "#ffffff" : "#757575",
                 transition: "color 150ms ease, border-color 150ms ease",
                 marginBottom: "-1px",
               }}
