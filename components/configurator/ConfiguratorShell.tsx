@@ -57,7 +57,7 @@ export default function ConfiguratorShell() {
       <nav
         aria-label="Model selector"
         style={{
-          width: "200px",
+          width: "180px",
           flexShrink: 0,
           backgroundColor: "#0a0a0a",
           borderRight: "1px solid #1f1f1f",
@@ -84,7 +84,7 @@ export default function ConfiguratorShell() {
                 flexDirection: "column",
                 alignItems: "flex-start",
                 width: "100%",
-                padding: "16px 16px 16px 20px",
+                padding: "12px 12px 12px 16px",
                 cursor: "pointer",
                 border: "none",
                 borderLeft: active ? "3px solid #78BE20" : "3px solid transparent",
@@ -97,21 +97,21 @@ export default function ConfiguratorShell() {
               <div
                 style={{
                   width: "100%",
-                  aspectRatio: "16/9",
+                  aspectRatio: "3/2",
                   position: "relative",
-                  marginBottom: "10px",
+                  marginBottom: "8px",
                   overflow: "hidden",
-                  borderRadius: "3px",
-                  opacity: active ? 1 : 0.55,
+                  borderRadius: "2px",
+                  opacity: active ? 1 : 0.45,
                   transition: "opacity 150ms ease",
-                  backgroundColor: "#1a1a1a",
+                  backgroundColor: "#111111",
                 }}
               >
                 <Image
                   src={image}
                   alt={label}
                   fill
-                  style={{ objectFit: "cover", objectPosition: "center" }}
+                  style={{ objectFit: "cover", objectPosition: "center 40%" }}
                   sizes="180px"
                 />
               </div>
