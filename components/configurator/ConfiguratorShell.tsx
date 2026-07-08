@@ -6,35 +6,26 @@ import EnergiccaConfigurator from "./EnergiccaConfigurator";
 
 type Model = "eva_ribelle" | "essesse9" | "ego" | "experia";
 
-const MODELS: {
-  id: Model;
-  label: string;
-  tagline: string;
-  image: string;
-}[] = [
+const MODELS: { id: Model; label: string; image: string }[] = [
   {
     id: "eva_ribelle",
     label: "Eva Ribelle",
-    tagline: "Italian design. Electric advantage.",
-    image: "/images/eva-showcase.jpg",
+    image: "/images/Pagina%20Eva/EVA%20Ribelle%20RS_Stealth%20Grey.webp",
   },
   {
     id: "essesse9",
     label: "EsseEsse9",
-    tagline: "Naked. No apologies.",
-    image: "/images/Immagini/ss9-1.png",
+    image: "/images/Pagina%20SS9/EsseEsse9%20RS_Sunrise%20Red.webp",
   },
   {
     id: "ego",
     label: "Ego",
-    tagline: "Derived from racing. Proven on track.",
     image: "/images/ego-showcase.png",
   },
   {
     id: "experia",
     label: "Experia",
-    tagline: "Further, quieter, faster.",
-    image: "/images/experia-showcase.png",
+    image: "/images/Pagina%20Experia/EXPERIA_Bormio%20Ice.webp",
   },
 ];
 
@@ -79,7 +70,7 @@ export default function ConfiguratorShell() {
           padding: "8px 0",
         }}
       >
-        {MODELS.map(({ id, label, tagline, image }) => {
+        {MODELS.map(({ id, label, image }) => {
           const active = id === activeModel;
           return (
             <button
@@ -130,27 +121,13 @@ export default function ConfiguratorShell() {
                   fontFamily: "'Barlow Condensed', sans-serif",
                   fontWeight: 700,
                   fontSize: "13px",
-                  letterSpacing: "0.08em",
+                  letterSpacing: "0.1em",
                   textTransform: "uppercase",
-                  color: active ? "#ffffff" : "#888888",
-                  lineHeight: 1.2,
+                  color: active ? "#ffffff" : "#666666",
                   transition: "color 150ms ease",
                 }}
               >
                 {label}
-              </span>
-              {/* Tagline */}
-              <span
-                style={{
-                  fontFamily: "'IBM Plex Sans', sans-serif",
-                  fontSize: "10px",
-                  color: active ? "#78BE20" : "#555555",
-                  marginTop: "3px",
-                  lineHeight: 1.4,
-                  transition: "color 150ms ease",
-                }}
-              >
-                {tagline}
               </span>
             </button>
           );
