@@ -267,6 +267,7 @@ const S = {
     display: "flex",
     flexDirection: "column" as const,
     gap: "0",
+    paddingTop: "20px",
     paddingBottom: "60px",
     flex: 1,
   },

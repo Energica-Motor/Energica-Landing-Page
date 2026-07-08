@@ -47,7 +47,7 @@ export default function ConfiguratorShell() {
       style={{
         display: "flex",
         minHeight: "100vh",
-        backgroundColor: "#0a0a0a",
+        backgroundColor: "#f5f5f5",
         color: "#121212",
         fontFamily: "'Barlow Condensed', sans-serif",
         paddingTop: "80px",
@@ -57,10 +57,10 @@ export default function ConfiguratorShell() {
       <nav
         aria-label="Model selector"
         style={{
-          width: "180px",
+          width: "160px",
           flexShrink: 0,
-          backgroundColor: "#0a0a0a",
-          borderRight: "1px solid #1f1f1f",
+          backgroundColor: "#f5f5f5",
+          borderRight: "1px solid #e0e0e0",
           position: "sticky",
           top: "80px",
           height: "calc(100vh - 80px)",
@@ -104,7 +104,7 @@ export default function ConfiguratorShell() {
                   borderRadius: "2px",
                   opacity: active ? 1 : 0.45,
                   transition: "opacity 150ms ease",
-                  backgroundColor: "#111111",
+                  backgroundColor: "#e8e8e8",
                 }}
               >
                 <Image
@@ -112,7 +112,7 @@ export default function ConfiguratorShell() {
                   alt={label}
                   fill
                   style={{ objectFit: "cover", objectPosition: "center 40%" }}
-                  sizes="180px"
+                  sizes="160px"
                 />
               </div>
               {/* Name */}
@@ -120,10 +120,10 @@ export default function ConfiguratorShell() {
                 style={{
                   fontFamily: "'Barlow Condensed', sans-serif",
                   fontWeight: 700,
-                  fontSize: "13px",
+                  fontSize: "12px",
                   letterSpacing: "0.1em",
                   textTransform: "uppercase",
-                  color: active ? "#ffffff" : "#666666",
+                  color: active ? "#121212" : "#999999",
                   transition: "color 150ms ease",
                 }}
               >
