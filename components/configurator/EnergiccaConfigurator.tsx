@@ -193,7 +193,13 @@ const S = {
     minWidth: 0,
     display: "flex",
     flexDirection: "column" as const,
+    alignItems: "center" as const,
+    justifyContent: "center" as const,
     gap: "16px",
+  },
+  previewFrameWrapper: {
+    width: "100%",
+    maxWidth: "700px",
   },
   previewFrame: {
     backgroundColor: "#ffffff",
@@ -881,6 +887,7 @@ export default function EnergiccaConfigurator({
         <main style={S.main} className="energica-main">
           {/* Preview pane */}
           <section style={S.previewPane}>
+            <div style={S.previewFrameWrapper}>
             <div style={S.previewFrame}>
               {previewUrl ? (
                 <img
@@ -904,6 +911,7 @@ export default function EnergiccaConfigurator({
                   <div style={S.spinner} />
                 </div>
               )}
+            </div>
             </div>
 
             {/* Error banner */}
