@@ -1,19 +1,43 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import EnergiccaConfigurator from "./EnergiccaConfigurator";
 
 type Model = "eva_ribelle" | "essesse9" | "ego" | "experia";
 
-const MODELS: { id: Model; label: string }[] = [
-  { id: "eva_ribelle", label: "EVA RIBELLE" },
-  { id: "essesse9",   label: "ESSESSE9" },
-  { id: "ego",        label: "EGO" },
-  { id: "experia",    label: "EXPERIA" },
+const MODELS: {
+  id: Model;
+  label: string;
+  tagline: string;
+  image: string;
+}[] = [
+  {
+    id: "eva_ribelle",
+    label: "Eva Ribelle",
+    tagline: "Italian design. Electric advantage.",
+    image: "/images/eva-showcase.jpg",
+  },
+  {
+    id: "essesse9",
+    label: "EsseEsse9",
+    tagline: "Naked. No apologies.",
+    image: "/images/Immagini/ss9-1.png",
+  },
+  {
+    id: "ego",
+    label: "Ego",
+    tagline: "Derived from racing. Proven on track.",
+    image: "/images/ego-showcase.png",
+  },
+  {
+    id: "experia",
+    label: "Experia",
+    tagline: "Further, quieter, faster.",
+    image: "/images/experia-showcase.png",
+  },
 ];
 
-// Relative path — backend runs as a serverless function on the same domain.
-// Falls back to env var for local dev pointing at a local FastAPI server.
 const API_URL =
   process.env.NEXT_PUBLIC_CONFIGURATOR_API_URL ?? "/api/backend";
 
@@ -30,27 +54,32 @@ export default function ConfiguratorShell() {
   return (
     <div
       style={{
+        display: "flex",
         minHeight: "100vh",
-        backgroundColor: "#f2f2f2",
+        backgroundColor: "#0a0a0a",
         color: "#121212",
         fontFamily: "'Barlow Condensed', sans-serif",
         paddingTop: "80px",
       }}
     >
-      {/* Model selector tabs — sticky below the fixed landing page nav */}
+      {/* Model selector sidebar */}
       <nav
+        aria-label="Model selector"
         style={{
-          display: "flex",
-          borderBottom: "1px solid #1a1a1a",
+          width: "200px",
+          flexShrink: 0,
           backgroundColor: "#0a0a0a",
-          padding: "0 40px",
+          borderRight: "1px solid #1f1f1f",
           position: "sticky",
           top: "80px",
-          zIndex: 40,
+          height: "calc(100vh - 80px)",
+          overflowY: "auto",
+          display: "flex",
+          flexDirection: "column",
+          padding: "8px 0",
         }}
-        aria-label="Model selector"
       >
-        {MODELS.map(({ id, label }) => {
+        {MODELS.map(({ id, label, tagline, image }) => {
           const active = id === activeModel;
           return (
             <button
@@ -60,34 +89,82 @@ export default function ConfiguratorShell() {
               aria-selected={active}
               role="tab"
               style={{
-                fontFamily: "inherit",
-                fontWeight: 700,
-                fontSize: "13px",
-                letterSpacing: "0.1em",
-                textTransform: "uppercase",
-                padding: "16px 20px",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-start",
+                width: "100%",
+                padding: "16px 16px 16px 20px",
                 cursor: "pointer",
                 border: "none",
-                borderBottom: active
-                  ? "2px solid #78BE20"
-                  : "2px solid transparent",
-                backgroundColor: "transparent",
-                color: active ? "#ffffff" : "#757575",
-                transition: "color 150ms ease, border-color 150ms ease",
-                marginBottom: "-1px",
+                borderLeft: active ? "3px solid #78BE20" : "3px solid transparent",
+                backgroundColor: active ? "rgba(120,190,32,0.07)" : "transparent",
+                transition: "background-color 150ms ease, border-color 150ms ease",
+                textAlign: "left",
               }}
             >
-              {label}
+              {/* Thumbnail */}
+              <div
+                style={{
+                  width: "100%",
+                  aspectRatio: "16/9",
+                  position: "relative",
+                  marginBottom: "10px",
+                  overflow: "hidden",
+                  borderRadius: "3px",
+                  opacity: active ? 1 : 0.55,
+                  transition: "opacity 150ms ease",
+                  backgroundColor: "#1a1a1a",
+                }}
+              >
+                <Image
+                  src={image}
+                  alt={label}
+                  fill
+                  style={{ objectFit: "cover", objectPosition: "center" }}
+                  sizes="180px"
+                />
+              </div>
+              {/* Name */}
+              <span
+                style={{
+                  fontFamily: "'Barlow Condensed', sans-serif",
+                  fontWeight: 700,
+                  fontSize: "13px",
+                  letterSpacing: "0.08em",
+                  textTransform: "uppercase",
+                  color: active ? "#ffffff" : "#888888",
+                  lineHeight: 1.2,
+                  transition: "color 150ms ease",
+                }}
+              >
+                {label}
+              </span>
+              {/* Tagline */}
+              <span
+                style={{
+                  fontFamily: "'IBM Plex Sans', sans-serif",
+                  fontSize: "10px",
+                  color: active ? "#78BE20" : "#555555",
+                  marginTop: "3px",
+                  lineHeight: 1.4,
+                  transition: "color 150ms ease",
+                }}
+              >
+                {tagline}
+              </span>
             </button>
           );
         })}
       </nav>
 
-      <EnergiccaConfigurator
-        key={activeModel}
-        model={activeModel}
-        apiUrl={API_URL}
-      />
+      {/* Configurator content */}
+      <div style={{ flex: 1, minWidth: 0, backgroundColor: "#ffffff" }}>
+        <EnergiccaConfigurator
+          key={activeModel}
+          model={activeModel}
+          apiUrl={API_URL}
+        />
+      </div>
     </div>
   );
 }

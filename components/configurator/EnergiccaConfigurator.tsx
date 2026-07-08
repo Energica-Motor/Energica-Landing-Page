@@ -188,8 +188,8 @@ const S = {
     flex: "1 1 0",
     minWidth: 0,
     position: "sticky" as const,
-    top: "128px",        // nav(80px) + tabs(~48px)
-    height: "calc(100vh - 128px)",
+    top: "80px",
+    height: "calc(100vh - 80px)",
     backgroundColor: "#f0f0f0",
     display: "flex",
     alignItems: "center",
@@ -258,7 +258,7 @@ const S = {
     flexDirection: "column" as const,
     borderLeft: "1px solid #e8e8e8",
     backgroundColor: "#ffffff",
-    minHeight: "calc(100vh - 128px)",
+    minHeight: "calc(100vh - 80px)",
   },
   configPaneInner: {
     display: "flex",
