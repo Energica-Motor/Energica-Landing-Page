@@ -185,7 +185,7 @@ const S = {
     maxWidth: "1200px",
     margin: "0 auto",
     width: "100%",
-    padding: "32px 40px",
+    padding: "24px 40px 40px",
     gap: "32px",
   },
   previewPane: {
@@ -202,7 +202,9 @@ const S = {
     maxWidth: "700px",
   },
   previewFrame: {
-    backgroundColor: "#ffffff",
+    backgroundColor: "#f5f5f5",
+    border: "1px solid #e8e8e8",
+    borderRadius: "6px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
