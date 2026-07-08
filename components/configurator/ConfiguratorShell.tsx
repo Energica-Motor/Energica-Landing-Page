@@ -31,10 +31,10 @@ export default function ConfiguratorShell() {
     <div
       style={{
         minHeight: "100vh",
-        backgroundColor: "#ffffff",
+        backgroundColor: "#f2f2f2",
         color: "#121212",
         fontFamily: "'Barlow Condensed', sans-serif",
-        paddingTop: "80px", // offset for the fixed navigation bar (h-20)
+        paddingTop: "80px",
       }}
     >
       {/* Model selector tabs — sticky below the fixed landing page nav */}
