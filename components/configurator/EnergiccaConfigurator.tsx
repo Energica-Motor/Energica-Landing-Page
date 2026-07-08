@@ -196,8 +196,7 @@ const S = {
     gap: "16px",
   },
   previewFrame: {
-    backgroundColor: "#f4f4f4",
-    borderRadius: "4px",
+    backgroundColor: "#ffffff",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
