@@ -229,6 +229,52 @@ export function decodeConfig(encoded: string): string[] {
 }
 
 // ---------------------------------------------------------------------------
+// Client-side layer image preloader
+// ---------------------------------------------------------------------------
+
+/**
+ * Preload all layer PNGs for a model directly from Vercel Blob into
+ * HTMLImageElement objects. Returns a Map keyed by layer ID so the
+ * canvas compositor can look them up instantly.
+ *
+ * Layers that fail to load are silently skipped so a single missing
+ * file does not break the whole compositor.
+ */
+export async function preloadLayerImages(
+  config: ConfigSchema,
+  blobBase: string,
+  onProgress?: (loaded: number, total: number) => void,
+): Promise<Map<string, HTMLImageElement>> {
+  const cache = new Map<string, HTMLImageElement>();
+  let loaded = 0;
+  const total = config.layers.length;
+
+  await Promise.all(
+    config.layers.map(
+      (layer) =>
+        new Promise<void>((resolve) => {
+          const img = new window.Image();
+          img.crossOrigin = "anonymous";
+          img.onload = () => {
+            cache.set(layer.id, img);
+            loaded++;
+            onProgress?.(loaded, total);
+            resolve();
+          };
+          img.onerror = () => {
+            loaded++;
+            onProgress?.(loaded, total);
+            resolve();
+          };
+          img.src = `${blobBase}/layers/${config.model}/${layer.filename}`;
+        }),
+    ),
+  );
+
+  return cache;
+}
+
+// ---------------------------------------------------------------------------
 // Config cache invalidation (useful in tests / Storybook)
 // ---------------------------------------------------------------------------
 

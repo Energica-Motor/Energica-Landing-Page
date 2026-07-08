@@ -22,8 +22,10 @@ import {
   decodeConfig,
   encodeConfig,
   getModelConfig,
-  renderConfiguration,
+  preloadLayerImages,
 } from "@/lib/configurator-api";
+
+const BLOB_BASE = (process.env.NEXT_PUBLIC_BLOB_BASE_URL ?? "").replace(/\/$/, "");
 
 // ---------------------------------------------------------------------------
 // Types
@@ -419,12 +421,13 @@ const S = {
 function useConfigurator(model: Model, apiUrl: string) {
   const [config, setConfig] = useState<ConfigSchema | null>(null);
   const [visibleLayers, setVisibleLayers] = useState<Set<string>>(new Set());
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [configLoading, setConfigLoading] = useState(true);
+  const [preloadProgress, setPreloadProgress] = useState(0); // 0–1
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const imageCacheRef = useRef<Map<string, HTMLImageElement>>(new Map());
   const renderTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const prevObjectUrlRef = useRef<string | null>(null);
 
   // Load config and initialise layers from URL params or defaults
   useEffect(() => {
@@ -433,14 +436,28 @@ function useConfigurator(model: Model, apiUrl: string) {
     clearConfigCache();
     setConfigLoading(true);
     setError(null);
-    // Reset preview when switching models so stale image doesn't linger
-    setPreviewUrl(null);
+    // Clear canvas and image cache when switching models
+    imageCacheRef.current = new Map();
+    setPreloadProgress(0);
+    const canvas = canvasRef.current;
+    if (canvas) {
+      const ctx = canvas.getContext("2d");
+      ctx?.clearRect(0, 0, canvas.width, canvas.height);
+    }
     setVisibleLayers(new Set());
     isFirstRender.current = true;
 
     getModelConfig(model, apiUrl)
       .then((cfg) => {
         setConfig(cfg);
+        // Preload all layer images in background while user reads options
+        if (BLOB_BASE) {
+          preloadLayerImages(cfg, BLOB_BASE, (loaded, total) => {
+            setPreloadProgress(loaded / total);
+          }).then((cache) => {
+            imageCacheRef.current = cache;
+          });
+        }
 
         const validIds = new Set(cfg.layers.map((l) => l.id));
         // always_visible layers must always be in the set
@@ -519,43 +536,73 @@ function useConfigurator(model: Model, apiUrl: string) {
     [config],
   );
 
-  // Trigger debounced render whenever layer selection changes.
-  // First render (no previewUrl yet) fires immediately; subsequent changes
-  // are debounced so rapid clicks don't flood the API.
+  // Composite visible layers onto the canvas whenever selection changes.
+  // If the image cache isn't ready yet, fall back to the API render.
   const isFirstRender = useRef(true);
   useEffect(() => {
     if (!config || visibleLayers.size === 0) return;
 
     if (renderTimerRef.current) clearTimeout(renderTimerRef.current);
 
-    const delay = isFirstRender.current ? 0 : 150;
+    const delay = isFirstRender.current ? 0 : 50;
     isFirstRender.current = false;
 
     renderTimerRef.current = setTimeout(() => {
-      setLoading(true);
-      setError(null);
+      const canvas = canvasRef.current;
+      const cache = imageCacheRef.current;
 
-      renderConfiguration(model, [...visibleLayers], apiUrl)
-        .then((blob) => {
-          // Revoke previous object URL to avoid memory leaks
-          if (prevObjectUrlRef.current) {
-            URL.revokeObjectURL(prevObjectUrlRef.current);
+      // Client-side path: composite layers on canvas (instant after preload)
+      if (canvas && cache.size > 0 && config.canvas) {
+        setError(null);
+        canvas.width = config.canvas.width;
+        canvas.height = config.canvas.height;
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          const sorted = config.layers
+            .filter((l) => visibleLayers.has(l.id) && cache.has(l.id))
+            .sort((a, b) => a.z_index - b.z_index);
+          for (const layer of sorted) {
+            ctx.drawImage(cache.get(layer.id)!, 0, 0, canvas.width, canvas.height);
           }
-          const url = URL.createObjectURL(blob);
-          prevObjectUrlRef.current = url;
-          setPreviewUrl(url);
-
-          // Update URL bar for sharing (non-navigating)
+          // Update URL bar for sharing
           if (typeof window !== "undefined") {
             const encoded = encodeConfig([...visibleLayers]);
-            const newUrl = `${window.location.pathname}?layers=${encoded}`;
-            window.history.replaceState(null, "", newUrl);
+            window.history.replaceState(null, "", `${window.location.pathname}?layers=${encoded}`);
           }
-        })
-        .catch((err: Error) => {
-          setError(`Preview unavailable: ${err.message}`);
-        })
-        .finally(() => setLoading(false));
+          return; // done — no API call needed
+        }
+      }
+
+      // Fallback: server-side render (while images are still preloading)
+      setLoading(true);
+      setError(null);
+      import("@/lib/configurator-api").then(({ renderConfiguration }) => {
+        renderConfiguration(model, [...visibleLayers], apiUrl)
+          .then((blob) => {
+            const url = URL.createObjectURL(blob);
+            if (canvas) {
+              // Draw the blob onto canvas so the display path stays unified
+              const img = new window.Image();
+              img.onload = () => {
+                if (canvas && config.canvas) {
+                  canvas.width = config.canvas.width;
+                  canvas.height = config.canvas.height;
+                  const ctx = canvas.getContext("2d");
+                  ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
+                }
+                URL.revokeObjectURL(url);
+              };
+              img.src = url;
+            }
+            if (typeof window !== "undefined") {
+              const encoded = encodeConfig([...visibleLayers]);
+              window.history.replaceState(null, "", `${window.location.pathname}?layers=${encoded}`);
+            }
+          })
+          .catch((err: Error) => setError(`Preview unavailable: ${err.message}`))
+          .finally(() => setLoading(false));
+      });
     }, delay);
 
     return () => {
@@ -563,12 +610,6 @@ function useConfigurator(model: Model, apiUrl: string) {
     };
   }, [visibleLayers, config, model, apiUrl]);
 
-  // Cleanup object URL on unmount
-  useEffect(() => {
-    return () => {
-      if (prevObjectUrlRef.current) URL.revokeObjectURL(prevObjectUrlRef.current);
-    };
-  }, []);
 
   const toggleLayer = useCallback(
     (layerId: string, exclusive: boolean, groupPeers?: string[]) => {
@@ -699,10 +740,11 @@ function useConfigurator(model: Model, apiUrl: string) {
     config,
     configLoading,
     visibleLayers,
-    previewUrl,
     loading,
     error,
     alwaysVisible,
+    canvasRef,
+    preloadProgress,
     toggleLayer,
     reset,
   };
@@ -783,10 +825,11 @@ export default function EnergiccaConfigurator({
     config,
     configLoading,
     visibleLayers,
-    previewUrl,
     loading,
     error,
     alwaysVisible,
+    canvasRef,
+    preloadProgress,
     toggleLayer,
     reset,
   } = useConfigurator(model, apiUrl);
@@ -890,26 +933,26 @@ export default function EnergiccaConfigurator({
           <section style={S.previewPane}>
             <div style={S.previewFrameWrapper}>
             <div style={S.previewFrame}>
-              {previewUrl ? (
-                <img
-                  src={previewUrl}
-                  alt={`${displayName} motorcycle preview`}
-                  style={S.previewImage}
-                />
-              ) : (
-                <div style={S.previewPlaceholder}>
-                  {configLoading || loading ? (
-                    <div style={S.spinner} aria-label="Loading preview" />
-                  ) : (
-                    <span>Select options to preview</span>
-                  )}
-                </div>
-              )}
+              {/* Canvas is always rendered; hidden until first draw via opacity */}
+              <canvas
+                ref={canvasRef}
+                aria-label={`${displayName} motorcycle preview`}
+                style={{
+                  ...S.previewImage,
+                  opacity: configLoading || (loading && preloadProgress < 1) ? 0 : 1,
+                  transition: "opacity 200ms ease",
+                }}
+              />
 
-              {/* Compositing spinner overlay */}
-              {loading && previewUrl && (
-                <div style={S.loadingOverlay} aria-live="polite" aria-label="Rendering preview">
-                  <div style={S.spinner} />
+              {/* Initial load spinner (config or first server render) */}
+              {(configLoading || loading) && (
+                <div style={S.previewPlaceholder}>
+                  <div style={S.spinner} aria-label="Loading preview" />
+                  {preloadProgress > 0 && preloadProgress < 1 && (
+                    <div style={{ marginTop: 12, width: 120, height: 2, backgroundColor: "#e0e0e0", borderRadius: 1 }}>
+                      <div style={{ width: `${preloadProgress * 100}%`, height: "100%", backgroundColor: "#78BE20", borderRadius: 1, transition: "width 100ms linear" }} />
+                    </div>
+                  )}
                 </div>
               )}
             </div>
