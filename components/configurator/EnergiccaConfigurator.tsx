@@ -809,7 +809,7 @@ export default function EnergiccaConfigurator({
 
   // Contact Dealer modal state
   const [modalOpen, setModalOpen] = useState(false);
-  const [dealerForm, setDealerForm] = useState({ name: "", email: "", phone: "", location: "", sendConfig: true });
+  const [dealerForm, setDealerForm] = useState({ name: "", email: "", phone: "", location: "", message: "", sendConfig: true });
 
   // Lock body scroll while modal is open
   useEffect(() => {
@@ -836,7 +836,12 @@ export default function EnergiccaConfigurator({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...dealerForm,
+          name: dealerForm.name,
+          email: dealerForm.email,
+          phone: dealerForm.phone,
+          location: dealerForm.location,
+          message: dealerForm.message,
+          sendConfig: dealerForm.sendConfig,
           model: MODEL_DISPLAY_NAMES[model] ?? model,
           layers: layerNames,
           configUrl: shareUrl,
@@ -1215,6 +1220,18 @@ export default function EnergiccaConfigurator({
                       />
                     </div>
                   ))}
+
+                  <div style={{ marginBottom: "16px" }}>
+                    <label htmlFor="dc-message" style={{ display: "block", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: "11px", letterSpacing: "0.12em", textTransform: "uppercase", color: "#121212", marginBottom: "6px" }}>Message</label>
+                    <textarea
+                      id="dc-message"
+                      rows={3}
+                      placeholder="Any questions or specific requirements…"
+                      value={dealerForm.message}
+                      onChange={(e) => setDealerForm((f) => ({ ...f, message: e.target.value }))}
+                      style={{ width: "100%", fontFamily: "'IBM Plex Sans', sans-serif", fontSize: "14px", padding: "10px 12px", border: "1px solid #e0e0e0", borderRadius: "2px", outline: "none", color: "#121212", backgroundColor: "#fafafa", boxSizing: "border-box", cursor: "text", resize: "vertical", lineHeight: 1.5 }}
+                    />
+                  </div>
 
                   <label style={{ display: "flex", alignItems: "flex-start", gap: "10px", marginBottom: "20px", cursor: "pointer" }}>
                     <input

@@ -12,7 +12,7 @@ const LOGO_URL =
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { name, email, phone, location, model, layers, configUrl, sendConfig } = body;
+    const { name, email, phone, location, message, model, layers, configUrl, sendConfig } = body;
 
     if (!name || !email || !phone || !location) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -43,6 +43,7 @@ export async function POST(req: NextRequest) {
               <tr><td style="padding: 8px 0; color: #666;">Email</td><td style="padding: 8px 0;"><a href="mailto:${email}" style="color: #78BE20;">${email}</a></td></tr>
               <tr><td style="padding: 8px 0; color: #666;">Phone</td><td style="padding: 8px 0;">${phone}</td></tr>
               <tr><td style="padding: 8px 0; color: #666;">Location</td><td style="padding: 8px 0;">${location}</td></tr>
+              ${message ? `<tr><td style="padding: 8px 0; color: #666; vertical-align: top;">Message</td><td style="padding: 8px 0;">${message}</td></tr>` : ""}
               ${configSection}
             </table>
           </div>
