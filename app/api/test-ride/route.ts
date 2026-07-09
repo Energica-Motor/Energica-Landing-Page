@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Send notification to the team
-    await resend.emails.send({
+    const { error: err1 } = await resend.emails.send({
       from: FROM,
       to: TO,
       replyTo: email,
@@ -55,9 +55,10 @@ export async function POST(req: NextRequest) {
         </div>
       `,
     });
+    if (err1) throw new Error(err1.message);
 
     // Send confirmation to the user
-    await resend.emails.send({
+    const { error: err2 } = await resend.emails.send({
       from: FROM,
       to: email,
       subject: "Your Energica Test Ride Request",
@@ -80,6 +81,7 @@ export async function POST(req: NextRequest) {
         </div>
       `,
     });
+    if (err2) throw new Error(err2.message);
 
     return NextResponse.json({ success: true });
   } catch (err) {

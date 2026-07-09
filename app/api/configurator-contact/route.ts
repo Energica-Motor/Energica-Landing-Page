@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
       `
       : "";
 
-    await resend.emails.send({
+    const { error: err1 } = await resend.emails.send({
       from: FROM,
       to: TO,
       replyTo: email,
@@ -53,8 +53,9 @@ export async function POST(req: NextRequest) {
         </div>
       `,
     });
+    if (err1) throw new Error(err1.message);
 
-    await resend.emails.send({
+    const { error: err2 } = await resend.emails.send({
       from: FROM,
       to: email,
       subject: "Your Energica Enquiry — We'll Be In Touch",
@@ -76,6 +77,8 @@ export async function POST(req: NextRequest) {
         </div>
       `,
     });
+
+    if (err2) throw new Error(err2.message);
 
     return NextResponse.json({ success: true });
   } catch (err) {
