@@ -806,6 +806,40 @@ export default function EnergiccaConfigurator({
     });
   }, [shareUrl]);
 
+  // Contact Dealer modal state
+  const [modalOpen, setModalOpen] = useState(false);
+  const [dealerForm, setDealerForm] = useState({ name: "", email: "", phone: "", location: "", sendConfig: true });
+  const [dealerSubmitting, setDealerSubmitting] = useState(false);
+  const [dealerSuccess, setDealerSuccess] = useState(false);
+  const [dealerError, setDealerError] = useState<string | null>(null);
+
+  const handleDealerSubmit = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault();
+    setDealerSubmitting(true);
+    setDealerError(null);
+    try {
+      const layerNames = config?.layers
+        .filter((l) => visibleLayers.has(l.id))
+        .map((l) => l.name) ?? [];
+      const res = await fetch("/api/configurator-contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...dealerForm,
+          model: MODEL_DISPLAY_NAMES[model] ?? model,
+          layers: layerNames,
+          configUrl: shareUrl,
+        }),
+      });
+      if (!res.ok) throw new Error("Submit failed");
+      setDealerSuccess(true);
+    } catch {
+      setDealerError("Something went wrong. Please try again.");
+    } finally {
+      setDealerSubmitting(false);
+    }
+  }, [dealerForm, config, visibleLayers, model, shareUrl]);
+
   // An always-visible layer explicitly placed in an exclusive UI group is a
   // selectable option (e.g. Stealth Grey base whose "selection" means no overlay),
   // not a hidden structural layer — keep it visible and clickable.
@@ -869,10 +903,22 @@ export default function EnergiccaConfigurator({
           .energica-main {
             flex-direction: column !important;
           }
+          .energica-preview-pane {
+            width: 100% !important;
+            height: 320px !important;
+            min-height: 0 !important;
+            position: static !important;
+            flex-shrink: 0 !important;
+          }
           .energica-config-pane {
             width: 100% !important;
+            min-height: 0 !important;
             position: static !important;
-            max-height: none !important;
+          }
+          .energica-modal-box {
+            width: 92vw !important;
+            max-height: 90vh !important;
+            overflow-y: auto !important;
           }
         }
       `}</style>
@@ -887,7 +933,7 @@ export default function EnergiccaConfigurator({
         {/* Body */}
         <main style={S.main} className="energica-main">
           {/* Preview pane */}
-          <section style={S.previewPane}>
+          <section style={S.previewPane} className="energica-preview-pane">
             <div style={S.previewFrameWrapper}>
             <div style={S.previewFrame}>
               {previewUrl ? (
@@ -1064,41 +1110,33 @@ export default function EnergiccaConfigurator({
 
                 {/* Action buttons */}
                 <div style={S.actions}>
-                  {/* Share URL */}
-                  <div style={S.shareRow}>
-                    <input
-                      type="text"
-                      readOnly
-                      value={shareUrl}
-                      style={S.shareInput}
-                      aria-label="Share URL"
-                    />
+                  {/* Row 1: secondary actions side by side */}
+                  <div style={{ display: "flex", gap: "8px" }}>
                     <button
                       type="button"
                       onClick={handleCopy}
-                      style={S.copyBtn}
-                      aria-label="Copy share URL"
+                      style={{ ...S.btnSecondary, flex: 1, padding: "12px 8px" }}
+                      aria-label="Share this configuration"
                     >
-                      {copied ? "Copied" : "Copy"}
+                      {copied ? "✓ Copied" : "Share Build"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={reset}
+                      style={{ ...S.btnSecondary, flex: 1, padding: "12px 8px" }}
+                      aria-label="Reset to default configuration"
+                    >
+                      Reset
                     </button>
                   </div>
 
+                  {/* Row 2: primary CTA */}
                   <button
                     type="button"
-                    onClick={reset}
-                    style={S.btnSecondary}
-                    aria-label="Reset to default configuration"
+                    onClick={() => { setModalOpen(true); setDealerSuccess(false); setDealerError(null); }}
+                    style={{ ...S.btnPrimary, fontSize: "14px", padding: "16px 24px", letterSpacing: "0.15em" }}
                   >
-                    Reset to Default
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleCopy}
-                    style={S.btnPrimary}
-                    aria-label="Share this configuration"
-                  >
-                    Share Configuration
+                    Contact Dealer
                   </button>
                 </div>
               </div>
@@ -1111,6 +1149,81 @@ export default function EnergiccaConfigurator({
           <p style={S.footerTagline}>Progress, Ridden.</p>
         </footer>
       </div>
+
+      {/* Contact Dealer Modal */}
+      {modalOpen && (
+        <div
+          style={{ position: "fixed", inset: 0, zIndex: 200, backgroundColor: "rgba(0,0,0,0.55)", display: "flex", alignItems: "center", justifyContent: "center", padding: "16px" }}
+          onClick={(e) => { if (e.target === e.currentTarget) setModalOpen(false); }}
+        >
+          <div
+            className="energica-modal-box"
+            style={{ backgroundColor: "#fff", color: "#121212", width: "480px", maxWidth: "100%", borderRadius: "2px", overflow: "hidden", boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }}
+          >
+            {/* Modal header */}
+            <div style={{ backgroundColor: "#0a0a0a", padding: "20px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "3px solid #78BE20" }}>
+              <div>
+                <p style={{ margin: 0, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: "18px", letterSpacing: "0.12em", textTransform: "uppercase", color: "#fff" }}>Contact Dealer</p>
+                <p style={{ margin: "2px 0 0", fontFamily: "'Barlow Condensed', sans-serif", fontSize: "11px", letterSpacing: "0.1em", color: "#78BE20", textTransform: "uppercase" }}>{MODEL_DISPLAY_NAMES[model] ?? model}</p>
+              </div>
+              <button type="button" onClick={() => setModalOpen(false)} style={{ background: "none", border: "none", color: "#888", fontSize: "20px", cursor: "pointer", lineHeight: 1, padding: "4px" }} aria-label="Close">✕</button>
+            </div>
+
+            <div style={{ padding: "24px" }}>
+              {dealerSuccess ? (
+                <div style={{ textAlign: "center", padding: "32px 0" }}>
+                  <div style={{ fontSize: "40px", marginBottom: "16px" }}>✓</div>
+                  <p style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: "20px", letterSpacing: "0.08em", textTransform: "uppercase", margin: "0 0 8px", color: "#121212" }}>Thank You!</p>
+                  <p style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: "14px", color: "#666", margin: 0 }}>We&apos;ll connect you with your nearest dealer within 24 hours.</p>
+                </div>
+              ) : (
+                <form onSubmit={handleDealerSubmit} noValidate>
+                  {[
+                    { id: "dc-name", label: "Full Name", key: "name", type: "text", placeholder: "Jane Smith" },
+                    { id: "dc-email", label: "Email", key: "email", type: "email", placeholder: "jane@example.com" },
+                    { id: "dc-phone", label: "Phone", key: "phone", type: "tel", placeholder: "+1 555 000 0000" },
+                    { id: "dc-location", label: "Location / Country", key: "location", type: "text", placeholder: "Milan, Italy" },
+                  ].map(({ id, label, key, type, placeholder }) => (
+                    <div key={key} style={{ marginBottom: "16px" }}>
+                      <label htmlFor={id} style={{ display: "block", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: "11px", letterSpacing: "0.12em", textTransform: "uppercase", color: "#121212", marginBottom: "6px" }}>{label} *</label>
+                      <input
+                        id={id}
+                        type={type}
+                        required
+                        placeholder={placeholder}
+                        value={(dealerForm as unknown as Record<string, string>)[key]}
+                        onChange={(e) => setDealerForm((f) => ({ ...f, [key]: e.target.value }))}
+                        style={{ width: "100%", fontFamily: "'IBM Plex Sans', sans-serif", fontSize: "14px", padding: "10px 12px", border: "1px solid #e0e0e0", borderRadius: "2px", outline: "none", color: "#121212", backgroundColor: "#fafafa", boxSizing: "border-box" }}
+                      />
+                    </div>
+                  ))}
+
+                  <label style={{ display: "flex", alignItems: "flex-start", gap: "10px", marginBottom: "20px", cursor: "pointer" }}>
+                    <input
+                      type="checkbox"
+                      checked={dealerForm.sendConfig}
+                      onChange={(e) => setDealerForm((f) => ({ ...f, sendConfig: e.target.checked }))}
+                      style={{ marginTop: "2px", accentColor: "#78BE20", width: "15px", height: "15px", flexShrink: 0 }}
+                    />
+                    <span style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: "13px", color: "#555", lineHeight: "1.4" }}>Send my configuration details to the dealer</span>
+                  </label>
+
+                  {dealerError && (
+                    <p style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: "13px", color: "#c0392b", margin: "0 0 16px" }}>{dealerError}</p>
+                  )}
+
+                  <div style={{ display: "flex", gap: "8px" }}>
+                    <button type="button" onClick={() => setModalOpen(false)} style={{ ...S.btnSecondary, flex: 1 }}>Cancel</button>
+                    <button type="submit" disabled={dealerSubmitting} style={{ ...S.btnPrimary, flex: 2, opacity: dealerSubmitting ? 0.7 : 1 }}>
+                      {dealerSubmitting ? "Sending…" : "Send Enquiry"}
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
