@@ -12,8 +12,8 @@ function EnergicaLogo({ className }: { className?: string }) {
     <Image
       src="/images/Logo/energica-logo-horizontal-flag-green.webp"
       alt="Energica Motor Company"
-      width={160}
-      height={32}
+      width={182}
+      height={40}
       className={className}
       priority
     />
@@ -310,8 +310,9 @@ export default function Navigation({ alwaysDark = false }: { alwaysDark?: boolea
           {/* Logo */}
           <Link href="/" className="relative z-50 flex-shrink-0 flex flex-col gap-1.5">
             <EnergicaLogo className="h-10 w-auto" />
-            {/* Italian tricolore stripe — under the wordmark only (it starts 28.1% into the logo, = 51px at h-10) */}
-            <span className="flex h-[3px] ml-[51px]" aria-hidden>
+            {/* Italian tricolore stripe — spans the wordmark exactly (logo image is 1878×412,
+                wordmark x 528–1878 → 51px–182px at h-10) */}
+            <span className="flex h-[3px] ml-[51px] w-[131px] self-start" aria-hidden>
               <span className="flex-1 bg-[#009246]" />
               <span className="flex-1 bg-[#F1F2F1]" />
               <span className="flex-1 bg-[#CE2B37]" />
