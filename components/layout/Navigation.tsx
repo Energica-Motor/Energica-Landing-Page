@@ -308,11 +308,11 @@ export default function Navigation({ alwaysDark = false }: { alwaysDark?: boolea
       >
         <div className="max-w-[1600px] mx-auto px-[clamp(24px,4vw,64px)] h-20 md:h-24 flex items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="relative z-50 flex-shrink-0 flex flex-col gap-1.5">
+          <Link href="/" className="relative z-50 flex-shrink-0">
             <EnergicaLogo className="h-10 w-auto" />
-            {/* Italian tricolore stripe — spans the wordmark exactly (logo image is 1878×412,
-                wordmark x 528–1878 → 51px–182px at h-10) */}
-            <span className="flex h-[3px] ml-[51px] w-[131px] self-start" aria-hidden>
+            {/* Italian tricolore underline — sits right under the wordmark (logo image is 1878×412;
+                wordmark spans x 528–1878, y 144–268 → 51–182px wide, letters end 26px down at h-10) */}
+            <span className="absolute left-[51px] top-[29px] flex h-[3px] w-[131px]" aria-hidden>
               <span className="flex-1 bg-[#009246]" />
               <span className="flex-1 bg-[#F1F2F1]" />
               <span className="flex-1 bg-[#CE2B37]" />
