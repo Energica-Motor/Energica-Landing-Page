@@ -32,7 +32,7 @@ export default function RacingHero() {
       {/* Content — pinned to bottom-left like most racing hero layouts */}
       <div className="absolute bottom-16 left-0 right-0 z-10">
         <Container>
-          <span className="mono-tag mb-5 inline-block">
+          <span className="mono-tag mono-tag-red mb-5 inline-block">
             MotoE · MotoAmerica · Racing Heritage
           </span>
           <h1

@@ -413,6 +413,12 @@ h4, h5, h6 { font-size: var(--text-h4); }
   line-height: 1;
 }
 
+/* Racing / Italian heritage variant */
+.mono-tag-red {
+  border-color: var(--accent-red);
+  color: var(--accent-red);
+}
+
 /* ── Legal page prose ─────────────────────────────────── */
 .prose-legal p {
   font-family: var(--font-ibm-sans), 'IBM Plex Sans', sans-serif;

@@ -113,7 +113,7 @@ export default function MotoAmericaSection() {
               <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-[#CE2B37]" />
               <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-[#CE2B37]" />
               <div className="absolute bottom-4 left-4">
-                <span className="mono-tag" style={{ background: "rgba(0,0,0,0.65)", backdropFilter: "blur(4px)" }}>Super Hooligan National Championship</span>
+                <span className="mono-tag mono-tag-red" style={{ background: "rgba(0,0,0,0.65)", backdropFilter: "blur(4px)" }}>Super Hooligan National Championship</span>
               </div>
             </div>
 
