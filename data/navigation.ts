@@ -38,6 +38,10 @@ export const navItems: NavItem[] = [
     href: "/technology",
   },
   {
+    label: "ReCharge",
+    href: "/recharge",
+  },
+  {
     label: "Racing",
     href: "/racing",
   },
