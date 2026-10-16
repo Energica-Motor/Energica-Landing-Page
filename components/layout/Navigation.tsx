@@ -165,6 +165,7 @@ function MobileOverlay({
   const mobileLinks = [
     { label: "Models", href: "/models" },
     { label: "Technology", href: "/technology" },
+    { label: "ReCharge", href: "/recharge" },
     { label: "Racing", href: "/racing" },
     { label: "Contact", href: "/contact" },
   ];
