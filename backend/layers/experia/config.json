@@ -202,17 +202,6 @@
       "visible_by_default": true,
       "always_visible": true,
       "group": "base_color"
-    },
-    {
-      "id": "background",
-      "name": "BACKGROUND",
-      "filename": "background.png",
-      "z_index": 18,
-      "offset_x": 0,
-      "offset_y": 0,
-      "visible_by_default": true,
-      "always_visible": true,
-      "group": "optional_upgrades"
     }
   ],
   "groups": {
@@ -249,8 +238,7 @@
   },
   "rules": {
     "always_visible": [
-      "ex_01_base_experia_metal_black",
-      "background"
+      "ex_01_base_experia_metal_black"
     ],
     "mutually_exclusive": [
       [
