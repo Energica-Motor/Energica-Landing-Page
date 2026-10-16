@@ -308,8 +308,14 @@ export default function Navigation({ alwaysDark = false }: { alwaysDark?: boolea
       >
         <div className="max-w-[1600px] mx-auto px-[clamp(24px,4vw,64px)] h-20 md:h-24 flex items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="relative z-50 flex-shrink-0">
+          <Link href="/" className="relative z-50 flex-shrink-0 flex flex-col gap-1.5">
             <EnergicaLogo className="h-10 w-auto" />
+            {/* Italian tricolore stripe */}
+            <span className="flex h-[3px] w-full" aria-hidden>
+              <span className="flex-1 bg-[#009246]" />
+              <span className="flex-1 bg-[#F1F2F1]" />
+              <span className="flex-1 bg-[#CE2B37]" />
+            </span>
           </Link>
 
           {/* Desktop Nav */}
