@@ -312,17 +312,6 @@
       "visible_by_default": true,
       "always_visible": true,
       "group": "base_color"
-    },
-    {
-      "id": "background",
-      "name": "BACKGROUND",
-      "filename": "background.png",
-      "z_index": 28,
-      "offset_x": 0,
-      "offset_y": 0,
-      "visible_by_default": true,
-      "always_visible": false,
-      "group": "optional_upgrades"
     }
   ],
   "groups": {
@@ -377,8 +366,7 @@
   },
   "rules": {
     "always_visible": [
-      "es_01_base_esseesse9_bormio_ice",
-      "background"
+      "es_01_base_esseesse9_bormio_ice"
     ],
     "mutually_exclusive": [
       [

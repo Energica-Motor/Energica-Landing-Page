@@ -191,7 +191,7 @@ const S = {
     position: "sticky" as const,
     top: "80px",
     height: "calc(100vh - 80px)",
-    backgroundColor: "#f0f0f0",
+    backgroundColor: "#ffffff",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",

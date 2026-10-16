@@ -257,17 +257,6 @@
       "visible_by_default": true,
       "always_visible": true,
       "group": "base_color"
-    },
-    {
-      "id": "background",
-      "name": "BACKGROUND",
-      "filename": "background.png",
-      "z_index": 23,
-      "offset_x": 0,
-      "offset_y": 0,
-      "visible_by_default": true,
-      "always_visible": false,
-      "group": "optional_upgrades"
     }
   ],
   "groups": {
@@ -313,8 +302,7 @@
   },
   "rules": {
     "always_visible": [
-      "er_01_base_ribelle_stealth_grey",
-      "background"
+      "er_01_base_ribelle_stealth_grey"
     ],
     "mutually_exclusive": [
       [

@@ -290,17 +290,6 @@
       "visible_by_default": true,
       "always_visible": true,
       "group": "base_color"
-    },
-    {
-      "id": "background",
-      "name": "BACKGROUND",
-      "filename": "background.png",
-      "z_index": 26,
-      "offset_x": -3,
-      "offset_y": 0,
-      "visible_by_default": true,
-      "always_visible": true,
-      "group": "optional_upgrades"
     }
   ],
   "groups": {
@@ -347,8 +336,7 @@
   },
   "rules": {
     "always_visible": [
-      "eg_01_base_ego_metal_black",
-      "background"
+      "eg_01_base_ego_metal_black"
     ],
     "mutually_exclusive": [
       [
