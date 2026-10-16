@@ -10,10 +10,10 @@ import { cn } from "@/lib/utils";
 function EnergicaLogo({ className }: { className?: string }) {
   return (
     <Image
-      src="/images/Logo/energica-logo-horizontal.webp"
+      src="/images/Logo/energica-logo-horizontal-flag-green.webp"
       alt="Energica Motor Company"
-      width={160}
-      height={32}
+      width={182}
+      height={40}
       className={className}
       priority
     />
@@ -310,6 +310,13 @@ export default function Navigation({ alwaysDark = false }: { alwaysDark?: boolea
           {/* Logo */}
           <Link href="/" className="relative z-50 flex-shrink-0">
             <EnergicaLogo className="h-10 w-auto" />
+            {/* Italian tricolore underline — sits right under the wordmark (logo image is 1878×412;
+                wordmark spans x 528–1878, y 144–268 → 51–182px wide, letters end 26px down at h-10) */}
+            <span className="absolute left-[51px] top-[29px] flex h-[3px] w-[131px]" aria-hidden>
+              <span className="flex-1 bg-[#009246]" />
+              <span className="flex-1 bg-[#F1F2F1]" />
+              <span className="flex-1 bg-[#CE2B37]" />
+            </span>
           </Link>
 
           {/* Desktop Nav */}
