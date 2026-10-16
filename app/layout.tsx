@@ -105,6 +105,7 @@ export default function RootLayout({
                     "https://www.youtube.com/@ENERGICAMOTORCOMPANY",
                     "https://www.facebook.com/EnergicaMotorCompany/",
                     "https://www.linkedin.com/company/energica-motor-company/",
+                    "https://x.com/EnergicaMotor",
                     "https://en.wikipedia.org/wiki/Energica_Motor_Company"
                   ]
                 },
