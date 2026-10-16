@@ -40,7 +40,7 @@ export default function RacingHero() {
             style={{ fontSize: "clamp(40px, 6.5vw, 100px)" }}
           >
             Born on the grid.<br />
-            <span className="text-[#78BE20]">Proven on the road.</span>
+            <span className="text-[#CE2B37]">Proven on the road.</span>
           </h1>
           <p className="text-sm text-white/65 max-w-[480px] leading-relaxed" style={{ fontFamily: "var(--font-ibm-sans)", fontWeight: 300 }}>
             4 seasons. 22+ rounds. One motorcycle — the Energica Ego Corsa.<br />

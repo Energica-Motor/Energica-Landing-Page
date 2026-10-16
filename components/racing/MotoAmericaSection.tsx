@@ -64,7 +64,7 @@ export default function MotoAmericaSection() {
             {/* Text */}
             <div>
               <p className="ma-eyebrow inline-flex items-center gap-3 mb-6">
-                <span className="w-6 h-px bg-[#78BE20]" />
+                <span className="w-6 h-px bg-[#CE2B37]" />
                 <span className="text-[10px] uppercase tracking-[0.35em] text-white/60 font-mono">
                   MotoAmerica · 2023–2024
                 </span>
@@ -75,7 +75,7 @@ export default function MotoAmericaSection() {
                 style={{ fontSize: "clamp(40px, 6vw, 80px)" }}
               >
                 First Electric.<br />
-                <span className="text-[#78BE20]">Super Hooligan.</span>
+                <span className="text-[#CE2B37]">Super Hooligan.</span>
               </h2>
 
               <div className="ma-copy space-y-4 mb-8">
@@ -110,8 +110,8 @@ export default function MotoAmericaSection() {
                 sizes="(max-width: 1024px) 100vw, 50vw"
               />
               {/* Corner accents */}
-              <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-[#78BE20]" />
-              <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-[#78BE20]" />
+              <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-[#CE2B37]" />
+              <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-[#CE2B37]" />
               <div className="absolute bottom-4 left-4">
                 <span className="mono-tag" style={{ background: "rgba(0,0,0,0.65)", backdropFilter: "blur(4px)" }}>Super Hooligan National Championship</span>
               </div>
@@ -140,7 +140,7 @@ export default function MotoAmericaSection() {
                   1
                 </span>
                 <span
-                  className="font-display text-[#78BE20] leading-none mb-1"
+                  className="font-display text-[#CE2B37] leading-none mb-1"
                   style={{ fontSize: "clamp(20px, 3vw, 40px)" }}
                 >
                   st
@@ -152,7 +152,7 @@ export default function MotoAmericaSection() {
             </div>
             <div className="flex flex-col items-center gap-2">
               <p
-                className="font-display text-[#78BE20] leading-none"
+                className="font-display text-[#CE2B37] leading-none"
                 style={{ fontSize: "clamp(28px, 4vw, 56px)" }}
               >
                 SHRC
@@ -169,7 +169,7 @@ export default function MotoAmericaSection() {
       <div className="w-full py-[120px] bg-[#0d0d0d]">
         <Container>
           <div className="mb-10 inline-flex items-center gap-3">
-            <span className="w-6 h-px bg-[#78BE20]" />
+            <span className="w-6 h-px bg-[#CE2B37]" />
             <span className="text-[10px] uppercase tracking-[0.35em] text-white/65 font-mono">
               On Track
             </span>
@@ -190,7 +190,7 @@ export default function MotoAmericaSection() {
                 style={{ objectPosition: "center 65%" }}
                 sizes="100vw"
               />
-              <div className="absolute inset-x-0 bottom-0 h-[2px] bg-[#78BE20] scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
+              <div className="absolute inset-x-0 bottom-0 h-[2px] bg-[#CE2B37] scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
             </div>
 
             {/* Three standard cells — BJNB1846, BJNB2683, BJNB2689 */}
@@ -207,7 +207,7 @@ export default function MotoAmericaSection() {
                   className="object-cover transition-transform duration-700 group-hover:scale-[1.05]"
                   sizes="(max-width: 768px) 100vw, 33vw"
                 />
-                <div className="absolute inset-x-0 bottom-0 h-[2px] bg-[#78BE20] scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
+                <div className="absolute inset-x-0 bottom-0 h-[2px] bg-[#CE2B37] scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
               </div>
             ))}
 

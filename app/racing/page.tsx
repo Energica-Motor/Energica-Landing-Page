@@ -53,7 +53,7 @@ export default function RacingPage() {
             {/* Text */}
             <div>
               <p className="inline-flex items-center gap-3 mb-6">
-                <span className="w-6 h-px bg-[#78BE20]" />
+                <span className="w-6 h-px bg-[#CE2B37]" />
                 <span className="text-[10px] uppercase tracking-[0.35em] text-white/60">
                   Born on the Track
                 </span>
@@ -86,8 +86,8 @@ export default function RacingPage() {
                 className="object-cover"
                 sizes="(max-width: 1024px) 100vw, 50vw"
               />
-              <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-[#78BE20]" />
-              <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-[#78BE20]" />
+              <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-[#CE2B37]" />
+              <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-[#CE2B37]" />
             </div>
           </div>
         </Container>
@@ -101,11 +101,11 @@ export default function RacingPage() {
         <Container>
           <div className="mb-14 text-center">
             <p className="inline-flex items-center gap-3 mb-4">
-              <span className="w-6 h-px bg-[#78BE20]" />
+              <span className="w-6 h-px bg-[#CE2B37]" />
               <span className="text-[10px] uppercase tracking-[0.35em] text-white/65">
                 From Circuit to Street
               </span>
-              <span className="w-6 h-px bg-[#78BE20]" />
+              <span className="w-6 h-px bg-[#CE2B37]" />
             </p>
             <h2
               className="font-display text-white leading-none"
@@ -132,7 +132,7 @@ export default function RacingPage() {
             ].map((item) => (
               <div
                 key={item.title}
-                className="p-6 border border-white/[0.06] bg-[#0a0a0a] hover:border-[#78BE20]/25 transition-colors duration-300"
+                className="p-6 border border-white/[0.06] bg-[#0a0a0a] hover:border-[#CE2B37]/25 transition-colors duration-300"
               >
                 <h3 className="font-display text-white text-xl mb-3">
                   {item.title}
@@ -151,7 +151,7 @@ export default function RacingPage() {
           {/* Section header */}
           <div className="mb-12">
             <p className="inline-flex items-center gap-3 mb-4">
-              <span className="w-6 h-px bg-[#78BE20]" />
+              <span className="w-6 h-px bg-[#CE2B37]" />
               <span className="text-[10px] uppercase tracking-[0.35em] text-white/60">
                 2019 – 2022
               </span>
@@ -161,7 +161,7 @@ export default function RacingPage() {
               style={{ fontSize: "clamp(32px, 4.5vw, 64px)" }}
             >
               FIM Enel MotoE<br />
-              <span className="text-[#78BE20]">World Cup.</span>
+              <span className="text-[#CE2B37]">World Cup.</span>
             </h2>
           </div>
 

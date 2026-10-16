@@ -64,7 +64,7 @@ export default function TrackOutline({ sectionRef }: { sectionRef: React.RefObje
             C 120 175 110 150 120 120
             C 130 90 165 70 200 75
           "
-          stroke="#78BE20"
+          stroke="#CE2B37"
           strokeWidth="1.5"
           strokeLinecap="round"
           strokeLinejoin="round"

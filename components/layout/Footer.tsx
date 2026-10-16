@@ -65,7 +65,13 @@ const COUNTRIES = [
 
 export default function Footer() {
   return (
-    <footer className="border-t-2 border-[#78BE20] bg-[#080808]">
+    <footer className="bg-[#080808]">
+      {/* Italian tricolore top edge */}
+      <div className="flex h-[2px]" aria-hidden>
+        <span className="flex-1 bg-[#009246]" />
+        <span className="flex-1 bg-[#F1F2F1]" />
+        <span className="flex-1 bg-[#CE2B37]" />
+      </div>
 
       {/* ── Top section ─────────────────────────────────────── */}
       <Container className="pt-16 pb-12">
@@ -200,8 +206,13 @@ export default function Footer() {
 
           {/* Copyright + legal */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-            <p className="text-[10px] text-white/45">
+            <p className="flex items-center gap-2 text-[10px] text-white/45">
               © {new Date().getFullYear()} ENERGICA PTE LTD — Modena, Italy
+              <span className="inline-flex h-[8px] w-[12px] overflow-hidden rounded-[1px]" role="img" aria-label="Italian flag">
+                <span className="flex-1 bg-[#009246]" />
+                <span className="flex-1 bg-[#F1F2F1]" />
+                <span className="flex-1 bg-[#CE2B37]" />
+              </span>
             </p>
             <div className="hidden sm:block w-px h-3 bg-white/10" />
             <div className="flex flex-wrap gap-4">
