@@ -476,7 +476,7 @@ export default function BikeShowcase() {
               >
                 <div className="flex items-center gap-3 mb-5 md:mb-6">
                   <span style={{ fontFamily:"var(--font-ibm-mono)", fontSize:"11px", letterSpacing:"0.45em", color:"rgba(255,255,255,0.55)" }}>{bike.index}</span>
-                  <div className="w-5 h-px bg-white/40" />
+                  <div className="w-5 h-px bg-[#CE2B37]/70" />
                   <span className="mono-tag">{bike.category}</span>
                 </div>
                 <h2 className="font-display text-[clamp(38px,9vw,124px)] text-white leading-[0.88] uppercase tracking-tight mb-3">{bike.name}</h2>
@@ -490,7 +490,7 @@ export default function BikeShowcase() {
                   <p className="text-[11px] tracking-[0.4em] text-white/50 uppercase" style={{ fontFamily:"var(--font-ibm-mono)" }}>{bike.stat.label}</p>
                 </div>
                 <Link href={bike.href} className="inline-flex items-center gap-3 group">
-                  <span className="h-px w-8 group-hover:w-16 transition-all duration-300" style={{ backgroundColor:bike.accent }} />
+                  <span className="h-px w-8 group-hover:w-16 transition-all duration-300 bg-[#CE2B37]" />
                   <span className="text-[11px] tracking-[0.3em] text-white uppercase group-hover:text-white/50 transition-colors duration-200">Discover {bike.name}</span>
                   <span className="text-xs opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all duration-200" style={{ color:bike.accent }}>→</span>
                 </Link>

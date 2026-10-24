@@ -139,7 +139,7 @@ export default function HeroSection() {
 
       <div className="absolute bottom-8 right-8 md:right-12 lg:right-20 z-20 hidden sm:flex flex-col items-center gap-2">
         <div className="w-px h-12 bg-white/20 relative overflow-hidden">
-          <div suppressHydrationWarning className="absolute top-0 left-0 w-full bg-[#78BE20]" style={{ height: "40%", animation: "scrollDown 2s ease-in-out infinite" }} />
+          <div suppressHydrationWarning className="absolute top-0 left-0 w-full bg-[linear-gradient(to_bottom,#009246_0%,#009246_33%,#F1F2F1_33%,#F1F2F1_66%,#CE2B37_66%,#CE2B37_100%)]" style={{ height: "60%", animation: "scrollDown 2s ease-in-out infinite" }} />
         </div>
         <span className="text-[9px] tracking-[0.3em] text-white/65 uppercase mt-4" style={{ writingMode: "vertical-rl" }}>Scroll</span>
       </div>

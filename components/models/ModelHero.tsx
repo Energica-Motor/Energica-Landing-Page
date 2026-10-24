@@ -169,7 +169,7 @@ export default function ModelHero({ model }: ModelHeroProps) {
       <div className="mh-scroll absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
         <span className="text-[9px] uppercase tracking-[0.3em] text-white/60">Scroll</span>
         <div className="w-px h-8 bg-white/15 relative overflow-hidden">
-          <div className="absolute inset-x-0 top-0 h-full bg-white/60 scroll-indicator-line" />
+          <div className="absolute inset-x-0 top-0 h-full bg-[linear-gradient(to_bottom,#009246_0%,#009246_33%,#F1F2F1_33%,#F1F2F1_66%,#CE2B37_66%,#CE2B37_100%)] scroll-indicator-line" />
         </div>
       </div>
 

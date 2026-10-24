@@ -27,7 +27,7 @@ export default function RacingMoment() {
               Every watt. Every lap. Every championship.<br />Race-proven, road-ridden.
             </p>
             <Link href="/racing" className="inline-flex items-center gap-3 group">
-              <div className="w-8 h-px bg-white/40 group-hover:w-12 transition-all duration-300" />
+              <div className="w-8 h-px bg-[#CE2B37] group-hover:w-12 transition-all duration-300" />
               <span className="text-xs tracking-[0.3em] text-white/60 uppercase group-hover:text-white transition-colors" style={{ fontFamily: "var(--font-ibm-mono)" }}>
                 Full Racing Story
               </span>

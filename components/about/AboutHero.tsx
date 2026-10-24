@@ -85,7 +85,7 @@ export default function AboutHero() {
 
             {/* Scroll indicator */}
             <div className="ah-item mt-8 flex items-center gap-3">
-              <div className="w-px h-7 bg-[#78BE20]/45" />
+              <div className="w-px h-7 opacity-70 bg-[linear-gradient(to_bottom,#009246_0%,#009246_33%,#F1F2F1_33%,#F1F2F1_66%,#CE2B37_66%,#CE2B37_100%)]" />
               <span
                 className="text-[9px] uppercase tracking-[0.45em] text-white/40"
                 style={{ fontFamily: "var(--font-ibm-mono)" }}

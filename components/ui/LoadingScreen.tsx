@@ -76,11 +76,11 @@ export default function LoadingScreen() {
         className="object-contain opacity-75 mb-10"
       />
 
-      {/* Thin red progress bar */}
+      {/* Thin tricolore progress bar */}
       <div className="w-28 h-px bg-white/10 overflow-hidden">
         <div
           ref={barRef}
-          className="h-full bg-[#78BE20] origin-left"
+          className="h-full bg-[linear-gradient(to_right,#009246_0%,#009246_33%,#F1F2F1_33%,#F1F2F1_66%,#CE2B37_66%,#CE2B37_100%)] origin-left"
           style={{ transform: "scaleX(0)" }}
         />
       </div>
