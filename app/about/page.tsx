@@ -93,20 +93,6 @@ export default function AboutPage() {
         </Container>
       </section>
 
-      {/* ── PULL QUOTE ────────────────────────────────────────── */}
-      <section className="w-full bg-[#0d0d0d] border-y border-white/[0.04]">
-        <Container className="py-20">
-          <p className="font-display text-white leading-tight max-w-4xl"
-            style={{ fontSize: "clamp(28px, 4vw, 56px)" }}>
-            &ldquo;Performance is not a feature.{" "}
-            <span className="text-[#78BE20]">It is the baseline.&rdquo;</span>
-          </p>
-          <p className="text-[10px] uppercase tracking-[0.35em] text-white/40 mt-6 font-mono">
-            Engineered in Motor Valley · Modena, Italy
-          </p>
-        </Container>
-      </section>
-
       {/* ── CULTURAL VALIDATION ───────────────────────────────── */}
       <section className="w-full py-[120px]">
         <Container>
