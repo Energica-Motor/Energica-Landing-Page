@@ -287,23 +287,48 @@ export default function BikeShowcase() {
       }, 180);
     }
 
-    /* ── Touch ───────────────────────────────────────────────────  */
-    let touchStartY = 0, touching = false;
+    /* ── Touch ───────────────────────────────────────────────────
+       The lock decision is made on the FIRST touchmove of a gesture,
+       once the swipe direction is known. iOS/Android cancel a whole
+       gesture's scrolling if its first touchmove is preventDefault-ed,
+       so locking on touchstart (direction unknown) trapped users on the
+       first/last bike: every swipe re-locked before it could release. */
+    let touchStartY = 0, touching = false, decided = false;
 
     function onTouchStart(e: TouchEvent) {
-      const rect = section.getBoundingClientRect();
-      /* Widen lock gate: lock whenever section is near the top (within 80px) */
-      if (!lockedRef.current && rect.top >= 0 && rect.top < 80) {
-        lockedRef.current = true;
-        const lenis = (window as any).__lenis;
-        if (lenis) lenis.stop();
-        window.scrollTo({ top: section.offsetTop, behavior: "instant" as ScrollBehavior });
-      }
-      if (!lockedRef.current) return;
-      touchStartY = e.touches[0].clientY; touching = true; pullYRef.current = 0;
+      touchStartY = e.touches[0].clientY;
+      touching = true;
+      decided = false;
+      pullYRef.current = 0;
     }
     function onTouchMove(e: TouchEvent) {
-      if (!lockedRef.current || !touching || transRef.current) return;
+      if (!touching) return;
+      if (transRef.current) {
+        /* Mid-transition: keep the page still while locked */
+        if (lockedRef.current && e.cancelable) e.preventDefault();
+        return;
+      }
+
+      if (!decided) {
+        const dy = touchStartY - e.touches[0].clientY; // > 0 = swipe up (next bike / scroll down)
+        if (dy === 0) return;
+        decided = true;
+        const forward = dy > 0;
+        const hasNext = forward ? currentRef.current < bikes.length - 1 : currentRef.current > 0;
+
+        if (lockedRef.current) {
+          /* At the first/last bike, swiping outward releases straight
+             away and lets this same gesture scroll the page natively. */
+          if (!hasNext) { touching = false; unlock(); return; }
+        } else {
+          const rect = section.getBoundingClientRect();
+          const atSection = Math.abs(rect.top) < 80;
+          if (!atSection || !hasNext || !e.cancelable) { touching = false; return; }
+          lock();
+        }
+      }
+
+      if (!lockedRef.current) return;
       e.preventDefault();
       pullYRef.current = Math.max(-THRESHOLD * 1.1, Math.min(THRESHOLD * 1.1,
         (touchStartY - e.touches[0].clientY) * 1.2));
@@ -315,8 +340,8 @@ export default function BikeShowcase() {
       else if (pullYRef.current > THRESHOLD  && currentRef.current === bikes.length - 1) { touching = false; unlock(); }
     }
     function onTouchEnd() {
-      if (!lockedRef.current) return;
       touching = false;
+      if (!lockedRef.current) return;
       if (!transRef.current) { pullYRef.current = 0; resetDrift(currentRef.current); }
     }
 
