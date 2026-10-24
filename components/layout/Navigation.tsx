@@ -7,13 +7,15 @@ import { navItems, type MegaMenuItem } from "@/data/navigation";
 import { cn } from "@/lib/utils";
 
 /* ── Logo ─────────────────────────────────────────────────── */
+// Header uses the wordmark with the Italian tricolore line (no icon).
+// Other placements (footer, loading screen, emails) keep the standard logo.
 function EnergicaLogo({ className }: { className?: string }) {
   return (
     <Image
-      src="/images/Logo/energica-logo-horizontal.webp"
+      src="/images/Logo/energica-wordmark-tricolore-white.webp"
       alt="Energica Motor Company"
-      width={160}
-      height={32}
+      width={180}
+      height={24}
       className={className}
       priority
     />
@@ -309,7 +311,7 @@ export default function Navigation({ alwaysDark = false }: { alwaysDark?: boolea
         <div className="max-w-[1600px] mx-auto px-[clamp(24px,4vw,64px)] h-20 md:h-24 flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="relative z-50 flex-shrink-0">
-            <EnergicaLogo className="h-10 w-auto" />
+            <EnergicaLogo className="h-auto w-[150px] md:w-[180px]" />
           </Link>
 
           {/* Desktop Nav */}
