@@ -120,7 +120,7 @@ export default function ModelHero({ model }: ModelHeroProps) {
       <div className="relative z-10 px-[clamp(24px,4vw,64px)] w-full max-w-2xl">
         {/* Eyebrow */}
         <p className="mh-eyebrow inline-flex items-center gap-3 mb-4">
-          <span className="w-8 h-px bg-[#78BE20]" />
+          <span className="w-8 h-px bg-[#CE2B37]" />
           <span className="text-[11px] uppercase tracking-[0.35em] text-white/65">
             Energica Motorcycles
           </span>

@@ -73,7 +73,7 @@ export default function NextModelCTA({ nextModel }: NextModelCTAProps) {
         {/* ── Left: text — shown SECOND on mobile, left column on desktop ── */}
         <div className="order-last lg:order-first">
           <p className="nm-label inline-flex items-center gap-3 mb-4 lg:mb-8">
-            <span className="w-6 h-px bg-[#78BE20]" />
+            <span className="w-6 h-px bg-[#CE2B37]" />
             <span className="text-[10px] uppercase tracking-[0.35em] text-white/65">
               Also from Energica
             </span>

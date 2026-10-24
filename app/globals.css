@@ -7,7 +7,7 @@
   --bg-secondary:  #111111;
   --bg-card:       #161616;
   --accent-green:  #78BE20;
-  --accent-red:    #78BE20; /* aliased — all red refs now resolve to brand green */
+  --accent-red:    #CE2B37; /* Italian flag red — tertiary: small lines/accents only, never text, buttons or large areas */
   --accent-gold:   #C9A84C;
   --text-primary:  #ffffff;
   --text-muted:    #6B7280;
@@ -55,6 +55,7 @@
   --color-bg-secondary: var(--bg-secondary);
   --color-bg-card: var(--bg-card);
   --color-accent-green: var(--accent-green);
+  --color-accent-red: var(--accent-red);
   --color-accent-gold: var(--accent-gold);
   --color-text-primary: var(--text-primary);
   --color-text-muted: var(--text-muted);

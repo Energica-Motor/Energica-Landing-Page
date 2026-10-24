@@ -98,7 +98,7 @@ export default function StorySection({ model }: StorySectionProps) {
             {/* Eyebrow */}
             <div className="story-para">
               <p className="inline-flex items-center gap-3">
-                <span className="w-6 h-px bg-[#78BE20]" />
+                <span className="w-6 h-px bg-[#CE2B37]" />
                 <span className="text-[10px] uppercase tracking-[0.35em] text-white/60">
                   The Story
                 </span>
@@ -113,7 +113,7 @@ export default function StorySection({ model }: StorySectionProps) {
               >
                 {model.headline}
               </h2>
-              <div className="w-10 h-[2px] bg-[#78BE20] mt-5" />
+              <div className="w-10 h-[2px] bg-[#CE2B37] mt-5" />
             </div>
 
             {/* Story paragraphs */}

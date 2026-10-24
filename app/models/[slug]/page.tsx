@@ -60,7 +60,7 @@ export default async function ModelPage({ params }: PageProps) {
         <Container className="py-[120px]">
           <div className="mb-[48px]">
             <p className="inline-flex items-center gap-3 mb-6">
-              <span className="w-6 h-px bg-[#78BE20]" />
+              <span className="w-6 h-px bg-[#CE2B37]" />
               <span className="text-[10px] uppercase tracking-[0.35em] text-white/65">
                 Gallery
               </span>
@@ -81,7 +81,7 @@ export default async function ModelPage({ params }: PageProps) {
         <Container className="py-[120px]">
           <div className="mb-[48px]">
             <p className="inline-flex items-center gap-3 mb-6">
-              <span className="w-6 h-px bg-[#78BE20]" />
+              <span className="w-6 h-px bg-[#CE2B37]" />
               <span className="text-[10px] uppercase tracking-[0.35em] text-white/65">
                 Full Specifications
               </span>

@@ -23,7 +23,7 @@ export default function LegalPage({ category, title, lastUpdated, sections, rela
         {/* Header */}
         <div className="border-b border-white/[0.06] pb-10 mb-12">
           <p className="inline-flex items-center gap-3 mb-6">
-            <span className="w-6 h-px bg-[#78BE20]" />
+            <span className="w-6 h-px bg-[#CE2B37]" />
             <span className="text-[10px] uppercase tracking-[0.4em] text-white/65">{category}</span>
           </p>
           <h1

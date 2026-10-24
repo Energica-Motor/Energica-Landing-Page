@@ -42,7 +42,7 @@ export default function AboutPage() {
             {/* Story text */}
             <div>
               <p className="inline-flex items-center gap-3 mb-6">
-                <span className="w-6 h-px bg-[#78BE20]" />
+                <span className="w-6 h-px bg-[#CE2B37]" />
                 <span className="text-[10px] uppercase tracking-[0.35em] text-white/60">
                   Our Story
                 </span>
@@ -115,7 +115,7 @@ export default function AboutPage() {
             {/* Left — heading */}
             <div>
               <p className="inline-flex items-center gap-3 mb-6">
-                <span className="w-6 h-px bg-[#78BE20]" />
+                <span className="w-6 h-px bg-[#CE2B37]" />
                 <span className="text-[10px] uppercase tracking-[0.35em] text-white/60">
                   Beyond the Road
                 </span>
@@ -145,11 +145,11 @@ export default function AboutPage() {
       <section className="w-full bg-[#0d0d0d] py-[120px] border-t border-white/[0.04]">
         <Container className="text-center">
           <p className="inline-flex items-center gap-3 mb-6 justify-center">
-            <span className="w-6 h-px bg-[#78BE20]" />
+            <span className="w-6 h-px bg-[#CE2B37]" />
             <span className="text-[10px] uppercase tracking-[0.35em] text-white/60">
               Progress, Ridden.
             </span>
-            <span className="w-6 h-px bg-[#78BE20]" />
+            <span className="w-6 h-px bg-[#CE2B37]" />
           </p>
           <h2
             className="font-display text-white leading-none mb-6"

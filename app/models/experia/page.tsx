@@ -50,7 +50,7 @@ export default function ExperiaPage() {
         <div className="max-w-[1600px] mx-auto px-[clamp(24px,4vw,64px)] py-[120px]">
           <div className="mb-10">
             <p className="inline-flex items-center gap-3 mb-3">
-              <span className="w-6 h-px bg-[#78BE20]" />
+              <span className="w-6 h-px bg-[#CE2B37]" />
               <span className="text-[10px] uppercase tracking-[0.35em] text-white/65">
                 Gallery
               </span>
@@ -71,7 +71,7 @@ export default function ExperiaPage() {
         <div className="max-w-4xl mx-auto px-[clamp(24px,4vw,64px)] py-[120px]">
           <div className="mb-12">
             <p className="inline-flex items-center gap-3 mb-3">
-              <span className="w-6 h-px bg-[#78BE20]" />
+              <span className="w-6 h-px bg-[#CE2B37]" />
               <span className="text-[10px] uppercase tracking-[0.35em] text-white/65">
                 Full Specifications
               </span>

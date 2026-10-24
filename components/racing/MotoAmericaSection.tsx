@@ -64,7 +64,7 @@ export default function MotoAmericaSection() {
             {/* Text */}
             <div>
               <p className="ma-eyebrow inline-flex items-center gap-3 mb-6">
-                <span className="w-6 h-px bg-[#78BE20]" />
+                <span className="w-6 h-px bg-[#CE2B37]" />
                 <span className="text-[10px] uppercase tracking-[0.35em] text-white/60 font-mono">
                   MotoAmerica · 2023–2024
                 </span>
@@ -169,7 +169,7 @@ export default function MotoAmericaSection() {
       <div className="w-full py-[120px] bg-[#0d0d0d]">
         <Container>
           <div className="mb-10 inline-flex items-center gap-3">
-            <span className="w-6 h-px bg-[#78BE20]" />
+            <span className="w-6 h-px bg-[#CE2B37]" />
             <span className="text-[10px] uppercase tracking-[0.35em] text-white/65 font-mono">
               On Track
             </span>

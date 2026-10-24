@@ -12,7 +12,7 @@ export default function PressPage() {
     <main className="bg-[#0a0a0a] text-white min-h-screen pt-32">
       <Container>
         <p className="inline-flex items-center gap-3 mb-6">
-          <span className="w-6 h-px bg-[#78BE20]" />
+          <span className="w-6 h-px bg-[#CE2B37]" />
           <span className="text-[10px] uppercase tracking-[0.4em] text-white/65">Press &amp; Media</span>
         </p>
         <h1

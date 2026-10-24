@@ -10,7 +10,7 @@ export default function OwnersPage() {
     <main className="bg-[#0a0a0a] text-white min-h-screen pt-32 pb-[120px]">
       <Container>
         <p className="inline-flex items-center gap-3 mb-6">
-          <span className="w-6 h-px bg-[#78BE20]" />
+          <span className="w-6 h-px bg-[#CE2B37]" />
           <span className="text-[10px] uppercase tracking-[0.4em] text-white/65">Owners</span>
         </p>
         <h1
@@ -30,7 +30,7 @@ export default function OwnersPage() {
           {/* Left: support info */}
           <div className="pt-1">
             <p className="inline-flex items-center gap-3 mb-8">
-              <span className="w-6 h-px bg-[#78BE20]" />
+              <span className="w-6 h-px bg-[#CE2B37]" />
               <span className="text-[10px] uppercase tracking-[0.35em] text-white/65 font-mono">
                 Contact Support
               </span>

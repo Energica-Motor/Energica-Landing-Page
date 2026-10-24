@@ -43,7 +43,7 @@ export default function ColorSelector({ colors }: ColorSelectorProps) {
       <div className="cs-left flex flex-col justify-center px-[clamp(24px,4vw,64px)] py-16 lg:py-0 lg:w-[340px] xl:w-[400px] shrink-0 border-r border-white/[0.04]">
 
         <p className="inline-flex items-center gap-3 mb-5">
-          <span className="w-6 h-px bg-[#78BE20]" />
+          <span className="w-6 h-px bg-[#CE2B37]" />
           <span className="text-[10px] uppercase tracking-[0.35em] text-white/60">
             Choose Your Colour
           </span>

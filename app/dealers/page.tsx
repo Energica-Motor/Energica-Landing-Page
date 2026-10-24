@@ -87,7 +87,7 @@ export default function DealersPage() {
       {/* ── Page header ─────────────────────────────────────── */}
       <Container className="py-[120px] border-b border-white/[0.04]">
         <p className="inline-flex items-center gap-3 mb-6">
-          <span className="w-6 h-px bg-[#78BE20]" />
+          <span className="w-6 h-px bg-[#CE2B37]" />
           <span className="text-[10px] uppercase tracking-[0.35em] text-white/60">
             {totalDealers} Authorised Locations
           </span>

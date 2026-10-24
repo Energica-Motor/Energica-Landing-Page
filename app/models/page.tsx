@@ -26,7 +26,7 @@ export default function ModelsPage() {
       <Container className="py-[120px]">
         <SectionReveal>
           <span className="flex items-center gap-3 mb-6">
-            <span className="w-8 h-px bg-[#78BE20]" />
+            <span className="w-8 h-px bg-[#CE2B37]" />
             <span className="text-xs uppercase tracking-[0.3em] text-white/60">
               Our Lineup
             </span>

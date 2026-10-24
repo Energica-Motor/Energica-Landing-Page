@@ -220,7 +220,7 @@ export default function TestRideForm() {
         {/* Bottom text */}
         <div className="relative z-10 p-10 pb-14">
           <p className="inline-flex items-center gap-3 mb-4">
-            <span className="w-6 h-px bg-[#78BE20]" />
+            <span className="w-6 h-px bg-[#CE2B37]" />
             <span className="text-[10px] uppercase tracking-[0.35em] text-white/65">Free · No Commitment</span>
           </p>
           <h2 className="font-display text-white leading-none mb-3" style={{ fontSize: "clamp(40px, 4vw, 64px)" }}>
@@ -252,7 +252,7 @@ export default function TestRideForm() {
           <>
             <div className="tr-field mb-10">
               <p className="inline-flex items-center gap-3 mb-4">
-                <span className="w-6 h-px bg-[#78BE20]" />
+                <span className="w-6 h-px bg-[#CE2B37]" />
                 <span className="text-[10px] uppercase tracking-[0.35em] text-white/60">Book a Test Ride</span>
               </p>
               <h1 className="font-display text-white leading-none" style={{ fontSize: "clamp(42px, 5vw, 80px)" }}>

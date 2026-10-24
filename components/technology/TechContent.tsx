@@ -542,7 +542,7 @@ function TechSection({
       <div>
         <span className="inline-flex items-center gap-3 mb-6">
           <span className="font-display text-5xl text-white/[0.20]">{num}</span>
-          <span className="w-8 h-px bg-[#78BE20]/40" />
+          <span className="w-8 h-px bg-[#CE2B37]/40" />
           <span className="text-[10px] uppercase tracking-[0.3em] text-white/60">Tech Pillar</span>
         </span>
         <h2 className="font-display text-white leading-none mb-2" style={{ fontSize: "clamp(36px, 4.5vw, 64px)" }}>
@@ -607,7 +607,7 @@ export default function TechContent() {
 
         <div className="relative z-10 max-w-[1600px] mx-auto px-[clamp(24px,4vw,64px)] w-full">
           <p className="th-eyebrow inline-flex items-center gap-3 mb-6">
-            <span className="w-6 h-px bg-[#78BE20]" />
+            <span className="w-6 h-px bg-[#CE2B37]" />
             <span className="text-[10px] uppercase tracking-[0.35em] text-white/65">Under the fairing</span>
           </p>
           <h1 className="th-h1 font-display text-white leading-[0.9] mb-6" style={{ fontSize: "clamp(48px, 8vw, 120px)" }}>
@@ -686,7 +686,7 @@ export default function TechContent() {
           <div className="mb-14">
             <p className="inline-flex items-center gap-3 mb-6">
               <span className="font-display text-5xl text-white/[0.20]">05</span>
-              <span className="w-8 h-px bg-[#78BE20]/40" />
+              <span className="w-8 h-px bg-[#CE2B37]/40" />
               <span className="text-[10px] uppercase tracking-[0.3em] text-white/60">Tech Pillar</span>
             </p>
             <h2 className="font-display text-white leading-none mb-2" style={{ fontSize: "clamp(36px, 4.5vw, 64px)" }}>

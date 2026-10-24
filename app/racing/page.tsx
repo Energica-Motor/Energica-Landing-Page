@@ -53,7 +53,7 @@ export default function RacingPage() {
             {/* Text */}
             <div>
               <p className="inline-flex items-center gap-3 mb-6">
-                <span className="w-6 h-px bg-[#78BE20]" />
+                <span className="w-6 h-px bg-[#CE2B37]" />
                 <span className="text-[10px] uppercase tracking-[0.35em] text-white/60">
                   Born on the Track
                 </span>
@@ -101,11 +101,11 @@ export default function RacingPage() {
         <Container>
           <div className="mb-14 text-center">
             <p className="inline-flex items-center gap-3 mb-4">
-              <span className="w-6 h-px bg-[#78BE20]" />
+              <span className="w-6 h-px bg-[#CE2B37]" />
               <span className="text-[10px] uppercase tracking-[0.35em] text-white/65">
                 From Circuit to Street
               </span>
-              <span className="w-6 h-px bg-[#78BE20]" />
+              <span className="w-6 h-px bg-[#CE2B37]" />
             </p>
             <h2
               className="font-display text-white leading-none"
@@ -151,7 +151,7 @@ export default function RacingPage() {
           {/* Section header */}
           <div className="mb-12">
             <p className="inline-flex items-center gap-3 mb-4">
-              <span className="w-6 h-px bg-[#78BE20]" />
+              <span className="w-6 h-px bg-[#CE2B37]" />
               <span className="text-[10px] uppercase tracking-[0.35em] text-white/60">
                 2019 – 2022
               </span>
