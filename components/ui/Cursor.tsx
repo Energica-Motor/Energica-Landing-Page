@@ -27,9 +27,10 @@ export default function Cursor() {
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    // Show elements
+    // Show elements, and hide the native pointer while we're active
     dot.style.display = "block";
     ring.style.display = "flex";
+    document.documentElement.classList.add("has-custom-cursor");
 
     // Hot-loop state (refs only — zero React re-renders)
     let mouseX = -200, mouseY = -200;
@@ -190,6 +191,7 @@ export default function Cursor() {
     rafId = requestAnimationFrame(tick);
 
     return () => {
+      document.documentElement.classList.remove("has-custom-cursor");
       cancelAnimationFrame(rafId);
       window.removeEventListener("mousemove", onMove);
       window.removeEventListener("pointerdown", onPointerDown);

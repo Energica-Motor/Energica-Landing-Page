@@ -88,9 +88,19 @@ body {
   font-size: var(--text-body);
   line-height: 1.65;
   overflow-x: hidden;
-  cursor: none; /* custom cursor active */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Hide the native pointer only while the custom cursor is running
+   (Cursor.tsx sets .has-custom-cursor). Pages without it — e.g. the
+   configurator — keep the normal pointer, and cursor-none controls fall
+   back to a hand pointer. */
+html.has-custom-cursor body {
+  cursor: none;
+}
+html:not(.has-custom-cursor) .cursor-none {
+  cursor: pointer;
 }
 
 /* ── Typography ──────────────────────────────────────────── */
