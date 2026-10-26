@@ -921,6 +921,8 @@ export default function EnergiccaConfigurator({
           }
           .energica-preview-pane {
             width: 100% !important;
+            /* flex-basis 0 collapsed the pane to 0px in the column layout */
+            flex: 0 0 320px !important;
             height: 320px !important;
             min-height: 0 !important;
             position: static !important;

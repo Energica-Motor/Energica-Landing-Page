@@ -45,6 +45,7 @@ export default function ConfiguratorShell({ initialModel }: { initialModel?: Mod
 
   return (
     <div
+      className="cfg-shell"
       style={{
         display: "flex",
         minHeight: "100vh",
@@ -54,9 +55,29 @@ export default function ConfiguratorShell({ initialModel }: { initialModel?: Mod
         paddingTop: "80px",
       }}
     >
+      {/* Phones: the 160px sidebar becomes a compact strip across the top so
+          the selected bike's preview and options get the full width. */}
+      <style>{`
+        @media (max-width: 768px) {
+          .cfg-shell { flex-direction: column !important; }
+          .cfg-nav {
+            width: 100% !important; height: auto !important; position: static !important;
+            flex-direction: row !important; overflow-x: auto !important; overflow-y: hidden !important;
+            border-right: none !important; border-bottom: 1px solid #e0e0e0; padding: 0 !important;
+          }
+          .cfg-nav-item {
+            flex: 1 0 88px !important; width: auto !important; padding: 8px 8px 6px !important;
+            border-left: none !important; align-items: center !important;
+          }
+          .cfg-nav-item[aria-selected="true"] { box-shadow: inset 0 -3px 0 #78BE20; }
+          .cfg-nav-thumb { margin-bottom: 4px !important; }
+        }
+      `}</style>
+
       {/* Model selector sidebar */}
       <nav
         aria-label="Model selector"
+        className="cfg-nav"
         style={{
           width: "160px",
           flexShrink: 0,
@@ -80,6 +101,7 @@ export default function ConfiguratorShell({ initialModel }: { initialModel?: Mod
               onClick={() => switchModel(id)}
               aria-selected={active}
               role="tab"
+              className="cfg-nav-item"
               style={{
                 display: "flex",
                 flexDirection: "column",
@@ -96,6 +118,7 @@ export default function ConfiguratorShell({ initialModel }: { initialModel?: Mod
             >
               {/* Thumbnail */}
               <div
+                className="cfg-nav-thumb"
                 style={{
                   width: "100%",
                   aspectRatio: "3/2",
