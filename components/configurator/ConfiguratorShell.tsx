@@ -58,6 +58,13 @@ export default function ConfiguratorShell({ initialModel }: { initialModel?: Mod
       {/* Phones: the 160px sidebar becomes a compact strip across the top so
           the selected bike's preview and options get the full width. */}
       <style>{`
+        /* The configurator always uses the native pointer. This style tag
+           only exists while the configurator is mounted, so it overrides any
+           leftover custom-cursor rule (cursor:none) regardless of load order
+           or navigation timing. */
+        body { cursor: auto !important; }
+        body .cursor-none { cursor: pointer !important; }
+
         @media (max-width: 768px) {
           .cfg-shell { flex-direction: column !important; }
           .cfg-nav {
