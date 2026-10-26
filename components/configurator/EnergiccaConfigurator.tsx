@@ -549,7 +549,7 @@ function useConfigurator(model: Model, apiUrl: string) {
           // Update URL bar for sharing (non-navigating)
           if (typeof window !== "undefined") {
             const encoded = encodeConfig([...visibleLayers]);
-            const newUrl = `${window.location.pathname}?layers=${encoded}`;
+            const newUrl = `${window.location.pathname}?model=${model}&layers=${encoded}`;
             window.history.replaceState(null, "", newUrl);
           }
         })
@@ -796,8 +796,8 @@ export default function EnergiccaConfigurator({
   const shareUrl = useMemo(() => {
     if (typeof window === "undefined" || visibleLayers.size === 0) return "";
     const encoded = encodeConfig([...visibleLayers]);
-    return `${window.location.origin}${window.location.pathname}?layers=${encoded}`;
-  }, [visibleLayers]);
+    return `${window.location.origin}${window.location.pathname}?model=${model}&layers=${encoded}`;
+  }, [visibleLayers, model]);
 
   const handleCopy = useCallback(() => {
     if (!shareUrl) return;

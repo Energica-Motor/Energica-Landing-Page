@@ -3,8 +3,9 @@
 import { useState } from "react";
 import Image from "next/image";
 import EnergiccaConfigurator from "./EnergiccaConfigurator";
+import type { ConfiguratorModel } from "@/lib/configurator-models";
 
-type Model = "eva_ribelle" | "essesse9" | "ego" | "experia";
+type Model = ConfiguratorModel;
 
 const MODELS: { id: Model; label: string; image: string }[] = [
   {
@@ -32,12 +33,12 @@ const MODELS: { id: Model; label: string; image: string }[] = [
 const API_URL =
   process.env.NEXT_PUBLIC_CONFIGURATOR_API_URL ?? "/api/backend";
 
-export default function ConfiguratorShell() {
-  const [activeModel, setActiveModel] = useState<Model>("eva_ribelle");
+export default function ConfiguratorShell({ initialModel }: { initialModel?: Model }) {
+  const [activeModel, setActiveModel] = useState<Model>(initialModel ?? "eva_ribelle");
 
   const switchModel = (m: Model) => {
     if (typeof window !== "undefined") {
-      window.history.replaceState(null, "", window.location.pathname);
+      window.history.replaceState(null, "", `${window.location.pathname}?model=${m}`);
     }
     setActiveModel(m);
   };

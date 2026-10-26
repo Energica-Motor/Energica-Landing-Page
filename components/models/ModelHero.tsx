@@ -4,7 +4,8 @@ import { useRef } from "react";
 import Image from "next/image";
 import { gsap, useGSAP } from "@/lib/gsap";
 import { type BikeModel } from "@/data/models";
-import { PrimaryButton, Button } from "@/components/ui/Button";
+import { PrimaryButton, SecondaryButton, Button } from "@/components/ui/Button";
+import { configuratorModelFor } from "@/lib/configurator-models";
 
 interface ModelHeroProps {
   model: BikeModel;
@@ -12,6 +13,7 @@ interface ModelHeroProps {
 
 export default function ModelHero({ model }: ModelHeroProps) {
   const sectionRef = useRef<HTMLElement>(null);
+  const configuratorModel = configuratorModelFor(model.id);
 
   useGSAP(
     () => {
@@ -162,6 +164,11 @@ export default function ModelHero({ model }: ModelHeroProps) {
         {/* CTAs */}
         <div className="flex flex-col sm:flex-row flex-wrap gap-3">
           <PrimaryButton href="/contact" className="mh-cta">Enquire Now</PrimaryButton>
+          {configuratorModel && (
+            <SecondaryButton href={`/configurator?model=${configuratorModel}`} className="mh-cta">
+              Configure
+            </SecondaryButton>
+          )}
         </div>
       </div>
 
