@@ -807,6 +807,45 @@ export default function EnergiccaConfigurator({
     });
   }, [shareUrl]);
 
+  // PDF summary: bike image + selected options grouped as in the UI (no prices)
+  const [pdfBusy, setPdfBusy] = useState(false);
+  const handleDownloadPdf = useCallback(async () => {
+    if (!config || pdfBusy) return;
+    setPdfBusy(true);
+    try {
+      const byId = new Map(config.layers.map((l) => [l.id, l]));
+      const grouped = new Set<string>();
+      const groups = Object.entries(config.groups)
+        .map(([key, ids]) => {
+          ids.forEach((id) => grouped.add(id));
+          // Same rule as the option list: an always-on base layer (e.g. the
+          // base colour) only counts as chosen if nothing else in its group is.
+          const chosen = ids.filter((id) => visibleLayers.has(id) && byId.has(id));
+          const picked = chosen.filter((id) => !alwaysVisible.has(id));
+          const options = (picked.length ? picked : chosen).map((id) => cleanLayerName(byId.get(id)!.name));
+          const label = GROUP_CONFIG[key]?.label ?? key.replace(/_/g, " ");
+          return { label, options };
+        })
+        .filter((g) => g.options.length > 0);
+      const other = [...visibleLayers]
+        .filter((id) => !grouped.has(id) && byId.has(id))
+        .map((id) => cleanLayerName(byId.get(id)!.name));
+      if (other.length) groups.push({ label: "Other", options: other });
+
+      const { downloadConfiguratorPdf } = await import("@/lib/configurator-pdf");
+      await downloadConfiguratorPdf({
+        modelName: MODEL_DISPLAY_NAMES[model] ?? model,
+        imageUrl: previewUrl,
+        groups,
+        buildUrl: shareUrl || window.location.href,
+      });
+    } catch (err) {
+      console.error("[configurator] PDF export failed", err);
+    } finally {
+      setPdfBusy(false);
+    }
+  }, [config, visibleLayers, alwaysVisible, previewUrl, model, shareUrl, pdfBusy]);
+
   // Contact Dealer modal state
   const [modalOpen, setModalOpen] = useState(false);
   const [dealerForm, setDealerForm] = useState({ name: "", email: "", phone: "", location: "", message: "", sendConfig: true });
@@ -1134,9 +1173,9 @@ export default function EnergiccaConfigurator({
                       type="button"
                       onClick={handleCopy}
                       style={{ ...S.btnSecondary, flex: 1, padding: "12px 8px" }}
-                      aria-label="Share this configuration"
+                      aria-label="Copy link to your build"
                     >
-                      {copied ? "✓ Copied" : "Share Build"}
+                      {copied ? "✓ Link copied" : "Copy link to your build"}
                     </button>
                     <button
                       type="button"
@@ -1147,6 +1186,17 @@ export default function EnergiccaConfigurator({
                       Reset
                     </button>
                   </div>
+
+                  {/* PDF summary of the build */}
+                  <button
+                    type="button"
+                    onClick={handleDownloadPdf}
+                    disabled={pdfBusy || !previewUrl}
+                    style={{ ...S.btnSecondary, padding: "12px 8px", opacity: pdfBusy || !previewUrl ? 0.6 : 1 }}
+                    aria-label="Download a PDF of your build"
+                  >
+                    {pdfBusy ? "Preparing PDF…" : "Download PDF"}
+                  </button>
 
                   {/* Row 2: primary CTA */}
                   <button
