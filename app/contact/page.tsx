@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import ContactForm from "@/components/forms/ContactForm";
 
 export const metadata: Metadata = {
@@ -25,6 +26,17 @@ export default function ContactPage() {
 
             {/* Contact details */}
             <div className="space-y-6 border-t border-white/10 pt-10">
+              <div>
+                <p className="text-[11px] tracking-[0.3em] text-white/40 uppercase mb-2" style={{ fontFamily: "var(--font-ibm-mono)" }}>Where to buy</p>
+                <Link
+                  href="/dealers"
+                  className="inline-flex items-center gap-2 text-sm text-[#78BE20] hover:text-white transition-colors duration-200 group"
+                  style={{ fontFamily: "var(--font-ibm-sans)" }}
+                >
+                  Find a dealer near you
+                  <span className="transition-transform duration-200 group-hover:translate-x-1">→</span>
+                </Link>
+              </div>
               <div>
                 <p className="text-[11px] tracking-[0.3em] text-white/40 uppercase mb-2" style={{ fontFamily: "var(--font-ibm-mono)" }}>Email</p>
                 <div className="space-y-1" style={{ fontFamily: "var(--font-ibm-sans)" }}>

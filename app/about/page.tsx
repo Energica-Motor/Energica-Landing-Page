@@ -12,8 +12,6 @@ export const metadata: Metadata = {
 const STATS = [
   { stat: "2009", label: "Founded in Modena, Italy" },
   { stat: "4", label: "Seasons as exclusive MotoE supplier" },
-  { stat: "4,000+", label: "Riders globally" },
-  { stat: "135+", label: "Dealer & importer touchpoints" },
 ];
 
 const CULTURAL: CulturalItem[] = [

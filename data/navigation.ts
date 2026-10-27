@@ -62,7 +62,7 @@ export const footerLinks = {
   support: [
     { label: "Contact Us", href: "/contact" },
     { label: "Configurator", href: "/configurator" },
-    { label: "Owners", href: "/owners" },
+    { label: "Dealers", href: "/dealers" },
     { label: "Warranty", href: "/warranty" },
   ],
   legal: [

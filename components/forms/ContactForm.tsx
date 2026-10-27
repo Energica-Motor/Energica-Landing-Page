@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import Link from "next/link";
 import { gsap, useGSAP } from "@/lib/gsap";
 import { cn } from "@/lib/utils";
 
@@ -92,7 +93,7 @@ export default function ContactForm() {
   return (
     <div className="relative">
       {/* Success state */}
-      <div ref={successRef} className="opacity-0 absolute inset-0 flex flex-col items-center justify-center text-center py-16 pointer-events-none">
+      <div ref={successRef} className={`opacity-0 absolute inset-0 flex flex-col items-center justify-center text-center py-16 ${sent ? "pointer-events-auto" : "pointer-events-none"}`}>
         <div className="w-12 h-12 rounded-full border border-[#78BE20] flex items-center justify-center mx-auto mb-6">
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
             <path d="M4 10l4 4 8-8" stroke="#78BE20" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -102,6 +103,9 @@ export default function ContactForm() {
         <p className="text-sm text-white/55 max-w-xs mx-auto leading-relaxed">
           We&apos;ll be in touch within 24 hours and connect you with the right person.
         </p>
+        <Link href="/dealers" className="mt-6 text-xs tracking-[0.2em] uppercase text-[#78BE20] hover:text-white transition-colors duration-200">
+          Find a dealer near you →
+        </Link>
       </div>
 
       <form ref={formRef} onSubmit={onSubmit} noValidate className="space-y-5">
