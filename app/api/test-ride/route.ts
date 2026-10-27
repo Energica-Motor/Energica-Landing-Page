@@ -1,10 +1,10 @@
 import { Resend } from "resend";
 import { NextRequest, NextResponse } from "next/server";
+import { ENQUIRY_TO, ENQUIRY_CC, enquirySubject } from "@/lib/email-routing";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const FROM = "Energica Motor <hello@energicamotor.com>";
-const TO   = "keshav@energicamotor.com";
 
 const MODEL_NAMES: Record<string, string> = {
   experia: "Experia",
@@ -30,9 +30,10 @@ export async function POST(req: NextRequest) {
     // Send notification to the team
     const { error: err1 } = await resend.emails.send({
       from: FROM,
-      to: TO,
+      to: ENQUIRY_TO,
+      cc: ENQUIRY_CC,
       replyTo: email,
-      subject: `New Test Ride Request — ${modelName}`,
+      subject: enquirySubject("Test Ride Form", `New Test Ride Request — ${modelName}`),
       html: `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; color: #111;">
           <div style="background: #0A0A0A; padding: 24px 32px; border-bottom: 3px solid #78BE20;">

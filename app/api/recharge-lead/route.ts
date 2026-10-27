@@ -1,11 +1,11 @@
 import { Resend } from "resend";
 import { NextRequest, NextResponse } from "next/server";
+import { ENQUIRY_TO, ENQUIRY_CC, enquirySubject } from "@/lib/email-routing";
 import { verifyVerifiedToken } from "@/lib/recharge-verify";
 import { calculateValuation, RechargeCondition, RechargeModel } from "@/lib/recharge-pricing";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM = "Energica Motor <hello@energicamotor.com>";
-const TO = "keshav@energicamotor.com";
 
 const LOGO_URL =
   "https://energica-website-tau.vercel.app/images/Logo/energica-logo@2x.png";
@@ -76,9 +76,10 @@ export async function POST(req: NextRequest) {
 
     const { error: err1 } = await resend.emails.send({
       from: FROM,
-      to: TO,
+      to: ENQUIRY_TO,
+      cc: ENQUIRY_CC,
       replyTo: email,
-      subject: `New ReCharge Lead — ${valuation.modelLabel} (${ref})`,
+      subject: enquirySubject("ReCharge", `New ReCharge Lead — ${valuation.modelLabel} (${ref})`),
       html: `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; color: #111;">
           <div style="background: #0A0A0A; padding: 24px 32px; border-bottom: 3px solid #78BE20;">
