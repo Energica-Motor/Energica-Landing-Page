@@ -55,22 +55,24 @@ export interface GroupConfig {
   exclusive: boolean; // true = single choice, false = any number
 }
 
+// Group headings and descriptions, worded as before the redesign (headings
+// are shown in capitals by the section style).
 export const GROUP_CONFIG: Record<string, GroupConfig> = {
-  base_color: { label: "Colour", description: "Primary finish for your motorcycle.", exclusive: true },
-  suspension: { label: "Suspension", description: "Choose your suspension setup.", exclusive: true },
-  wheels: { label: "Wheels", description: "Rim style and finish.", exclusive: true },
-  front_fender: { label: "Front fender", description: "Standard injection or optional carbon fibre.", exclusive: true },
-  windscreen: { label: "Windscreen", description: "Standard or low smoky windscreen.", exclusive: true },
-  passenger_seat: { label: "Seat", description: "Choose your seat configuration.", exclusive: true },
-  covers: { label: "Cover CorsaClienti", description: "Racing cover for the passenger seat.", exclusive: true },
-  carbon_parts: { label: "Carbon parts", description: "Add individual carbon-fibre components.", exclusive: false },
-  bellypan: { label: "Bellypan", description: "Add a coloured bellypan with stripe finish.", exclusive: true },
-  ergal_screws: { label: "Ergal screws", description: "Optional anodised screw kit. Pick one or none.", exclusive: true },
-  optional_upgrades: { label: "Optional upgrades", description: "Performance and touring additions.", exclusive: false },
-  bags_plates: { label: "Bag plate colour", description: "Mounting plates for the side bags.", exclusive: true },
-  cnc_options: { label: "CNC finish", description: "Optional CNC Titanium Grey finish. Available on Bormio Ice only.", exclusive: true },
-  rs_options: { label: "RS options", description: "RS version badge and sticker kit.", exclusive: false },
-  other: { label: "Accessories", description: "Additional components.", exclusive: false },
+  base_color: { label: "COLORS", description: "Select the primary finish for your motorcycle.", exclusive: true },
+  suspension: { label: "SUSPENSION", description: "Choose your suspension setup.", exclusive: true },
+  wheels: { label: "WHEELS", description: "Select rim style and finish.", exclusive: true },
+  front_fender: { label: "FRONT FENDER", description: "Standard injection or optional carbon fibre.", exclusive: true },
+  windscreen: { label: "WINDSCREEN", description: "Standard or low smoky windscreen.", exclusive: true },
+  passenger_seat: { label: "SEAT", description: "Choose your seat configuration.", exclusive: true },
+  covers: { label: "COVER CorsaClienti", description: "Racing cover for the passenger seat.", exclusive: true },
+  carbon_parts: { label: "CARBON ACCESSORIES", description: "Add individual carbon-fibre components.", exclusive: false },
+  bellypan: { label: "BELLYPAN", description: "Add a coloured bellypan with stripe finish.", exclusive: true },
+  ergal_screws: { label: "ERGAL SCREWS", description: "Optional anodised ergal screw kit.", exclusive: true },
+  optional_upgrades: { label: "OPTIONAL UPGRADES", description: "Performance and touring additions.", exclusive: false },
+  bags_plates: { label: "BAG PLATE COLOUR", description: "Choose a colour for the side bag plates. Requires Side Bags Kit.", exclusive: true },
+  cnc_options: { label: "CNC FINISH", description: "Optional CNC Titanium Grey finish. Available on Bormio Ice only.", exclusive: true },
+  rs_options: { label: "RS OPTIONS", description: "RS version badge and sticker kit.", exclusive: false },
+  other: { label: "ACCESSORIES", description: "Additional components.", exclusive: false },
 };
 
 export const groupConfig = (key: string): GroupConfig =>

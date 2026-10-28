@@ -11,7 +11,6 @@ const deps = (cfg: ConfigSchema, id: string) => cfg.rules.dependencies[id] ?? []
 const incompat = (cfg: ConfigSchema) => Object.entries(cfg.rules.incompatibilities ?? {}) as [string, string[]][];
 const exclusiveSetOf = (cfg: ConfigSchema, id: string) => cfg.rules.mutually_exclusive.find((g) => g.includes(id)) ?? null;
 const isDefault = (cfg: ConfigSchema, id: string) => !!cfg.layers.find((l) => l.id === id)?.visible_by_default;
-
 export function defaultLayers(cfg: ConfigSchema): Layers {
   const always = new Set(cfg.rules.always_visible);
   return new Set(cfg.layers.filter((l) => l.visible_by_default || always.has(l.id)).map((l) => l.id));
@@ -107,7 +106,6 @@ export interface OptionView {
   title: string;
   description: string;
   selected: boolean;
-  disabled: boolean; // waiting for a dependency
 }
 export interface SectionView {
   key: string;
@@ -146,24 +144,23 @@ export function sectionsFor(cfg: ConfigSchema, visible: Layers): SectionView[] {
       .filter((l) => !always.has(l.id) || isSelectableBase(cfg, l.id));
     if (!layers.length) continue;
 
-    // A group whose every option needs the same layer stays hidden until it is chosen
-    const firstDeps = deps(cfg, layers[0].id).filter((d) => inGroups.has(d));
-    const sharedDep = firstDeps.find((d) => layers.every((l) => deps(cfg, l.id).includes(d)));
-    if (sharedDep && !visible.has(sharedDep)) continue;
-
     const exclusive = isExclusiveGroup(cfg, key, layers.map((l) => l.id));
     const required = exclusive && layers.some((l) => l.visible_by_default || always.has(l.id));
     const peers = layers.map((l) => l.id);
     const options: OptionView[] = [];
     for (const layer of layers) {
-      // Options that clash with the current selection are hidden
+      // Hidden while it clashes with the selection, or while a selectable
+      // layer it needs is not chosen (bag plates before the side bag kit,
+      // a coloured bellypan before its colour). Auto-added layers outside
+      // any group (rider seats) don't count as unmet.
       if (incompat(cfg).some(([id, conflicts]) => id === layer.id && conflicts.some((c) => visible.has(c)))) continue;
+      if (deps(cfg, layer.id).some((d) => inGroups.has(d) && !visible.has(d))) continue;
       const selected = always.has(layer.id) && exclusive
         ? !peers.some((id) => id !== layer.id && visible.has(id))
         : visible.has(layer.id);
-      const disabled = deps(cfg, layer.id).some((d) => inGroups.has(d) && !visible.has(d));
-      options.push({ layer, ...cleanLayerName(layer, key), selected, disabled });
+      options.push({ layer, ...cleanLayerName(layer, key), selected });
     }
+    // A group with nothing to show is hidden
     if (!options.length) continue;
     const g = groupConfig(key);
     sections.push({

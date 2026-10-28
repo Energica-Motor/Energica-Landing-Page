@@ -33,7 +33,6 @@ export const SIZE = {
   modelBarH: 64,
   panelW: 420,
   stackBelow: 1000, // px: panel stacks under the stage below this width
-  disabledOpacity: 0.45,
 } as const;
 
 export const BORDER = {

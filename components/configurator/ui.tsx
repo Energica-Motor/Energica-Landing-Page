@@ -1,7 +1,8 @@
 "use client";
 // Presentational pieces of the configurator: model and step tabs, option
-// sections, the stage spec strip and the bottom action bar. No state here.
-import type { CSSProperties, ReactNode } from "react";
+// sections, the stage spec strip and the bottom action bar. No build state
+// here; only the action bar's own "More" menu.
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import type { Stat } from "@/lib/build-sheet/specs";
 import { MODEL_INFO, MODEL_ORDER, SWATCHES, type Model } from "./config";
 import type { OptionView, SectionView } from "./rules";
@@ -110,7 +111,6 @@ export function OptionSection({ section, onToggle }: { section: SectionView; onT
 const cardBase = (o: OptionView): CSSProperties => ({
   background: COLOR.white,
   border: o.selected ? BORDER.selected : BORDER.idle,
-  opacity: o.disabled ? SIZE.disabledOpacity : 1,
   minHeight: SIZE.touch,
   borderRadius: 0,
   color: COLOR.text,
@@ -119,7 +119,7 @@ const cardBase = (o: OptionView): CSSProperties => ({
 export function SwatchCard({ option: o, onClick }: { option: OptionView; onClick: () => void }) {
   const colors = SWATCHES[o.layer.id] ?? [COLOR.rule];
   return (
-    <button type="button" aria-pressed={o.selected} disabled={o.disabled} onClick={onClick}
+    <button type="button" aria-pressed={o.selected} onClick={onClick}
       style={{ ...cardBase(o), padding: "16px 8px 14px", display: "flex", flexDirection: "column", alignItems: "center", gap: 10, minHeight: 112 }}>
       <span aria-hidden style={{ width: 44, height: 44, borderRadius: "50%", overflow: "hidden", display: "flex", border: `1px solid ${COLOR.swatchBorder}` }}>
         {colors.map((c, i) => <span key={i} style={{ flexGrow: 1, background: c }} />)}
@@ -132,7 +132,7 @@ export function SwatchCard({ option: o, onClick }: { option: OptionView; onClick
 export function OptionCard({ option: o, round, onClick }: { option: OptionView; round: boolean; onClick: () => void }) {
   const radius = round ? "50%" : 0;
   return (
-    <button type="button" aria-pressed={o.selected} disabled={o.disabled} onClick={onClick}
+    <button type="button" aria-pressed={o.selected} onClick={onClick}
       style={{ ...cardBase(o), padding: "13px 14px", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, textAlign: "left", minHeight: 60 }}>
       <span style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0 }}>
         <span style={{ fontFamily: FONT.body, fontSize: 14, fontWeight: 600, color: COLOR.text }}>{o.title}</span>
@@ -198,6 +198,7 @@ export interface ActionBarProps {
   countLabel: string;
   summary: string;
   copyLabel: string;
+  copyIdle: boolean; // false while the label reports progress or "LINK COPIED"
   pdfLabel: string;
   pdfDisabled: boolean;
   linkDisabled: boolean;
@@ -205,29 +206,67 @@ export interface ActionBarProps {
   onCopy: () => void;
   onPdf: () => void;
   onContact: () => void;
-  note?: ReactNode;
 }
 
+/**
+ * Desktop: build summary on the left, four actions on the right. Phones
+ * (CSS in EnergiccaConfigurator): the count with a "More" menu holding Reset
+ * and Copy link, then Download PDF and Contact Dealer side by side.
+ */
 export function ActionBar(p: ActionBarProps) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!menuOpen) return;
+    const close = (e: Event) => {
+      if (e instanceof KeyboardEvent ? e.key === "Escape" : !menuRef.current?.contains(e.target as Node)) setMenuOpen(false);
+    };
+    document.addEventListener("pointerdown", close);
+    document.addEventListener("keydown", close);
+    return () => {
+      document.removeEventListener("pointerdown", close);
+      document.removeEventListener("keydown", close);
+    };
+  }, [menuOpen]);
+  const fromMenu = (action: () => void) => () => { setMenuOpen(false); action(); };
+
   return (
     <div className="cfg-actionbar" style={{ position: "sticky", bottom: 0, zIndex: 20, background: COLOR.dark, color: COLOR.white, padding: "14px 32px", display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: "14px 24px", borderTop: `1px solid ${COLOR.darkRule}` }}>
-      <div style={{ display: "flex", flexDirection: "column", gap: 4, flex: "1 1 360px", minWidth: 0 }}>
+      <div className="cfg-bar-info" style={{ display: "flex", flexDirection: "column", gap: 4, flex: "1 1 360px", minWidth: 0 }}>
         <span style={monoLabel(10, 0.14, COLOR.onDark)}>
-          YOUR BUILD · <span data-testid="selection-count" style={{ color: COLOR.green }}>{p.countLabel}</span>
+          <span className="cfg-bar-prefix">YOUR BUILD · </span>
+          <span data-testid="selection-count" style={{ color: COLOR.green }}>{p.countLabel}</span>
+          {!p.copyIdle && <span className="cfg-bar-status" aria-hidden style={{ color: COLOR.white }}> · {p.copyLabel}</span>}
         </span>
-        <span data-testid="build-summary" title={p.summary} style={{ fontFamily: FONT.body, fontSize: 13, color: COLOR.onDarkText, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+        <span data-testid="build-summary" className="cfg-bar-summary" title={p.summary} style={{ fontFamily: FONT.body, fontSize: 13, color: COLOR.onDarkText, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
           {p.summary}
         </span>
+        <div ref={menuRef} className="cfg-more" style={{ position: "relative", display: "none" }}>
+          <button
+            type="button"
+            aria-haspopup="menu"
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen((o) => !o)}
+            style={{ ...barButton, border: "none", color: COLOR.onDark, padding: "0 4px 0 12px", minHeight: 32 }}
+          >
+            MORE
+          </button>
+          {menuOpen && (
+            <div role="menu" aria-label="More actions" style={{ position: "absolute", right: 0, bottom: "calc(100% + 10px)", background: COLOR.dark, border: `1px solid ${COLOR.darkBorder}`, minWidth: 180, display: "flex", flexDirection: "column" }}>
+              <button type="button" role="menuitem" onClick={fromMenu(p.onCopy)} disabled={p.linkDisabled} style={{ ...barButton, border: "none", textAlign: "left" }}>COPY LINK</button>
+              <button type="button" role="menuitem" onClick={fromMenu(p.onReset)} style={{ ...barButton, border: "none", borderTop: `1px solid ${COLOR.darkRule}`, color: COLOR.onDark, textAlign: "left" }}>RESET</button>
+            </div>
+          )}
+        </div>
       </div>
       <div className="cfg-actions" style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 10 }}>
-        <button type="button" onClick={p.onReset} style={{ ...barButton, border: "none", color: COLOR.onDark, padding: "0 10px" }}>RESET</button>
-        <button type="button" onClick={p.onCopy} disabled={p.linkDisabled} style={barButton} aria-live="polite">{p.copyLabel}</button>
-        <button type="button" onClick={p.onPdf} disabled={p.pdfDisabled} style={{ ...barButton, opacity: p.pdfDisabled ? 0.5 : 1 }}>{p.pdfLabel}</button>
+        <button type="button" onClick={p.onReset} className="cfg-wide-only" style={{ ...barButton, border: "none", color: COLOR.onDark, padding: "0 10px" }}>RESET</button>
+        <button type="button" onClick={p.onCopy} disabled={p.linkDisabled} className="cfg-wide-only" style={barButton} aria-live="polite">{p.copyLabel}</button>
+        <button type="button" onClick={p.onPdf} disabled={p.pdfDisabled} className="cfg-pdf" style={{ ...barButton, opacity: p.pdfDisabled ? 0.5 : 1 }}>{p.pdfLabel}</button>
         <button type="button" onClick={p.onContact} className="cfg-contact" style={{ ...barButton, background: COLOR.green, borderColor: COLOR.green, color: COLOR.dark, fontWeight: 500, padding: "0 22px" }}>
           CONTACT DEALER
         </button>
       </div>
-      {p.note}
     </div>
   );
 }

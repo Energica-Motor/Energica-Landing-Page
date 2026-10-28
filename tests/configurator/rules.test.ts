@@ -45,11 +45,20 @@ describe("rules engine", () => {
     expect(s.has("er_79_kit_ergal_screws_black")).toBe(false);
   });
 
-  it("disables an option until its dependency is chosen", () => {
+  it("hides an option until its dependency is chosen, as before the redesign", () => {
     let s = rules.initialLayers(EVA);
-    expect(option(EVA, s, "er_41_stickers_kit_rs_sport")).toMatchObject({ disabled: true, selected: false });
+    expect(option(EVA, s, "er_41_stickers_kit_rs_sport")).toBeUndefined();
     s = click(EVA, s, "er_40_rs_version");
-    expect(option(EVA, s, "er_41_stickers_kit_rs_sport")).toMatchObject({ disabled: false });
+    expect(option(EVA, s, "er_41_stickers_kit_rs_sport")).toMatchObject({ selected: false });
+  });
+
+  it("shows only the EsseEsse9 bellypans that fit the chosen colour", () => {
+    const cfg = CONFIGS.essesse9;
+    const bellypans = (set: Set<string>) => rules.sectionsFor(cfg, set).find((x) => x.key === "bellypan")?.options.map((o) => o.layer.id);
+    let s = rules.initialLayers(cfg);
+    expect(bellypans(s)).toEqual(["es_22_bellypan_bormio_grey_stripes", "es_25_bellypan_bormio_yellow_stripes"]);
+    s = click(cfg, s, "es_13_esseesse9_sunrise_red");
+    expect(bellypans(s)).toEqual(["es_23_bellypan_sunrise_red_grey_stripes", "es_26_bellypan_sunrise_red_yellow_stripes"]);
   });
 
   it("clears dependents when their dependency is removed", () => {
@@ -71,8 +80,27 @@ describe("rules engine", () => {
     s = click(EVA, s, "er_91_side_bags_kit");
     const plates = rules.sectionsFor(EVA, s).find((x) => x.key === "bags_plates")!;
     expect(plates.options.map((o) => o.title)).toEqual(["Red", "Gun Metal"]);
-    // No plate is on by default, so the choice is optional
-    expect(plates.hint).toBe("OPTIONAL");
+  });
+
+  it.each([
+    ["eva_ribelle", "er_91_side_bags_kit", "er_93_bags_plates_gun_metal", "er_92_bags_plates_red"],
+    ["essesse9", "es_96_side_bags_kit", "es_97_bags_plates_gun_metal", "er_98_bags_plates_blue"],
+  ] as const)("keeps %s bag plates optional, as the backend defines them", (m, bags, gunMetal, other) => {
+    const cfg = CONFIGS[m];
+    let s = click(cfg, rules.initialLayers(cfg), bags);
+    // No plate is picked for you, and the choice can be cleared
+    expect([s.has(gunMetal), s.has(other)]).toEqual([false, false]);
+    expect(rules.sectionsFor(cfg, s).find((x) => x.key === "bags_plates")?.hint).toBe("OPTIONAL");
+    s = click(cfg, s, gunMetal);
+    s = click(cfg, s, other);
+    expect([s.has(gunMetal), s.has(other)]).toEqual([false, true]);
+    // Removing the bags removes the plate
+    const noBags = click(cfg, s, bags);
+    expect(rules.selectedOptions(cfg, noBags).some((o) => o.groupKey === "bags_plates")).toBe(false);
+    // Unchanged from before the redesign: clearing the plate also clears what
+    // it pulled in, so the side bag kit goes with it
+    s = click(cfg, s, other);
+    expect([s.has(other), s.has(bags)]).toEqual([false, false]);
   });
 
   it("hides options that clash with the selection", () => {

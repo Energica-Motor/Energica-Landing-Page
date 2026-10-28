@@ -140,7 +140,10 @@ function useConfigurator(model: Model, apiUrl: string, restoredLayers?: string[]
   const [config, setConfig] = useState<ConfigSchema | null>(null);
   const [visibleLayers, setVisibleLayers] = useState<Set<string>>(new Set());
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  // The selection the shown image (or error) belongs to; while it differs
+  // from the current one the stage shows "updating" from the first click.
+  const [renderedKey, setRenderedKey] = useState<string | null>(null);
+  const latestKey = useRef("");
   const [error, setError] = useState<string | null>(null);
   const [configLoading, setConfigLoading] = useState(true);
   const renderTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -170,9 +173,12 @@ function useConfigurator(model: Model, apiUrl: string, restoredLayers?: string[]
       .finally(() => setConfigLoading(false));
   }, [model, apiUrl]); // eslint-disable-line react-hooks/exhaustive-deps -- restoredLayers only seeds the first load
 
+  const layersKey = useMemo(() => [...visibleLayers].sort().join(","), [visibleLayers]);
+
   // Trigger debounced render whenever layer selection changes.
   // First render (no previewUrl yet) fires immediately; subsequent changes
-  // are debounced so rapid clicks don't flood the API.
+  // are debounced so rapid clicks don't flood the API. Only the latest
+  // request's answer is shown, so a slow earlier render never overwrites it.
   useEffect(() => {
     if (!config || visibleLayers.size === 0) return;
 
@@ -182,11 +188,13 @@ function useConfigurator(model: Model, apiUrl: string, restoredLayers?: string[]
     isFirstRender.current = false;
 
     renderTimerRef.current = setTimeout(() => {
-      setLoading(true);
+      const key = layersKey;
+      latestKey.current = key;
       setError(null);
 
       renderConfiguration(model, [...visibleLayers], apiUrl)
         .then((blob) => {
+          if (latestKey.current !== key) return;
           // Revoke previous object URL to avoid memory leaks
           if (prevObjectUrlRef.current) {
             URL.revokeObjectURL(prevObjectUrlRef.current);
@@ -196,15 +204,19 @@ function useConfigurator(model: Model, apiUrl: string, restoredLayers?: string[]
           setPreviewUrl(url);
         })
         .catch((err: Error) => {
-          setError(`Preview unavailable: ${err.message}`);
+          if (latestKey.current === key) setError(`Preview unavailable: ${err.message}`);
         })
-        .finally(() => setLoading(false));
+        .finally(() => {
+          if (latestKey.current === key) setRenderedKey(key);
+        });
     }, delay);
 
     return () => {
       if (renderTimerRef.current) clearTimeout(renderTimerRef.current);
     };
-  }, [visibleLayers, config, model, apiUrl]);
+  }, [visibleLayers, layersKey, config, model, apiUrl]);
+
+  const updating = !!config && visibleLayers.size > 0 && renderedKey !== layersKey;
 
   // Cleanup object URL on unmount
   useEffect(() => {
@@ -230,7 +242,7 @@ function useConfigurator(model: Model, apiUrl: string, restoredLayers?: string[]
     configLoading,
     visibleLayers,
     previewUrl,
-    loading,
+    updating,
     error,
     toggleLayer,
     reset,
@@ -285,7 +297,7 @@ function BuildLinkBox({ url, copied, onCopy, whatsappUrl }: { url: string; copie
           aria-label="Your build link"
         />
         <button type="button" onClick={onCopy} style={S.copyBtn}>
-          {copied ? "Copied" : "Copy"}
+          {copied ? "✓ Copied" : "Copy"}
         </button>
         <a
           href={whatsappUrl}
@@ -310,6 +322,14 @@ const LAYOUT_CSS = `
   .cfg-modal button:focus-visible, .cfg-modal a:focus-visible, .cfg-modal input:focus-visible, .cfg-modal textarea:focus-visible {
     outline: 2px solid ${COLOR.greenText}; outline-offset: 2px;
   }
+  .cfg-bar-status { display: none; }
+  /* "More" is 32px tall; its hit area extends to 44px */
+  .cfg-more > button { position: relative; }
+  .cfg-more > button::after { content: ""; position: absolute; inset: -6px 0; }
+  .cfg-progress { position: relative; width: 48px; height: 2px; background: ${COLOR.rule}; overflow: hidden; }
+  .cfg-progress > span { position: absolute; top: 0; bottom: 0; width: 40%; background: ${COLOR.green}; animation: cfg-progress 900ms ease-in-out infinite; }
+  @keyframes cfg-progress { from { left: -40%; } to { left: 100%; } }
+  @media (prefers-reduced-motion: reduce) { .cfg-progress > span { animation: none; left: 0; width: 100%; } }
   .cfg-scroll { overflow-x: auto; scrollbar-width: none; }
   .cfg-scroll::-webkit-scrollbar { display: none; }
   .cfg-main { display: flex; flex-wrap: wrap; align-items: stretch; flex-grow: 1; }
@@ -330,10 +350,14 @@ const LAYOUT_CSS = `
     .cfg-panel-body { padding: 20px 16px 8px !important; }
     .cfg-panel-nav { padding: 12px 16px 20px !important; }
     .cfg-stepcount { display: none !important; }
-    .cfg-actionbar { padding: 12px 16px !important; }
-    .cfg-actions { width: 100%; }
-    .cfg-actions > button { flex: 1 1 auto; }
-    .cfg-actions > .cfg-contact { flex: 1 1 100%; }
+    /* Bottom bar, about 104px: count + More menu, then PDF and Contact Dealer */
+    .cfg-actionbar { padding: 10px 16px calc(10px + env(safe-area-inset-bottom)) !important; gap: 8px !important; }
+    .cfg-bar-info { flex: 1 1 100% !important; flex-direction: row !important; align-items: center; justify-content: space-between; }
+    .cfg-bar-prefix, .cfg-bar-summary, .cfg-wide-only { display: none !important; }
+    .cfg-bar-status { display: inline !important; }
+    .cfg-more { display: block !important; }
+    .cfg-actions { width: 100%; flex-wrap: nowrap !important; gap: 8px !important; }
+    .cfg-actions > .cfg-pdf, .cfg-actions > .cfg-contact { flex: 1 1 0; padding: 0 8px !important; letter-spacing: 0.1em !important; }
     .cfg-options { grid-template-columns: minmax(0, 1fr) !important; }
   }
 `;
@@ -353,7 +377,7 @@ export default function EnergiccaConfigurator({
     configLoading,
     visibleLayers,
     previewUrl,
-    loading,
+    updating,
     error,
     toggleLayer,
     reset,
@@ -627,16 +651,19 @@ export default function EnergiccaConfigurator({
                   src={previewUrl}
                   alt={`${MODEL_INFO[model].name} configured preview`}
                   className="cfg-render-img"
-                  style={{ display: "block", objectFit: "contain", mixBlendMode: "multiply", position: "relative", opacity: loading ? 0.6 : 1, transition: "opacity 150ms ease" }}
+                  style={{ display: "block", objectFit: "contain", mixBlendMode: "multiply", position: "relative", opacity: updating ? 0.72 : 1, transition: "opacity 120ms ease" }}
                 />
               ) : (
                 <div style={{ ...monoLabel(11), display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
-                  {configLoading || loading ? <div style={S.spinner} aria-label="Loading preview" /> : <span>Select options to preview</span>}
+                  {configLoading || updating ? <div style={S.spinner} aria-label="Loading preview" /> : <span>Select options to preview</span>}
                 </div>
               )}
-              {loading && previewUrl && (
-                <div aria-live="polite" aria-label="Rendering preview" style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <div style={S.spinner} />
+              {/* Redrawing after a change: the old image stays (dimmed) with a
+                  thin progress line; the panel stays usable throughout. */}
+              {previewUrl && (
+                <div role="status" aria-live="polite" style={{ position: "absolute", top: 4, right: 0, display: "flex", alignItems: "center", gap: 10, pointerEvents: "none", opacity: updating ? 1 : 0, transition: "opacity 120ms ease" }}>
+                  <span className="cfg-progress" aria-hidden><span /></span>
+                  <span style={monoLabel(10)}>{updating ? "Updating preview" : ""}</span>
                 </div>
               )}
             </div>
@@ -687,10 +714,15 @@ export default function EnergiccaConfigurator({
           </aside>
         </main>
 
+        <footer style={{ borderTop: BORDER.idle, padding: "20px 48px", textAlign: "center", background: COLOR.paper }}>
+          <p style={{ ...monoLabel(11, 0.25), margin: 0 }}>Progress, Ridden.</p>
+        </footer>
+
         <ActionBar
           countLabel={summary.countLabel}
           summary={summary.text}
           copyLabel={copyLabel}
+          copyIdle={!copied && busy !== "link"}
           pdfLabel={pdfLabel}
           linkDisabled={busy === "link" || !config}
           pdfDisabled={busy === "pdf" || !previewUrl}
@@ -720,18 +752,19 @@ export default function EnergiccaConfigurator({
                 <p id="cfg-modal-title" style={{ margin: 0, fontFamily: FONT.display, fontWeight: 600, fontSize: "22px", letterSpacing: "0.04em", textTransform: "uppercase", color: COLOR.white }}>{MODAL_COPY[modalIntent].title}</p>
                 <p style={{ margin: "2px 0 0", ...monoLabel(10, 0.14, COLOR.green) }}>{MODEL_INFO[model].name}</p>
               </div>
-              <button type="button" onClick={() => setModalOpen(false)} style={{ ...monoLabel(11, 0.14, COLOR.onDark), background: "none", border: "none", minHeight: SIZE.touch, padding: "0 8px", cursor: "pointer" }} aria-label="Close">CLOSE</button>
+              <button type="button" onClick={() => setModalOpen(false)} style={{ background: "none", border: "none", color: COLOR.onDark, fontSize: "22px", lineHeight: 1, minWidth: SIZE.touch, minHeight: SIZE.touch, cursor: "pointer" }} aria-label="Close">✕</button>
             </div>
 
             <div style={{ padding: "24px" }}>
               {dealerSuccess ? (
-                <div style={{ padding: "8px 0" }}>
-                  <p style={{ fontFamily: FONT.display, fontWeight: 600, fontSize: "26px", textTransform: "uppercase", margin: "0 0 8px", color: COLOR.text }}>Thank you</p>
+                <div style={{ textAlign: "center", padding: "16px 0 8px" }}>
+                  <div aria-hidden style={{ width: 56, height: 56, borderRadius: "50%", backgroundColor: COLOR.green, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px", fontSize: "26px", color: COLOR.dark }}>✓</div>
+                  <p style={{ fontFamily: FONT.display, fontWeight: 600, fontSize: "26px", textTransform: "uppercase", margin: "0 0 8px", color: COLOR.text }}>Thank You!</p>
                   <p style={{ fontFamily: FONT.body, fontSize: "14px", color: COLOR.secondary, margin: "0 0 20px", lineHeight: 1.5 }}>
                     Your build has been sent to Energica. We&apos;ll connect you with your nearest dealer within 24 hours — a copy is on its way to your inbox.
                   </p>
                   {shortLink && (
-                    <div style={{ marginBottom: "12px" }}>
+                    <div style={{ textAlign: "left", marginBottom: "12px" }}>
                       <BuildLinkBox
                         url={shortLink.url}
                         copied={copied}

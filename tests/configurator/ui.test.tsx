@@ -13,16 +13,15 @@ afterEach(cleanup);
 const section = (set: Set<string>, key: string) => rules.sectionsFor(EVA, set).find((s) => s.key === key)!;
 
 describe("option sections", () => {
-  it("renders single-choice cards as pressed buttons and disables unmet dependencies", () => {
+  it("renders options as pressed buttons and leaves out unmet dependencies", () => {
     const s = rules.initialLayers(EVA);
     render(<OptionSection section={section(s, "rs_options")} onToggle={() => {}} />);
-    expect(screen.getByRole("heading", { name: "RS options" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "RS OPTIONS" })).toBeTruthy();
     expect(screen.getByText("SELECT ANY")).toBeTruthy();
     const rs = screen.getByRole("button", { name: /^RS version/ });
     expect(rs.getAttribute("aria-pressed")).toBe("false");
     expect(within(rs).getByText("RS version badge and sticker kit.")).toBeTruthy();
-    const stickers = screen.getByRole("button", { name: /^RS Sport sticker kit/ }) as HTMLButtonElement;
-    expect(stickers.disabled).toBe(true);
+    expect(screen.queryByRole("button", { name: /^RS Sport sticker kit/ })).toBeNull();
   });
 
   it("calls back with the clicked option", () => {
@@ -56,7 +55,7 @@ describe("action bar", () => {
     const steps = rules.buildSteps("eva_ribelle", Object.keys(EVA.groups));
     const summary = rules.summarise(rules.selectedOptions(EVA, rules.initialLayers(EVA)), steps);
     const handlers = { onReset: vi.fn(), onCopy: vi.fn(), onPdf: vi.fn(), onContact: vi.fn() };
-    render(<ActionBar countLabel={summary.countLabel} summary={summary.text} copyLabel="COPY LINK" pdfLabel="DOWNLOAD PDF" pdfDisabled={false} linkDisabled={false} {...handlers} />);
+    render(<ActionBar countLabel={summary.countLabel} summary={summary.text} copyLabel="COPY LINK" copyIdle pdfLabel="DOWNLOAD PDF" pdfDisabled={false} linkDisabled={false} {...handlers} />);
     expect(screen.getByTestId("selection-count").textContent).toBe("3 SELECTIONS");
     expect(screen.getByTestId("build-summary").textContent).toBe("Stealth Grey · Standard suspension · Cast aluminium wheels");
     for (const [name, fn] of [["RESET", handlers.onReset], ["COPY LINK", handlers.onCopy], ["DOWNLOAD PDF", handlers.onPdf], ["CONTACT DEALER", handlers.onContact]] as const) {
