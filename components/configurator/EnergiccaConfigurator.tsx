@@ -772,10 +772,8 @@ function OptionRow({ layer, active, disabled, exclusive, onToggle }: OptionRowPr
   );
 }
 
-// Public Blob root holding each part's layer PNG (used for the PDF part images)
-const LAYER_IMAGE_BASE = (
-  process.env.NEXT_PUBLIC_BLOB_BASE_URL || "https://cumxnjuhzezfht2i.public.blob.vercel-storage.com"
-).replace(/\/$/, "");
+// Shared build links always point at the live site, wherever they're created
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://energicamotor.com").replace(/\/$/, "");
 
 const MODAL_COPY = {
   contact: {
@@ -858,7 +856,7 @@ export default function EnergiccaConfigurator({
   const longShareUrl = useMemo(() => {
     if (typeof window === "undefined" || visibleLayers.size === 0) return "";
     const encoded = encodeConfig([...visibleLayers]);
-    return `${window.location.origin}${window.location.pathname}?model=${model}&layers=${encoded}`;
+    return `${SITE_URL}/configurator?model=${model}&layers=${encoded}`;
   }, [visibleLayers, model]);
 
   // Short link for the current build (/b/<code>), created on demand
@@ -880,7 +878,7 @@ export default function EnergiccaConfigurator({
       });
       if (!res.ok) throw new Error(String(res.status));
       const { code } = await res.json();
-      const link = { code, url: `${window.location.origin}/b/${code}` };
+      const link = { code, url: `${SITE_URL}/b/${code}` };
       shortLinks.current.set(key, link);
       setShortLink(link);
       return link;
@@ -890,13 +888,12 @@ export default function EnergiccaConfigurator({
     }
   }, [visibleLayers, model, longShareUrl]);
 
-  // Selected parts, grouped as in the UI, with each part's own layer image
+  // Selected parts, grouped as in the UI
   const selectedGroups = useCallback(() => {
     if (!config) return [];
     const byId = new Map(config.layers.map((l) => [l.id, l]));
     const part = (id: string) => ({
       name: cleanLayerName(byId.get(id)!.name),
-      imageUrl: `${LAYER_IMAGE_BASE}/layers/${model}/${byId.get(id)!.filename}`,
     });
     const grouped = new Set<string>();
     const groups = Object.entries(config.groups)
