@@ -1,6 +1,7 @@
 import { Resend } from "resend";
 import { NextRequest, NextResponse } from "next/server";
 import { ENQUIRY_TO, ENQUIRY_CC, enquirySubject, escapeHtml } from "@/lib/email-routing";
+import { checkBuildPdf } from "@/lib/build-sheet/validate-pdf";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -18,8 +19,6 @@ const INTENT_LABELS: Record<string, string> = {
   update: "Changed their build after enquiring",
 };
 
-// Keeps the request under Vercel's 4.5 MB body limit with room to spare.
-const MAX_PDF_BASE64 = 3_800_000;
 
 interface OptionItem { group: string; name: string }
 
@@ -50,10 +49,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid email" }, { status: 400 });
     }
 
-    const attachment =
-      typeof pdf === "string" && pdf.length > 0 && pdf.length < MAX_PDF_BASE64
-        ? [{ filename: String(pdfName || "Energica-build.pdf").replace(/[^\w.-]/g, ""), content: pdf, contentType: "application/pdf" }]
-        : undefined;
+    let attachment: { filename: string; content: string; contentType: string }[] | undefined;
+    if (pdf) {
+      const check = checkBuildPdf(pdf, buildCode);
+      if (!check.ok) {
+        console.warn("[configurator-contact] attachment rejected: %s", check.error);
+        return NextResponse.json({ error: `Invalid attachment: ${check.error}` }, { status: 400 });
+      }
+      attachment = [{ filename: String(pdfName || "Energica-build.pdf").replace(/[^\w.-]/g, ""), content: pdf, contentType: "application/pdf" }];
+    }
 
     const items: OptionItem[] = Array.isArray(options)
       ? options.filter((o: OptionItem) => o && typeof o.name === "string").slice(0, 200)

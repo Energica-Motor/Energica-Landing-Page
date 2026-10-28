@@ -25,6 +25,8 @@ import {
   getModelConfig,
   renderConfiguration,
 } from "@/lib/configurator-api";
+import { buildSheetContent } from "@/lib/build-sheet/catalog";
+import type { PdfOption } from "@/lib/build-sheet";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -768,6 +770,11 @@ function OptionRow({ layer, active, disabled, exclusive, onToggle }: OptionRowPr
   );
 }
 
+// Public Blob root holding each part's layer PNG (its size positions the detail crops)
+const LAYER_IMAGE_BASE = (
+  process.env.NEXT_PUBLIC_BLOB_BASE_URL || "https://cumxnjuhzezfht2i.public.blob.vercel-storage.com"
+).replace(/\/$/, "");
+
 // Shared build links always point at the live site, wherever they're created
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://energicamotor.com").replace(/\/$/, "");
 
@@ -898,41 +905,43 @@ export default function EnergiccaConfigurator({
     return () => clearTimeout(t);
   }, [config, visibleLayers, ensureShortLink]);
 
-  // Selected parts, grouped as in the UI
-  const selectedGroups = useCallback(() => {
+  // Selected options for the build sheet and the sales email. Same rule as
+  // the option list: an always-on base layer (e.g. the base colour) only
+  // counts as chosen if nothing else in its group is. Auto-added layers that
+  // sit in no group (e.g. rider seats) are left out.
+  const selectedOptions = useCallback((): PdfOption[] => {
     if (!config) return [];
     const byId = new Map(config.layers.map((l) => [l.id, l]));
-    const part = (id: string) => ({
-      name: cleanLayerName(byId.get(id)!.name),
+    return Object.entries(config.groups).flatMap(([groupKey, ids]) => {
+      const chosen = ids.filter((id) => visibleLayers.has(id) && byId.has(id));
+      const picked = chosen.filter((id) => !alwaysVisible.has(id));
+      return (picked.length ? picked : chosen).map((id) => {
+        const l = byId.get(id)!;
+        return { id, name: l.name, groupKey, filename: l.filename, offsetX: l.offset_x ?? 0, offsetY: l.offset_y ?? 0 };
+      });
     });
-    const grouped = new Set<string>();
-    const groups = Object.entries(config.groups)
-      .map(([key, ids]) => {
-        ids.forEach((id) => grouped.add(id));
-        // Same rule as the option list: an always-on base layer (e.g. the
-        // base colour) only counts as chosen if nothing else in its group is.
-        const chosen = ids.filter((id) => visibleLayers.has(id) && byId.has(id));
-        const picked = chosen.filter((id) => !alwaysVisible.has(id));
-        const label = GROUP_CONFIG[key]?.label ?? key.replace(/_/g, " ");
-        return { label, parts: (picked.length ? picked : chosen).map(part) };
-      })
-      .filter((g) => g.parts.length > 0);
-    const other = [...visibleLayers].filter((id) => !grouped.has(id) && byId.has(id) && !alwaysVisible.has(id));
-    if (other.length) groups.push({ label: "Other", parts: other.map(part) });
-    return groups;
-  }, [config, visibleLayers, alwaysVisible, model]);
+  }, [config, visibleLayers, alwaysVisible]);
+
+  const hasRsOption = useMemo(() => !!config?.layers.some((l) => /rs version/i.test(l.name)), [config]);
+  const emailOptions = useCallback(() => {
+    const sheet = buildSheetContent(model, selectedOptions(), hasRsOption);
+    return [...sheet.base, ...sheet.upgrades].map((r) => ({ group: r.label, name: r.title }));
+  }, [model, selectedOptions, hasRsOption]);
 
   const makePdf = useCallback(async (link: { code: string; url: string }, customerName?: string) => {
-    const { createConfiguratorPdf } = await import("@/lib/build-pdf");
+    const { createConfiguratorPdf } = await import("@/lib/build-sheet");
     return createConfiguratorPdf({
-      modelName: MODEL_DISPLAY_NAMES[model] ?? model,
+      model,
+      hasRsOption,
       imageUrl: previewUrl,
-      groups: selectedGroups(),
+      canvas: config?.canvas ?? { width: 1, height: 1 },
+      layerBaseUrl: LAYER_IMAGE_BASE,
+      options: selectedOptions(),
       buildUrl: link.url,
-      buildCode: link.code || undefined,
+      buildCode: link.code,
       customerName,
     });
-  }, [model, previewUrl, selectedGroups]);
+  }, [model, hasRsOption, previewUrl, config, selectedOptions]);
 
   type Intent = "contact" | "link" | "pdf" | "whatsapp";
   type Lead = { name: string; email: string; phone: string; country: string; dealer: string; message: string };
@@ -968,16 +977,17 @@ export default function EnergiccaConfigurator({
         ...l,
         intent,
         model: MODEL_DISPLAY_NAMES[model] ?? model,
-        options: selectedGroups().flatMap((g) => g.parts.map((p) => ({ group: g.label, name: p.name }))),
+        options: emailOptions(),
         buildUrl: link.url,
         buildCode: link.code,
-        pdf: pdf?.base64,
-        pdfName: pdf?.fileName,
+        // The attachment carries the build ref, so only send it with a saved build
+        pdf: link.code ? pdf?.base64 : undefined,
+        pdfName: link.code ? pdf?.fileName : undefined,
       }),
     });
     if (!res.ok) throw new Error("Submit failed");
     if (link.code) sentCodes.current.add(link.code);
-  }, [model, selectedGroups]);
+  }, [model, emailOptions]);
 
   const [copied, setCopied] = useState(false);
   const [busy, setBusy] = useState<Intent | null>(null);

@@ -1,0 +1,340 @@
+{
+ "eva_ribelle": {
+  "canvas": {
+   "width": 4938,
+   "height": 3292
+  },
+  "hasRs": true,
+  "max": [
+   {
+    "id": "er_13_eva_tricolore",
+    "name": "EVA RIBELLE TRICOLORE",
+    "groupKey": "base_color"
+   },
+   {
+    "id": "er_53_kit_ohlins_suspensions",
+    "name": "ER-53-KIT OHLINS SUSPENSIONS",
+    "groupKey": "suspension"
+   },
+   {
+    "id": "eg_67_carbon_fiber_wheels",
+    "name": "EG-67-CARBON FIBER WHEELS",
+    "groupKey": "wheels"
+   },
+   {
+    "id": "er_35_front_mudguard_carbon",
+    "name": "ER-35-FRONT MUDGUARD CARBON",
+    "groupKey": "carbon_parts"
+   },
+   {
+    "id": "er_36_rear_mudguard_carbon",
+    "name": "ER-36-REAR MUDGUARD CARBON",
+    "groupKey": "carbon_parts"
+   },
+   {
+    "id": "er_37_battery_cover_carbon",
+    "name": "ER-37-BATTERY COVER CARBON",
+    "groupKey": "carbon_parts"
+   },
+   {
+    "id": "er_38_tank_rib_carbon",
+    "name": "ER-38-TANK RIB CARBON",
+    "groupKey": "carbon_parts"
+   },
+   {
+    "id": "er_79_kit_ergal_screws_black",
+    "name": "ER-79-KIT ERGAL SCREWS BLACK",
+    "groupKey": "ergal_screws"
+   },
+   {
+    "id": "er_40_rs_version",
+    "name": "ER-40-RS VERSION",
+    "groupKey": "rs_options"
+   },
+   {
+    "id": "er_41_stickers_kit_rs_sport",
+    "name": "ER-41-STICKERS KIT RS SPORT",
+    "groupKey": "rs_options"
+   },
+   {
+    "id": "er_24_frame_black",
+    "name": "ER-24-FRAME BLACK ",
+    "groupKey": "optional_upgrades"
+   },
+   {
+    "id": "er_80_windscreen_kit",
+    "name": "ER-80-WINDSCREEN KIT",
+    "groupKey": "optional_upgrades"
+   },
+   {
+    "id": "er_81_splash_guard",
+    "name": "ER-81-SPLASH GUARD",
+    "groupKey": "optional_upgrades"
+   },
+   {
+    "id": "er_91_side_bags_kit",
+    "name": "ER-91-SIDE BAGS KIT",
+    "groupKey": "optional_upgrades"
+   },
+   {
+    "id": "er_93_bags_plates_gun_metal",
+    "name": "ER-93-BAGS PLATES GUN METAL",
+    "groupKey": "bags_plates"
+   }
+  ]
+ },
+ "essesse9": {
+  "canvas": {
+   "width": 4938,
+   "height": 3292
+  },
+  "hasRs": true,
+  "max": [
+   {
+    "id": "es_14_esseesse9_riviera_green",
+    "name": "ES-14-EsseEsse9 RIVIERA GREEN",
+    "groupKey": "base_color"
+   },
+   {
+    "id": "es_27_bellypan_riviera_green_yellow_stripes",
+    "name": "ES-27-BELLYPAN RIVIERA GREEN YELLOW STRIPES",
+    "groupKey": "bellypan"
+   },
+   {
+    "id": "es_31_front_mudguard_carbon",
+    "name": "ES-31-FRONT MUDGUARD CARBON",
+    "groupKey": "carbon_parts"
+   },
+   {
+    "id": "es_32_rear_mudguard_carbon",
+    "name": "ES-32-REAR MUDGUARD CARBON",
+    "groupKey": "carbon_parts"
+   },
+   {
+    "id": "es_33_battery_cover_carbon",
+    "name": "ES-33-BATTERY COVER CARBON",
+    "groupKey": "carbon_parts"
+   },
+   {
+    "id": "es_34_tank_rib_carbon",
+    "name": "ES-34-TANK RIB CARBON",
+    "groupKey": "carbon_parts"
+   },
+   {
+    "id": "es_46_kit_ohlins_suspensions",
+    "name": "ES-46-KIT OHLINS SUSPENSIONS",
+    "groupKey": "suspension"
+   },
+   {
+    "id": "es_59carbon_fiber_wheels",
+    "name": "ES-59CARBON FIBER WHEELS",
+    "groupKey": "wheels"
+   },
+   {
+    "id": "es_73_kit_ergal_screws_black",
+    "name": "ES-73-KIT ERGAL SCREWS BLACK",
+    "groupKey": "ergal_screws"
+   },
+   {
+    "id": "es_84_windscreen_kit",
+    "name": "ES-84-WINDSCREEN KIT",
+    "groupKey": "optional_upgrades"
+   },
+   {
+    "id": "es_85_splash_guard",
+    "name": "ES-85-SPLASH GUARD",
+    "groupKey": "optional_upgrades"
+   },
+   {
+    "id": "es_96_side_bags_kit",
+    "name": "ES-96-SIDE BAGS KIT",
+    "groupKey": "optional_upgrades"
+   },
+   {
+    "id": "es_02_cnc_titanium_grey",
+    "name": "ES-02-CNC TITANIUM GREY",
+    "groupKey": "cnc_options"
+   },
+   {
+    "id": "er_98_bags_plates_blue",
+    "name": "ER-98-BAGS PLATES BLUE",
+    "groupKey": "bags_plates"
+   },
+   {
+    "id": "es_60_rs_version",
+    "name": "ES-60-RS VERSION",
+    "groupKey": "rs_options"
+   }
+  ]
+ },
+ "ego": {
+  "canvas": {
+   "width": 4938,
+   "height": 3292
+  },
+  "hasRs": true,
+  "max": [
+   {
+    "id": "eg_13_tricolore",
+    "name": "EGO TRICOLORE",
+    "groupKey": "base_color"
+   },
+   {
+    "id": "eg_64_passenger_seat_ego_tech_green",
+    "name": "EG-64-EGO TECH GREEN SEAT",
+    "groupKey": "passenger_seat"
+   },
+   {
+    "id": "eg_68_cover_corsaclienti_red_copia",
+    "name": "EG-68-COVER CorsaClienti RED",
+    "groupKey": "covers"
+   },
+   {
+    "id": "eg_35_front_mudguard_carbon",
+    "name": "EG-35-FRONT MUDGUARD CARBON",
+    "groupKey": "carbon_parts"
+   },
+   {
+    "id": "eg_36_rear_mudguard_carbon",
+    "name": "EG-36-REAR MUDGUARD CARBON",
+    "groupKey": "carbon_parts"
+   },
+   {
+    "id": "eg_37_bellypan_carbon",
+    "name": "EG-37-BELLYPAN CARBON",
+    "groupKey": "carbon_parts"
+   },
+   {
+    "id": "eg_38_undertail_cover_carbon",
+    "name": "EG-38-UNDERTAIL COVER CARBON",
+    "groupKey": "carbon_parts"
+   },
+   {
+    "id": "eg_79_kit_ohlins_suspensions",
+    "name": "EG-79-KIT OHLINS SUSPENSIONS",
+    "groupKey": "suspension"
+   },
+   {
+    "id": "eg_83_carbon_fiber_wheels",
+    "name": "EG-83-CARBON FIBER WHEELS",
+    "groupKey": "wheels"
+   },
+   {
+    "id": "eg_95_kit_ergal_screws_black",
+    "name": "EG-95-KIT ERGAL SCREWS BLACK",
+    "groupKey": "ergal_screws"
+   },
+   {
+    "id": "eg_24_frame_black",
+    "name": "EG-24-FRAME BLACK",
+    "groupKey": "optional_upgrades"
+   },
+   {
+    "id": "eg_49_rs_version",
+    "name": "EG-49-RS VERSION",
+    "groupKey": "optional_upgrades"
+   }
+  ]
+ },
+ "experia": {
+  "canvas": {
+   "width": 8716,
+   "height": 5814
+  },
+  "hasRs": false,
+  "max": [
+   {
+    "id": "ex_13_experia_white_flame",
+    "name": "EX-13-EXPERIA WHITE FLAME",
+    "groupKey": "base_color"
+   },
+   {
+    "id": "ex_37_forged_aluminium_wheels",
+    "name": "EX-37-FORGED ALUMINIUM WHEELS",
+    "groupKey": "wheels"
+   },
+   {
+    "id": "ex_49_front_mudguard_carbon",
+    "name": "EX-49-FRONT MUDGUARD CARBON",
+    "groupKey": "front_fender"
+   },
+   {
+    "id": "ex_51_low_windscreen_smoky",
+    "name": "EX-51-LOW WINDSCREEN SMOKY",
+    "groupKey": "windscreen"
+   },
+   {
+    "id": "ex_63_kit_ergal_screws_black",
+    "name": "EX-63-KIT ERGAL SCREWS BLACK",
+    "groupKey": "ergal_screws"
+   },
+   {
+    "id": "ex_24_sportred_seat_kit",
+    "name": "EX-24-SPORTRED SEAT KIT",
+    "groupKey": "optional_upgrades"
+   },
+   {
+    "id": "ex_74_central_stand",
+    "name": "EX-74-CENTRAL STAND",
+    "groupKey": "optional_upgrades"
+   },
+   {
+    "id": "ex_85_handguards",
+    "name": "EX-85-HANDGUARDS",
+    "groupKey": "optional_upgrades"
+   },
+   {
+    "id": "ex_96_splash_guard",
+    "name": "EX-96-SPLASH GUARD",
+    "groupKey": "optional_upgrades"
+   },
+   {
+    "id": "ex_107_top_case_kit",
+    "name": "EX-107-TOP CASE KIT",
+    "groupKey": "optional_upgrades"
+   },
+   {
+    "id": "ex_108_side_bags_kit",
+    "name": "EX-108-SIDE BAGS KIT",
+    "groupKey": "optional_upgrades"
+   }
+  ]
+ },
+ "reference": [
+  {
+   "id": "eg_64_standard_cast_aluminium_wheels",
+   "name": "*EG-64-STANDARD CAST ALUMINIUM WHEELS",
+   "groupKey": "wheels"
+  },
+  {
+   "id": "er_13_eva_tricolore",
+   "name": "EVA RIBELLE TRICOLORE",
+   "groupKey": "base_color"
+  },
+  {
+   "id": "er_24_frame_black",
+   "name": "ER-24-FRAME BLACK ",
+   "groupKey": "optional_upgrades"
+  },
+  {
+   "id": "er_40_rs_version",
+   "name": "ER-40-RS VERSION",
+   "groupKey": "rs_options"
+  },
+  {
+   "id": "er_52_standard_suspensions",
+   "name": "*ER-52-STANDARD SUSPENSIONS",
+   "groupKey": "suspension"
+  },
+  {
+   "id": "er_91_side_bags_kit",
+   "name": "ER-91-SIDE BAGS KIT",
+   "groupKey": "optional_upgrades"
+  },
+  {
+   "id": "er_93_bags_plates_gun_metal",
+   "name": "ER-93-BAGS PLATES GUN METAL",
+   "groupKey": "bags_plates"
+  }
+ ]
+}
