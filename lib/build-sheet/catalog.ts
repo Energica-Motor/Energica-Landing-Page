@@ -74,7 +74,7 @@ const COLOURWAYS: Record<string, { title: string; description: string; colors: s
 
 const ENTRIES: Record<string, Entry> = {
   // Version
-  "rs version": { label: "VERSION", title: "RS", description: "Performance version with dedicated RS mapping.", section: "base" },
+  "rs version": { label: "VERSION", title: "RS", description: "RS version badge and sticker kit.", section: "base" },
   "stickers kit rs sport": { label: "GRAPHICS", title: "RS Sport sticker kit", description: "RS Sport graphics for the bodywork." },
   // Seat
   "standard seat": { label: "SEAT", title: "Standard seat", description: "Standard fitment.", section: "base" },

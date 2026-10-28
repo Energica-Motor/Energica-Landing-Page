@@ -1,0 +1,233 @@
+"use client";
+// Presentational pieces of the configurator: model and step tabs, option
+// sections, the stage spec strip and the bottom action bar. No state here.
+import type { CSSProperties, ReactNode } from "react";
+import type { Stat } from "@/lib/build-sheet/specs";
+import { MODEL_INFO, MODEL_ORDER, SWATCHES, type Model } from "./config";
+import type { OptionView, SectionView } from "./rules";
+import { BORDER, COLOR, FONT, SIZE, monoLabel } from "./theme";
+
+const tabBase: CSSProperties = {
+  background: "none",
+  border: "none",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "flex-start",
+  textAlign: "left",
+  minHeight: SIZE.modelBarH,
+  flexShrink: 0,
+};
+
+// ── Model bar ───────────────────────────────────────────────────────────────
+
+export function ModelTabs({ active, onPick, step, steps }: { active: Model; onPick: (m: Model) => void; step: number; steps: number }) {
+  return (
+    <div className="cfg-modelbar" style={{ background: COLOR.white, borderBottom: BORDER.idle, padding: "0 32px", display: "flex", alignItems: "stretch", justifyContent: "space-between", gap: 8 }}>
+      <div role="tablist" aria-label="Model" className="cfg-scroll" style={{ display: "flex" }}>
+        {MODEL_ORDER.map((m) => {
+          const on = m === active;
+          return (
+            <button
+              key={m}
+              type="button"
+              role="tab"
+              aria-selected={on}
+              onClick={() => onPick(m)}
+              style={{ ...tabBase, padding: "16px 20px 13px", gap: 2, borderBottom: `3px solid ${on ? COLOR.green : "transparent"}` }}
+            >
+              <span style={{ fontFamily: FONT.display, fontWeight: 600, fontSize: 20, letterSpacing: "0.04em", textTransform: "uppercase", color: on ? COLOR.text : COLOR.label, whiteSpace: "nowrap" }}>
+                {MODEL_INFO[m].name}
+              </span>
+              <span style={{ ...monoLabel(10, 0.12), whiteSpace: "nowrap" }}>{MODEL_INFO[m].category}</span>
+            </button>
+          );
+        })}
+      </div>
+      {steps > 0 && (
+        <div className="cfg-stepcount" style={{ display: "flex", alignItems: "center", whiteSpace: "nowrap", ...monoLabel(10) }}>
+          STEP {step + 1} OF {steps}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Step tabs ───────────────────────────────────────────────────────────────
+
+export function StepTabs({ steps, counts, active, onPick }: { steps: { label: string }[]; counts: number[]; active: number; onPick: (i: number) => void }) {
+  return (
+    <div role="tablist" aria-label="Steps" className="cfg-scroll" style={{ display: "grid", gridTemplateColumns: `repeat(${steps.length}, minmax(72px, 1fr))`, borderBottom: BORDER.idle }}>
+      {steps.map((s, i) => {
+        const on = i === active;
+        return (
+          <button
+            key={s.label}
+            type="button"
+            role="tab"
+            aria-selected={on}
+            onClick={() => onPick(i)}
+            style={{ ...tabBase, padding: "12px 8px 9px", gap: 3, minWidth: 0, borderBottom: `3px solid ${on ? COLOR.green : "transparent"}` }}
+          >
+            <span style={monoLabel(10, 0.1)}>{String(i + 1).padStart(2, "0")}</span>
+            <span style={{ fontFamily: FONT.display, fontWeight: 600, fontSize: 15, letterSpacing: "0.04em", textTransform: "uppercase", color: on ? COLOR.text : COLOR.label, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "100%" }}>
+              {s.label}
+            </span>
+            <span style={{ ...monoLabel(9, 0.08, COLOR.greenText), whiteSpace: "nowrap" }}>
+              {counts[i] ? `${counts[i]} SELECTED` : "OPTIONAL"}
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+// ── Option sections ─────────────────────────────────────────────────────────
+
+export function OptionSection({ section, onToggle }: { section: SectionView; onToggle: (o: OptionView) => void }) {
+  const isSwatch = section.key === "base_color";
+  const cols = isSwatch ? 3 : section.options.length >= 4 ? 2 : 1;
+  return (
+    <section aria-label={section.title} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+          <h2 style={{ margin: 0, fontFamily: FONT.display, fontWeight: 600, fontSize: 26, lineHeight: 1.1, textTransform: "uppercase", color: COLOR.text }}>{section.title}</h2>
+          {section.description && <p style={{ margin: 0, fontFamily: FONT.body, fontSize: 13, color: COLOR.secondary }}>{section.description}</p>}
+        </div>
+        <span style={{ ...monoLabel(10, 0.12), whiteSpace: "nowrap" }}>{section.hint}</span>
+      </div>
+      <div className={isSwatch ? "cfg-swatches" : "cfg-options"} style={{ display: "grid", gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, gap: isSwatch ? 10 : 8 }}>
+        {section.options.map((o) =>
+          isSwatch
+            ? <SwatchCard key={o.layer.id} option={o} onClick={() => onToggle(o)} />
+            : <OptionCard key={o.layer.id} option={o} round={section.exclusive} onClick={() => onToggle(o)} />,
+        )}
+      </div>
+    </section>
+  );
+}
+
+const cardBase = (o: OptionView): CSSProperties => ({
+  background: COLOR.white,
+  border: o.selected ? BORDER.selected : BORDER.idle,
+  opacity: o.disabled ? SIZE.disabledOpacity : 1,
+  minHeight: SIZE.touch,
+  borderRadius: 0,
+  color: COLOR.text,
+});
+
+export function SwatchCard({ option: o, onClick }: { option: OptionView; onClick: () => void }) {
+  const colors = SWATCHES[o.layer.id] ?? [COLOR.rule];
+  return (
+    <button type="button" aria-pressed={o.selected} disabled={o.disabled} onClick={onClick}
+      style={{ ...cardBase(o), padding: "16px 8px 14px", display: "flex", flexDirection: "column", alignItems: "center", gap: 10, minHeight: 112 }}>
+      <span aria-hidden style={{ width: 44, height: 44, borderRadius: "50%", overflow: "hidden", display: "flex", border: `1px solid ${COLOR.swatchBorder}` }}>
+        {colors.map((c, i) => <span key={i} style={{ flexGrow: 1, background: c }} />)}
+      </span>
+      <span style={{ fontFamily: FONT.body, fontSize: 13, fontWeight: 500, textAlign: "center" }}>{o.title}</span>
+    </button>
+  );
+}
+
+export function OptionCard({ option: o, round, onClick }: { option: OptionView; round: boolean; onClick: () => void }) {
+  const radius = round ? "50%" : 0;
+  return (
+    <button type="button" aria-pressed={o.selected} disabled={o.disabled} onClick={onClick}
+      style={{ ...cardBase(o), padding: "13px 14px", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, textAlign: "left", minHeight: 60 }}>
+      <span style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0 }}>
+        <span style={{ fontFamily: FONT.body, fontSize: 14, fontWeight: 600, color: COLOR.text }}>{o.title}</span>
+        {o.description && <span style={{ fontFamily: FONT.body, fontSize: 12, color: COLOR.secondary }}>{o.description}</span>}
+      </span>
+      <span aria-hidden style={{ width: 18, height: 18, borderRadius: radius, border: `1px solid ${COLOR.indicator}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: COLOR.white }}>
+        <span style={{ width: 10, height: 10, borderRadius: radius, background: o.selected ? COLOR.text : "transparent" }} />
+      </span>
+    </button>
+  );
+}
+
+// ── Stage ───────────────────────────────────────────────────────────────────
+
+export function StageHeading({ model, colour, version }: { model: Model; colour: string; version: "RS" | "Standard" | null }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column" }}>
+      <div style={monoLabel(11, 0.16)}>{MODEL_INFO[model].category}</div>
+      <h1 className="cfg-title" style={{ margin: "6px 0 0", fontFamily: FONT.display, fontWeight: 600, fontSize: 76, lineHeight: 0.9, textTransform: "uppercase", color: COLOR.text }}>
+        {MODEL_INFO[model].name}
+      </h1>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 14, minHeight: 26 }}>
+        {colour && <span style={{ fontFamily: FONT.display, fontWeight: 500, fontSize: 22, letterSpacing: "0.02em", color: COLOR.text }}>{colour}</span>}
+        {colour && version && <span aria-hidden style={{ width: 4, height: 4, background: COLOR.indicator, borderRadius: "50%" }} />}
+        {version && (
+          <span style={{ fontFamily: FONT.display, fontWeight: 600, fontSize: 22, color: version === "RS" ? COLOR.greenText : COLOR.secondary }}>{version}</span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** The model's locked headline figures (lib/build-sheet/specs.ts). */
+export function SpecStrip({ stats }: { stats: Stat[] }) {
+  return (
+    <dl style={{ display: "flex", flexWrap: "wrap", borderTop: `1px solid ${COLOR.strongRule}`, margin: 0 }}>
+      {stats.map((s, i) => (
+        <div key={s.label} style={{ flex: "1 1 130px", padding: `14px ${i === stats.length - 1 ? 0 : 16}px 0 0`, display: "flex", flexDirection: "column", gap: 2 }}>
+          <dt style={monoLabel(10)}>{s.label}</dt>
+          <dd style={{ margin: 0, display: "flex", alignItems: "baseline", gap: 6 }}>
+            <span style={{ fontFamily: FONT.display, fontWeight: 600, fontSize: 34, lineHeight: 1.1, color: COLOR.text }}>{s.value}</span>
+            <span style={{ fontFamily: FONT.display, fontSize: 16, color: COLOR.secondary }}>{s.unit}</span>
+          </dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
+// ── Bottom action bar ───────────────────────────────────────────────────────
+
+const barButton: CSSProperties = {
+  ...monoLabel(11, 0.14, COLOR.white),
+  background: "none",
+  border: `1px solid ${COLOR.darkBorder}`,
+  padding: "0 16px",
+  minHeight: SIZE.touch,
+  borderRadius: 0,
+  whiteSpace: "nowrap",
+};
+
+export interface ActionBarProps {
+  countLabel: string;
+  summary: string;
+  copyLabel: string;
+  pdfLabel: string;
+  pdfDisabled: boolean;
+  linkDisabled: boolean;
+  onReset: () => void;
+  onCopy: () => void;
+  onPdf: () => void;
+  onContact: () => void;
+  note?: ReactNode;
+}
+
+export function ActionBar(p: ActionBarProps) {
+  return (
+    <div className="cfg-actionbar" style={{ position: "sticky", bottom: 0, zIndex: 20, background: COLOR.dark, color: COLOR.white, padding: "14px 32px", display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: "14px 24px", borderTop: `1px solid ${COLOR.darkRule}` }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 4, flex: "1 1 360px", minWidth: 0 }}>
+        <span style={monoLabel(10, 0.14, COLOR.onDark)}>
+          YOUR BUILD · <span data-testid="selection-count" style={{ color: COLOR.green }}>{p.countLabel}</span>
+        </span>
+        <span data-testid="build-summary" title={p.summary} style={{ fontFamily: FONT.body, fontSize: 13, color: COLOR.onDarkText, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          {p.summary}
+        </span>
+      </div>
+      <div className="cfg-actions" style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 10 }}>
+        <button type="button" onClick={p.onReset} style={{ ...barButton, border: "none", color: COLOR.onDark, padding: "0 10px" }}>RESET</button>
+        <button type="button" onClick={p.onCopy} disabled={p.linkDisabled} style={barButton} aria-live="polite">{p.copyLabel}</button>
+        <button type="button" onClick={p.onPdf} disabled={p.pdfDisabled} style={{ ...barButton, opacity: p.pdfDisabled ? 0.5 : 1 }}>{p.pdfLabel}</button>
+        <button type="button" onClick={p.onContact} className="cfg-contact" style={{ ...barButton, background: COLOR.green, borderColor: COLOR.green, color: COLOR.dark, fontWeight: 500, padding: "0 22px" }}>
+          CONTACT DEALER
+        </button>
+      </div>
+      {p.note}
+    </div>
+  );
+}
