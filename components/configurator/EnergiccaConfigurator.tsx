@@ -772,6 +772,63 @@ function OptionRow({ layer, active, disabled, exclusive, onToggle }: OptionRowPr
   );
 }
 
+// Public Blob root holding each part's layer PNG (used for the PDF part images)
+const LAYER_IMAGE_BASE = (
+  process.env.NEXT_PUBLIC_BLOB_BASE_URL || "https://cumxnjuhzezfht2i.public.blob.vercel-storage.com"
+).replace(/\/$/, "");
+
+const MODAL_COPY = {
+  contact: {
+    title: "Contact Dealer",
+    intro: "Send us your build and we'll connect you with your nearest Energica dealer for a quotation.",
+    submit: "Send Enquiry",
+  },
+  link: {
+    title: "Get your build link",
+    intro: "Tell us where you are and we'll create your link — and have your nearest Energica dealer get in touch.",
+    submit: "Send & get link",
+  },
+  pdf: {
+    title: "Download your build",
+    intro: "Tell us where you are and we'll prepare your PDF — and have your nearest Energica dealer get in touch.",
+    submit: "Send & download PDF",
+  },
+  whatsapp: {
+    title: "Share your build",
+    intro: "Tell us where you are and we'll create your link — and have your nearest Energica dealer get in touch.",
+    submit: "Send & share",
+  },
+};
+
+function BuildLinkBox({ url, copied, onCopy, whatsappUrl }: { url: string; copied: boolean; onCopy: () => void; whatsappUrl: string }) {
+  return (
+    <div>
+      <p style={{ ...S.sectionTitle, fontSize: "11px", margin: "0 0 6px" }}>Your build link</p>
+      <div style={{ display: "flex", gap: "6px" }}>
+        <input
+          readOnly
+          value={url}
+          onFocus={(e) => e.currentTarget.select()}
+          style={{ ...S.shareInput, flex: 1, minWidth: 0, color: "#121212", cursor: "text" }}
+          aria-label="Your build link"
+        />
+        <button type="button" onClick={onCopy} style={{ ...S.copyBtn, cursor: "pointer" }}>
+          {copied ? "✓ Copied" : "Copy"}
+        </button>
+        <a
+          href={whatsappUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ ...S.copyBtn, textDecoration: "none", display: "inline-flex", alignItems: "center", color: "#1a8d4a", borderColor: "#cfe9d8", cursor: "pointer" }}
+          aria-label="Share on WhatsApp"
+        >
+          WhatsApp
+        </a>
+      </div>
+    </div>
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Main component
 // ---------------------------------------------------------------------------
@@ -792,63 +849,152 @@ export default function EnergiccaConfigurator({
     reset,
   } = useConfigurator(model, apiUrl);
 
-  const [copied, setCopied] = useState(false);
-  const shareUrl = useMemo(() => {
+  // ── Sharing, PDF and enquiries ────────────────────────────────────────────
+  // Copying the build link, downloading the PDF and "Contact Dealer" all go
+  // through one short form first; the build (PDF attached) is emailed to
+  // Energica sales, who forward it to the right dealer. Once the form is sent,
+  // the link and PDF are unlocked for the session, and any later change to the
+  // build is sent to sales again as an update.
+  const longShareUrl = useMemo(() => {
     if (typeof window === "undefined" || visibleLayers.size === 0) return "";
     const encoded = encodeConfig([...visibleLayers]);
     return `${window.location.origin}${window.location.pathname}?model=${model}&layers=${encoded}`;
   }, [visibleLayers, model]);
 
-  const handleCopy = useCallback(() => {
-    if (!shareUrl) return;
-    navigator.clipboard.writeText(shareUrl).then(() => {
+  // Short link for the current build (/b/<code>), created on demand
+  const shortLinks = useRef(new Map<string, { code: string; url: string }>());
+  const [shortLink, setShortLink] = useState<{ code: string; url: string } | null>(null);
+  useEffect(() => {
+    setShortLink(shortLinks.current.get(encodeConfig([...visibleLayers])) ?? null);
+  }, [visibleLayers]);
+
+  const ensureShortLink = useCallback(async () => {
+    const key = encodeConfig([...visibleLayers]);
+    const cached = shortLinks.current.get(key);
+    if (cached) return cached;
+    try {
+      const res = await fetch("/api/builds", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ model, layers: [...visibleLayers] }),
+      });
+      if (!res.ok) throw new Error(String(res.status));
+      const { code } = await res.json();
+      const link = { code, url: `${window.location.origin}/b/${code}` };
+      shortLinks.current.set(key, link);
+      setShortLink(link);
+      return link;
+    } catch (err) {
+      console.error("[configurator] short link failed", err);
+      return { code: "", url: longShareUrl };
+    }
+  }, [visibleLayers, model, longShareUrl]);
+
+  // Selected parts, grouped as in the UI, with each part's own layer image
+  const selectedGroups = useCallback(() => {
+    if (!config) return [];
+    const byId = new Map(config.layers.map((l) => [l.id, l]));
+    const part = (id: string) => ({
+      name: cleanLayerName(byId.get(id)!.name),
+      imageUrl: `${LAYER_IMAGE_BASE}/layers/${model}/${byId.get(id)!.filename}`,
+    });
+    const grouped = new Set<string>();
+    const groups = Object.entries(config.groups)
+      .map(([key, ids]) => {
+        ids.forEach((id) => grouped.add(id));
+        // Same rule as the option list: an always-on base layer (e.g. the
+        // base colour) only counts as chosen if nothing else in its group is.
+        const chosen = ids.filter((id) => visibleLayers.has(id) && byId.has(id));
+        const picked = chosen.filter((id) => !alwaysVisible.has(id));
+        const label = GROUP_CONFIG[key]?.label ?? key.replace(/_/g, " ");
+        return { label, parts: (picked.length ? picked : chosen).map(part) };
+      })
+      .filter((g) => g.parts.length > 0);
+    const other = [...visibleLayers].filter((id) => !grouped.has(id) && byId.has(id) && !alwaysVisible.has(id));
+    if (other.length) groups.push({ label: "Other", parts: other.map(part) });
+    return groups;
+  }, [config, visibleLayers, alwaysVisible, model]);
+
+  const makePdf = useCallback(async (link: { code: string; url: string }, customerName?: string) => {
+    const { createConfiguratorPdf } = await import("@/lib/configurator-pdf");
+    return createConfiguratorPdf({
+      modelName: MODEL_DISPLAY_NAMES[model] ?? model,
+      imageUrl: previewUrl,
+      groups: selectedGroups(),
+      buildUrl: link.url,
+      buildCode: link.code || undefined,
+      customerName,
+    });
+  }, [model, previewUrl, selectedGroups]);
+
+  type Intent = "contact" | "link" | "pdf" | "whatsapp";
+  type Lead = { name: string; email: string; phone: string; country: string; dealer: string; message: string };
+  const EMPTY_LEAD: Lead = { name: "", email: "", phone: "", country: "", dealer: "", message: "" };
+
+  // The visitor's details, remembered for this browser session
+  const [lead, setLead] = useState<Lead | null>(null);
+  const sentCodes = useRef(new Set<string>());
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem("energica-cfg-lead") ?? "null");
+      if (saved?.lead?.email) setLead(saved.lead);
+      (saved?.sent ?? []).forEach((c: string) => sentCodes.current.add(c));
+    } catch { /* storage unavailable */ }
+  }, []);
+  const rememberLead = (l: Lead) => {
+    setLead(l);
+    try {
+      sessionStorage.setItem("energica-cfg-lead", JSON.stringify({ lead: l, sent: [...sentCodes.current] }));
+    } catch { /* storage unavailable */ }
+  };
+
+  const sendToSales = useCallback(async (
+    l: Lead,
+    intent: Intent | "update",
+    link: { code: string; url: string },
+    pdf: { base64: string; fileName: string } | null,
+  ) => {
+    const res = await fetch("/api/configurator-contact", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...l,
+        intent,
+        model: MODEL_DISPLAY_NAMES[model] ?? model,
+        options: selectedGroups().flatMap((g) => g.parts.map((p) => ({ group: g.label, name: p.name }))),
+        buildUrl: link.url,
+        buildCode: link.code,
+        pdf: pdf?.base64,
+        pdfName: pdf?.fileName,
+      }),
+    });
+    if (!res.ok) throw new Error("Submit failed");
+    if (link.code) sentCodes.current.add(link.code);
+  }, [model, selectedGroups]);
+
+  const [copied, setCopied] = useState(false);
+  const [busy, setBusy] = useState<Intent | null>(null);
+  const copyLink = useCallback(async (url: string) => {
+    try {
+      await navigator.clipboard.writeText(url);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    });
-  }, [shareUrl]);
-
-  // PDF summary: bike image + selected options grouped as in the UI (no prices)
-  const [pdfBusy, setPdfBusy] = useState(false);
-  const handleDownloadPdf = useCallback(async () => {
-    if (!config || pdfBusy) return;
-    setPdfBusy(true);
-    try {
-      const byId = new Map(config.layers.map((l) => [l.id, l]));
-      const grouped = new Set<string>();
-      const groups = Object.entries(config.groups)
-        .map(([key, ids]) => {
-          ids.forEach((id) => grouped.add(id));
-          // Same rule as the option list: an always-on base layer (e.g. the
-          // base colour) only counts as chosen if nothing else in its group is.
-          const chosen = ids.filter((id) => visibleLayers.has(id) && byId.has(id));
-          const picked = chosen.filter((id) => !alwaysVisible.has(id));
-          const options = (picked.length ? picked : chosen).map((id) => cleanLayerName(byId.get(id)!.name));
-          const label = GROUP_CONFIG[key]?.label ?? key.replace(/_/g, " ");
-          return { label, options };
-        })
-        .filter((g) => g.options.length > 0);
-      const other = [...visibleLayers]
-        .filter((id) => !grouped.has(id) && byId.has(id))
-        .map((id) => cleanLayerName(byId.get(id)!.name));
-      if (other.length) groups.push({ label: "Other", options: other });
-
-      const { downloadConfiguratorPdf } = await import("@/lib/configurator-pdf");
-      await downloadConfiguratorPdf({
-        modelName: MODEL_DISPLAY_NAMES[model] ?? model,
-        imageUrl: previewUrl,
-        groups,
-        buildUrl: shareUrl || window.location.href,
-      });
-    } catch (err) {
-      console.error("[configurator] PDF export failed", err);
-    } finally {
-      setPdfBusy(false);
+      return true;
+    } catch {
+      return false; // the link stays visible in the build-link box to copy by hand
     }
-  }, [config, visibleLayers, alwaysVisible, previewUrl, model, shareUrl, pdfBusy]);
+  }, []);
+  const whatsappUrl = (url: string) =>
+    `https://wa.me/?text=${encodeURIComponent(`My Energica ${MODEL_DISPLAY_NAMES[model] ?? model} build: ${url}`)}`;
 
-  // Contact Dealer modal state
+  // Form modal
   const [modalOpen, setModalOpen] = useState(false);
-  const [dealerForm, setDealerForm] = useState({ name: "", email: "", phone: "", location: "", message: "", sendConfig: true });
+  const [modalIntent, setModalIntent] = useState<Intent>("contact");
+  const [dealerForm, setDealerForm] = useState<Lead>(EMPTY_LEAD);
+  const [dealerSubmitting, setDealerSubmitting] = useState(false);
+  const [dealerSuccess, setDealerSuccess] = useState(false);
+  const [dealerError, setDealerError] = useState<string | null>(null);
+  const lastPdf = useRef<{ save: () => void } | null>(null);
 
   // Lock body scroll while modal is open
   useEffect(() => {
@@ -859,41 +1005,73 @@ export default function EnergiccaConfigurator({
     }
     return () => { document.body.style.overflow = ""; };
   }, [modalOpen]);
-  const [dealerSubmitting, setDealerSubmitting] = useState(false);
-  const [dealerSuccess, setDealerSuccess] = useState(false);
-  const [dealerError, setDealerError] = useState<string | null>(null);
+
+  const openForm = (intent: Intent) => {
+    setModalIntent(intent);
+    setDealerForm(lead ?? EMPTY_LEAD);
+    setDealerSuccess(false);
+    setDealerError(null);
+    setModalOpen(true);
+  };
+
+  // Copy link / Download PDF: form first; afterwards they act directly and
+  // a changed build is sent to sales as an update.
+  const handleAction = useCallback(async (intent: "link" | "pdf") => {
+    if (!config || busy) return;
+    if (!lead) { openForm(intent); return; }
+    setBusy(intent);
+    try {
+      const link = await ensureShortLink();
+      const isNew = !!link.code && !sentCodes.current.has(link.code);
+      if (intent === "link") await copyLink(link.url);
+      const pdf = intent === "pdf" || isNew ? await makePdf(link, lead.name) : null;
+      if (intent === "pdf") pdf?.save();
+      if (isNew) {
+        sendToSales(lead, "update", link, pdf)
+          .then(() => rememberLead(lead))
+          .catch((err) => console.error("[configurator] update not sent", err));
+      }
+    } catch (err) {
+      console.error("[configurator] action failed", err);
+    } finally {
+      setBusy(null);
+    }
+  }, [config, busy, lead, ensureShortLink, copyLink, makePdf, sendToSales]);
 
   const handleDealerSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
+    const f = {
+      ...dealerForm,
+      name: dealerForm.name.trim(),
+      email: dealerForm.email.trim(),
+      phone: dealerForm.phone.trim(),
+      country: dealerForm.country.trim(),
+    };
+    if (!f.name || !f.email || !f.phone || !f.country) {
+      setDealerError("Please fill in your name, email, phone and country.");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email)) {
+      setDealerError("Please enter a valid email address.");
+      return;
+    }
     setDealerSubmitting(true);
     setDealerError(null);
     try {
-      const layerNames = config?.layers
-        .filter((l) => visibleLayers.has(l.id))
-        .map((l) => l.name) ?? [];
-      const res = await fetch("/api/configurator-contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: dealerForm.name,
-          email: dealerForm.email,
-          phone: dealerForm.phone,
-          location: dealerForm.location,
-          message: dealerForm.message,
-          sendConfig: dealerForm.sendConfig,
-          model: MODEL_DISPLAY_NAMES[model] ?? model,
-          layers: layerNames,
-          configUrl: shareUrl,
-        }),
-      });
-      if (!res.ok) throw new Error("Submit failed");
+      const link = await ensureShortLink();
+      const pdf = await makePdf(link, f.name);
+      await sendToSales(f, modalIntent, link, pdf);
+      rememberLead(f);
+      lastPdf.current = pdf;
       setDealerSuccess(true);
+      if (modalIntent === "pdf") pdf.save();
+      if (modalIntent === "link") copyLink(link.url);
     } catch {
       setDealerError("Something went wrong. Please try again.");
     } finally {
       setDealerSubmitting(false);
     }
-  }, [dealerForm, config, visibleLayers, model, shareUrl]);
+  }, [dealerForm, modalIntent, ensureShortLink, makePdf, sendToSales, copyLink]);
 
   // An always-visible layer explicitly placed in an exclusive UI group is a
   // selectable option (e.g. Stealth Grey base whose "selection" means no overlay),
@@ -1167,15 +1345,26 @@ export default function EnergiccaConfigurator({
 
                 {/* Action buttons */}
                 <div style={S.actions}>
+                  {/* Short build link, once the visitor has sent their details */}
+                  {lead && shortLink && (
+                    <BuildLinkBox
+                      url={shortLink.url}
+                      copied={copied}
+                      onCopy={() => copyLink(shortLink.url)}
+                      whatsappUrl={whatsappUrl(shortLink.url)}
+                    />
+                  )}
+
                   {/* Row 1: secondary actions side by side */}
                   <div style={{ display: "flex", gap: "8px" }}>
                     <button
                       type="button"
-                      onClick={handleCopy}
+                      onClick={() => handleAction("link")}
+                      disabled={busy === "link"}
                       style={{ ...S.btnSecondary, flex: 1, padding: "12px 8px" }}
                       aria-label="Copy link to your build"
                     >
-                      {copied ? "✓ Link copied" : "Copy link to your build"}
+                      {copied ? "✓ Link copied" : busy === "link" ? "Creating link…" : "Copy link to your build"}
                     </button>
                     <button
                       type="button"
@@ -1190,22 +1379,27 @@ export default function EnergiccaConfigurator({
                   {/* PDF summary of the build */}
                   <button
                     type="button"
-                    onClick={handleDownloadPdf}
-                    disabled={pdfBusy || !previewUrl}
-                    style={{ ...S.btnSecondary, padding: "12px 8px", opacity: pdfBusy || !previewUrl ? 0.6 : 1 }}
+                    onClick={() => handleAction("pdf")}
+                    disabled={busy === "pdf" || !previewUrl}
+                    style={{ ...S.btnSecondary, padding: "12px 8px", opacity: busy === "pdf" || !previewUrl ? 0.6 : 1 }}
                     aria-label="Download a PDF of your build"
                   >
-                    {pdfBusy ? "Preparing PDF…" : "Download PDF"}
+                    {busy === "pdf" ? "Preparing PDF…" : "Download PDF"}
                   </button>
 
                   {/* Row 2: primary CTA */}
                   <button
                     type="button"
-                    onClick={() => { setModalOpen(true); setDealerSuccess(false); setDealerError(null); }}
+                    onClick={() => openForm("contact")}
                     style={{ ...S.btnPrimary, fontSize: "14px", padding: "16px 24px", letterSpacing: "0.15em" }}
                   >
                     Contact Dealer
                   </button>
+                  {!lead && (
+                    <p style={{ margin: 0, fontFamily: "'IBM Plex Sans', sans-serif", fontSize: "12px", color: "#888", lineHeight: 1.5, textAlign: "center" }}>
+                      Your build goes to Energica, who will connect you with your nearest dealer.
+                    </p>
+                  )}
                 </div>
               </div>
             )}
@@ -1218,7 +1412,7 @@ export default function EnergiccaConfigurator({
         </footer>
       </div>
 
-      {/* Contact Dealer Modal — portal so no parent clips it; cursor reset overrides body { cursor:none } */}
+      {/* Build enquiry modal — portal so no parent clips it; cursor reset overrides body { cursor:none } */}
       {modalOpen && createPortal(
         <div
           style={{ position: "fixed", inset: 0, zIndex: 9999, backgroundColor: "rgba(0,0,0,0.55)", display: "flex", alignItems: "center", justifyContent: "center", padding: "16px", cursor: "auto" }}
@@ -1226,12 +1420,12 @@ export default function EnergiccaConfigurator({
         >
           <div
             className="energica-modal-box"
-            style={{ backgroundColor: "#fff", color: "#121212", width: "480px", maxWidth: "100%", borderRadius: "2px", overflow: "hidden", boxShadow: "0 20px 60px rgba(0,0,0,0.3)", cursor: "auto" }}
+            style={{ backgroundColor: "#fff", color: "#121212", width: "480px", maxWidth: "100%", maxHeight: "92vh", overflowY: "auto", borderRadius: "2px", boxShadow: "0 20px 60px rgba(0,0,0,0.3)", cursor: "auto" }}
           >
             {/* Modal header */}
             <div style={{ backgroundColor: "#0a0a0a", padding: "20px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "3px solid #78BE20" }}>
               <div>
-                <p style={{ margin: 0, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: "18px", letterSpacing: "0.12em", textTransform: "uppercase", color: "#fff" }}>Contact Dealer</p>
+                <p style={{ margin: 0, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: "18px", letterSpacing: "0.12em", textTransform: "uppercase", color: "#fff" }}>{MODAL_COPY[modalIntent].title}</p>
                 <p style={{ margin: "2px 0 0", fontFamily: "'Barlow Condensed', sans-serif", fontSize: "11px", letterSpacing: "0.1em", color: "#78BE20", textTransform: "uppercase" }}>{MODEL_DISPLAY_NAMES[model] ?? model}</p>
               </div>
               <button type="button" onClick={() => setModalOpen(false)} style={{ background: "none", border: "none", color: "#aaa", fontSize: "22px", cursor: "pointer", lineHeight: 1, padding: "6px 8px" }} aria-label="Close">✕</button>
@@ -1239,41 +1433,66 @@ export default function EnergiccaConfigurator({
 
             <div style={{ padding: "24px" }}>
               {dealerSuccess ? (
-                <div style={{ textAlign: "center", padding: "24px 0 16px" }}>
+                <div style={{ textAlign: "center", padding: "16px 0 8px" }}>
                   <div style={{ width: 56, height: 56, borderRadius: "50%", backgroundColor: "#78BE20", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px", fontSize: "26px", color: "#fff" }}>✓</div>
                   <p style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: "22px", letterSpacing: "0.08em", textTransform: "uppercase", margin: "0 0 8px", color: "#121212" }}>Thank You!</p>
-                  <p style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: "14px", color: "#666", margin: "0 0 28px", lineHeight: 1.5 }}>We&apos;ll connect you with your nearest dealer within 24 hours.</p>
-                  <button
-                    type="button"
-                    onClick={() => setModalOpen(false)}
-                    style={{ ...S.btnSecondary, width: "auto", padding: "12px 32px", cursor: "pointer" }}
-                  >
-                    Close
-                  </button>
+                  <p style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: "14px", color: "#666", margin: "0 0 20px", lineHeight: 1.5 }}>
+                    Your build has been sent to Energica. We&apos;ll connect you with your nearest dealer within 24 hours — a copy is on its way to your inbox.
+                  </p>
+                  {shortLink && (
+                    <div style={{ textAlign: "left", marginBottom: "12px" }}>
+                      <BuildLinkBox
+                        url={shortLink.url}
+                        copied={copied}
+                        onCopy={() => copyLink(shortLink.url)}
+                        whatsappUrl={whatsappUrl(shortLink.url)}
+                      />
+                    </div>
+                  )}
+                  <div style={{ display: "flex", gap: "8px" }}>
+                    <button
+                      type="button"
+                      onClick={() => lastPdf.current?.save()}
+                      style={{ ...S.btnSecondary, flex: 1, cursor: "pointer" }}
+                    >
+                      Download PDF
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setModalOpen(false)}
+                      style={{ ...S.btnPrimary, flex: 1, cursor: "pointer" }}
+                    >
+                      Done
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <form onSubmit={handleDealerSubmit} noValidate>
+                  <p style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: "13px", color: "#555", margin: "0 0 18px", lineHeight: 1.5 }}>
+                    {MODAL_COPY[modalIntent].intro}
+                  </p>
                   {[
-                    { id: "dc-name", label: "Full Name", key: "name", type: "text", placeholder: "Jane Smith" },
-                    { id: "dc-email", label: "Email", key: "email", type: "email", placeholder: "jane@example.com" },
-                    { id: "dc-phone", label: "Phone", key: "phone", type: "tel", placeholder: "+1 555 000 0000" },
-                    { id: "dc-location", label: "Location / Country", key: "location", type: "text", placeholder: "Milan, Italy" },
-                  ].map(({ id, label, key, type, placeholder }) => (
-                    <div key={key} style={{ marginBottom: "16px" }}>
-                      <label htmlFor={id} style={{ display: "block", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: "11px", letterSpacing: "0.12em", textTransform: "uppercase", color: "#121212", marginBottom: "6px" }}>{label} *</label>
+                    { id: "dc-name", label: "Full Name", key: "name", type: "text", placeholder: "Jane Smith", required: true },
+                    { id: "dc-email", label: "Email", key: "email", type: "email", placeholder: "jane@example.com", required: true },
+                    { id: "dc-phone", label: "Phone", key: "phone", type: "tel", placeholder: "+27 82 000 0000", required: true },
+                    { id: "dc-country", label: "Country / City", key: "country", type: "text", placeholder: "Cape Town, South Africa", required: true },
+                    { id: "dc-dealer", label: "Preferred dealer (optional)", key: "dealer", type: "text", placeholder: "If you already have one in mind", required: false },
+                  ].map(({ id, label, key, type, placeholder, required }) => (
+                    <div key={key} style={{ marginBottom: "14px" }}>
+                      <label htmlFor={id} style={{ display: "block", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: "11px", letterSpacing: "0.12em", textTransform: "uppercase", color: "#121212", marginBottom: "6px" }}>{label}{required ? " *" : ""}</label>
                       <input
                         id={id}
                         type={type}
-                        required
+                        required={required}
                         placeholder={placeholder}
-                        value={(dealerForm as unknown as Record<string, string>)[key]}
+                        value={dealerForm[key as keyof Lead]}
                         onChange={(e) => setDealerForm((f) => ({ ...f, [key]: e.target.value }))}
                         style={{ width: "100%", fontFamily: "'IBM Plex Sans', sans-serif", fontSize: "14px", padding: "10px 12px", border: "1px solid #e0e0e0", borderRadius: "2px", outline: "none", color: "#121212", backgroundColor: "#fafafa", boxSizing: "border-box", cursor: "text" }}
                       />
                     </div>
                   ))}
 
-                  <div style={{ marginBottom: "16px" }}>
+                  <div style={{ marginBottom: "14px" }}>
                     <label htmlFor="dc-message" style={{ display: "block", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: "11px", letterSpacing: "0.12em", textTransform: "uppercase", color: "#121212", marginBottom: "6px" }}>Message</label>
                     <textarea
                       id="dc-message"
@@ -1285,24 +1504,19 @@ export default function EnergiccaConfigurator({
                     />
                   </div>
 
-                  <label style={{ display: "flex", alignItems: "flex-start", gap: "10px", marginBottom: "20px", cursor: "pointer" }}>
-                    <input
-                      type="checkbox"
-                      checked={dealerForm.sendConfig}
-                      onChange={(e) => setDealerForm((f) => ({ ...f, sendConfig: e.target.checked }))}
-                      style={{ marginTop: "2px", accentColor: "#78BE20", width: "15px", height: "15px", flexShrink: 0, cursor: "pointer" }}
-                    />
-                    <span style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: "13px", color: "#555", lineHeight: "1.4" }}>Send my configuration details to the dealer</span>
-                  </label>
+                  <p style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: "11px", color: "#999", margin: "0 0 16px", lineHeight: 1.5 }}>
+                    Your details and build are sent to Energica and shared with your nearest dealer so they can contact you. See our{" "}
+                    <a href="/privacy" target="_blank" rel="noopener" style={{ color: "#78BE20" }}>Privacy Policy</a>.
+                  </p>
 
                   {dealerError && (
-                    <p style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: "13px", color: "#c0392b", margin: "0 0 16px" }}>{dealerError}</p>
+                    <p role="alert" style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: "13px", color: "#c0392b", margin: "0 0 16px" }}>{dealerError}</p>
                   )}
 
                   <div style={{ display: "flex", gap: "8px" }}>
                     <button type="button" onClick={() => setModalOpen(false)} style={{ ...S.btnSecondary, flex: 1, cursor: "pointer" }}>Cancel</button>
                     <button type="submit" disabled={dealerSubmitting} style={{ ...S.btnPrimary, flex: 2, opacity: dealerSubmitting ? 0.7 : 1, cursor: "pointer" }}>
-                      {dealerSubmitting ? "Sending…" : "Send Enquiry"}
+                      {dealerSubmitting ? "Sending…" : MODAL_COPY[modalIntent].submit}
                     </button>
                   </div>
                 </form>
