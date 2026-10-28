@@ -33,7 +33,7 @@ const MODELS: { id: Model; label: string; image: string }[] = [
 const API_URL =
   process.env.NEXT_PUBLIC_CONFIGURATOR_API_URL ?? "/api/backend";
 
-export default function ConfiguratorShell({ initialModel }: { initialModel?: Model }) {
+export default function ConfiguratorShell({ initialModel, initialLayers }: { initialModel?: Model; initialLayers?: string[] }) {
   const [activeModel, setActiveModel] = useState<Model>(initialModel ?? "eva_ribelle");
 
   const switchModel = (m: Model) => {
@@ -171,6 +171,7 @@ export default function ConfiguratorShell({ initialModel }: { initialModel?: Mod
           key={activeModel}
           model={activeModel}
           apiUrl={API_URL}
+          initialLayers={activeModel === initialModel ? initialLayers : undefined}
         />
       </div>
     </div>

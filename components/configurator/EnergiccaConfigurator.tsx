@@ -35,6 +35,7 @@ type Model = "eva_ribelle" | "essesse9" | "ego" | "experia";
 interface Props {
   model: Model;
   apiUrl?: string;
+  initialLayers?: string[]; // build restored from a short link (?build=<code>)
 }
 
 interface GroupConfig {
@@ -417,7 +418,7 @@ const S = {
 // Custom hook — configuration state management
 // ---------------------------------------------------------------------------
 
-function useConfigurator(model: Model, apiUrl: string) {
+function useConfigurator(model: Model, apiUrl: string, initialLayers?: string[]) {
   const [config, setConfig] = useState<ConfigSchema | null>(null);
   const [visibleLayers, setVisibleLayers] = useState<Set<string>>(new Set());
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -453,11 +454,12 @@ function useConfigurator(model: Model, apiUrl: string) {
         // Restore from URL only when ALL decoded IDs belong to this model.
         // This prevents cross-model contamination when the user switches tabs
         // while a share URL from a different model is still in the address bar.
+        // Sources: a short-link build from the server, or a legacy ?layers= link.
         let initial: string[] = defaults;
         if (typeof window !== "undefined") {
           const encoded = new URLSearchParams(window.location.search).get("layers");
-          if (encoded) {
-            const decoded = decodeConfig(encoded);
+          if (initialLayers?.length || encoded) {
+            const decoded = initialLayers?.length ? initialLayers : decodeConfig(encoded ?? "");
             const allValid = decoded.length > 0 && decoded.every((id) => validIds.has(id));
             if (allValid) initial = decoded;
           }
@@ -546,12 +548,6 @@ function useConfigurator(model: Model, apiUrl: string) {
           prevObjectUrlRef.current = url;
           setPreviewUrl(url);
 
-          // Update URL bar for sharing (non-navigating)
-          if (typeof window !== "undefined") {
-            const encoded = encodeConfig([...visibleLayers]);
-            const newUrl = `${window.location.pathname}?model=${model}&layers=${encoded}`;
-            window.history.replaceState(null, "", newUrl);
-          }
         })
         .catch((err: Error) => {
           setError(`Preview unavailable: ${err.message}`);
@@ -834,6 +830,7 @@ function BuildLinkBox({ url, copied, onCopy, whatsappUrl }: { url: string; copie
 export default function EnergiccaConfigurator({
   model,
   apiUrl = "http://localhost:8000",
+  initialLayers,
 }: Props) {
   const {
     config,
@@ -845,7 +842,7 @@ export default function EnergiccaConfigurator({
     alwaysVisible,
     toggleLayer,
     reset,
-  } = useConfigurator(model, apiUrl);
+  } = useConfigurator(model, apiUrl, initialLayers);
 
   // ── Sharing, PDF and enquiries ────────────────────────────────────────────
   // Copying the build link, downloading the PDF and "Contact Dealer" all go
@@ -887,6 +884,19 @@ export default function EnergiccaConfigurator({
       return { code: "", url: longShareUrl };
     }
   }, [visibleLayers, model, longShareUrl]);
+
+  // Address bar: once the build settles, show its permanent short code
+  // (/configurator?build=<code>) instead of the full layer list.
+  useEffect(() => {
+    if (!config || visibleLayers.size === 0) return;
+    const t = setTimeout(async () => {
+      const { code } = await ensureShortLink();
+      if (code && window.location.pathname === "/configurator") {
+        window.history.replaceState(null, "", `/configurator?build=${code}`);
+      }
+    }, 1500);
+    return () => clearTimeout(t);
+  }, [config, visibleLayers, ensureShortLink]);
 
   // Selected parts, grouped as in the UI
   const selectedGroups = useCallback(() => {
