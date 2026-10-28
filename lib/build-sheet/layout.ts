@@ -50,6 +50,8 @@ export const TEXT = {
   figure: { font: "condSemi", size: 56, color: COLOR.text },
   unit: { font: "condSemi", size: 22, color: COLOR.secondary },
   disclaimer: { font: "sans", size: 11, color: COLOR.labelOnDark },
+  calloutStat: { font: "condSemi", size: 34, color: COLOR.greenText },
+  calloutLabel: { font: "sans", size: 15, color: COLOR.secondary },
 } as const satisfies Record<string, TextStyle>;
 
 export const ACCENT = { w: 48, h: 3 } as const; // green rule under headings
@@ -95,9 +97,9 @@ export const PERF = {
   cellLabelDy: 26,
   cellFigureDy: 86,
   unitGap: 8,
-  stripH: 64,
-  stripLabelDy: 22,
-  stripValueDy: 42,
+  calloutH: 72, // callout line under the grid
+  calloutDy: 46, // baseline within it
+  calloutGap: 16, // between the stat and its label
   noteDy: 18,
   nextKickerGap: 44,
   nextHeadingSize: 44,

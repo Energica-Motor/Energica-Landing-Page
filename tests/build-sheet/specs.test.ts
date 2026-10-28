@@ -1,38 +1,49 @@
 import { describe, expect, it } from "vitest";
 import { MODEL_SPECS, performanceFor, validateSpec } from "@/lib/build-sheet/specs";
 
+// The figures are locked to what each energicamotor.com model page highlights.
+// If one of these fails, the spec file was changed: get sign-off first.
+const LOCKED = {
+  eva_ribelle: {
+    stats: ["PEAK POWER 147 HP", "0–60 MPH (RS) 2.6 sec", "CITY RANGE 420 km", "TOP SPEED 201 km/h"],
+    callout: ["147 HP", "EMCE-derived platform. Road legal."],
+  },
+  ego: {
+    stats: ["PEAK POWER 169 HP", "0–60 MPH (RS) 2.6 sec", "CITY RANGE 261 miles", "TOP SPEED 150 mph"],
+    callout: ["147 HP", "EMCE-derived peak power. Road legal."],
+  },
+  essesse9: {
+    stats: ["PEAK POWER 107 HP", "0–60 MPH (RS) 2.8 sec", "CITY RANGE 420 km", "TOP SPEED 201 km/h"],
+    callout: ["207 Nm", "Wheel torque"],
+  },
+  experia: {
+    stats: ["PEAK POWER 102 HP", "0–100 KM/H 3.5 sec", "CITY RANGE 420 km", "TOP SPEED 180 km/h"],
+    callout: ["22.5 kWh", "Largest battery of any production electric motorcycle"],
+  },
+} as const;
+
 describe("model specs", () => {
   it("are all valid", () => {
     for (const [m, s] of Object.entries(MODEL_SPECS)) expect(() => validateSpec(m, s)).not.toThrow();
   });
 
-  it("pick acceleration by version and label it from the data", () => {
-    const rs = performanceFor("eva_ribelle", "Eva Ribelle", "RS");
-    expect(rs.grid.find((c) => c.label.startsWith("0 TO 60"))).toMatchObject({ label: "0 TO 60 MPH, RS", figure: { value: "2.6" } });
-    expect(rs.note).toMatch(/Acceleration shown for the RS version\.$/);
-    const std = performanceFor("essesse9", "EsseEsse9", "Standard");
-    expect(std.grid.find((c) => c.label.startsWith("0 TO 60"))?.figure.value).toBe("3.0");
-    const experia = performanceFor("experia", "Experia", null);
-    expect(experia.grid.find((c) => c.label.startsWith("0 TO 100 KM/H"))?.figure.value).toBe("3.5");
-    expect(experia.note).not.toMatch(/Acceleration shown/);
+  it.each(Object.keys(LOCKED) as (keyof typeof LOCKED)[])("match the published %s page exactly", (m) => {
+    const view = performanceFor(m, "X");
+    expect(view.grid.map((s) => `${s.label} ${s.value} ${s.unit}`)).toEqual(LOCKED[m].stats);
+    expect([view.callout.stat, view.callout.label]).toEqual(LOCKED[m].callout);
   });
 
-  it("match the published figures", () => {
-    const ego = performanceFor("ego", "Ego", "RS");
-    expect(ego.grid[0].figure).toEqual({ value: "169", unit: "HP · 126 kW" });
-    expect(ego.strip.find((c) => c.label === "SEAT HEIGHT")?.value).toBe("810 mm");
-    expect(ego.grid.find((c) => c.label.startsWith("TOP SPEED"))?.figure.value).toBe("241");
+  it("carry nothing beyond the four stats and the callout", () => {
+    expect(Object.keys(MODEL_SPECS).sort()).toEqual(Object.keys(LOCKED).sort());
+    for (const s of Object.values(MODEL_SPECS)) expect(Object.keys(s).sort()).toEqual(["callout", "stats"]);
   });
 
-  it("hide Experia's DC fast charge cell and never show range", () => {
-    expect(performanceFor("experia", "Experia", null).strip.map((c) => c.label)).toEqual(["BATTERY", "WEIGHT", "SEAT HEIGHT"]);
-    for (const m of ["eva_ribelle", "essesse9", "ego", "experia"] as const) {
-      expect(JSON.stringify(performanceFor(m, m, null))).not.toMatch(/RANGE|city/i);
-    }
+  it("note where the figures come from", () => {
+    expect(performanceFor("ego", "Ego").note).toBe("Figures as published for the Ego on energicamotor.com.");
   });
 
   it("throw for an unknown model", () => {
     // @ts-expect-error deliberately wrong id
-    expect(() => performanceFor("nope", "Nope", null)).toThrow(/unknown model/);
+    expect(() => performanceFor("nope", "Nope")).toThrow(/unknown model/);
   });
 });

@@ -246,7 +246,7 @@ export function renderBuildSheet(input: SheetInput, assets: SheetAssets) {
   darkHeader();
   sectionTitle("02 / PERFORMANCE", "WHAT IT DELIVERS", SECTION.kickerY, SECTION.headingBaseline, SECTION.accentY);
 
-  const perf = performanceFor(content.model, content.modelName, content.version);
+  const perf = performanceFor(content.model, content.modelName);
   hline(PAGE.pad, RIGHT, PERF.gridTopY, COLOR.sectionRule, 1);
   const half = CONTENT_W / 2;
   perf.grid.forEach((cell, i) => {
@@ -255,8 +255,8 @@ export function renderBuildSheet(input: SheetInput, assets: SheetAssets) {
     const x = PAGE.pad + col * half + (col ? 24 : 0);
     const top = PERF.gridTopY + r * PERF.cellH;
     text(cell.label, x, top + PERF.cellLabelDy, TEXT.label);
-    const fw = text(cell.figure.value, x, top + PERF.cellFigureDy, TEXT.figure);
-    text(cell.figure.unit, x + fw + PERF.unitGap, top + PERF.cellFigureDy, TEXT.unit);
+    const fw = text(cell.value, x, top + PERF.cellFigureDy, TEXT.figure);
+    text(cell.unit, x + fw + PERF.unitGap, top + PERF.cellFigureDy, TEXT.unit);
   });
   const gridRows = Math.ceil(perf.grid.length / 2);
   for (let r = 1; r <= gridRows; r++) hline(PAGE.pad, RIGHT, PERF.gridTopY + r * PERF.cellH, COLOR.rowRule, 0.75);
@@ -265,16 +265,12 @@ export function renderBuildSheet(input: SheetInput, assets: SheetAssets) {
   doc.line(PAGE.pad + half, PERF.gridTopY, PAGE.pad + half, PERF.gridTopY + gridRows * PERF.cellH);
 
   let py = PERF.gridTopY + gridRows * PERF.cellH;
-  if (perf.strip.length) {
-    const colW = CONTENT_W / perf.strip.length;
-    perf.strip.forEach((c, i) => {
-      const x = PAGE.pad + colW * i;
-      text(c.label, x, py + PERF.stripLabelDy, TEXT.label);
-      text(fit(c.value, TEXT.value, colW - 12), x, py + PERF.stripValueDy, TEXT.value);
-    });
-    py += PERF.stripH;
-    hline(PAGE.pad, RIGHT, py, COLOR.rowRule, 0.75);
-  }
+  // Callout line: the model page's headline stat, then its label
+  const sw = text(perf.callout.stat, PAGE.pad, py + PERF.calloutDy, TEXT.calloutStat);
+  const labelX = PAGE.pad + sw + PERF.calloutGap;
+  text(fit(perf.callout.label, TEXT.calloutLabel, RIGHT - labelX), labelX, py + PERF.calloutDy, TEXT.calloutLabel);
+  py += PERF.calloutH;
+  hline(PAGE.pad, RIGHT, py, COLOR.rowRule, 0.75);
   py += PERF.noteDy;
   wrap(perf.note, TEXT.note, CONTENT_W).forEach((line, i) => text(line, PAGE.pad, py + i * 14, TEXT.note));
 
