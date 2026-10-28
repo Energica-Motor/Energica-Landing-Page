@@ -349,6 +349,7 @@ const LAYOUT_CSS = `
     .cfg-stage { padding: 20px 16px 16px; }
     .cfg-panel-body { padding: 20px 16px 8px !important; }
     .cfg-panel-nav { padding: 12px 16px 20px !important; }
+    .cfg-panel-extras { padding: 8px 16px 0 !important; }
     .cfg-stepcount { display: none !important; }
     /* Bottom bar, about 104px: count + More menu, then PDF and Contact Dealer */
     .cfg-actionbar { padding: 10px 16px calc(10px + env(safe-area-inset-bottom)) !important; gap: 8px !important; }
@@ -691,6 +692,26 @@ export default function EnergiccaConfigurator({
                     />
                   ))}
                 </div>
+                {/* Same content and order as the old side-panel actions: the
+                    short build link once the visitor has sent their details,
+                    otherwise the note about where the build goes. */}
+                {(lead && shortLink) || !lead ? (
+                  <div className="cfg-panel-extras" style={{ padding: "8px 28px 0", display: "flex", flexDirection: "column", gap: 12 }}>
+                    {lead && shortLink && (
+                      <BuildLinkBox
+                        url={shortLink.url}
+                        copied={copied}
+                        onCopy={() => copyLink(shortLink.url)}
+                        whatsappUrl={whatsappUrl(shortLink.url)}
+                      />
+                    )}
+                    {!lead && (
+                      <p style={{ margin: 0, fontFamily: FONT.body, fontSize: "12px", color: COLOR.label, lineHeight: 1.5 }}>
+                        Your build goes to Energica, who will connect you with your nearest dealer.
+                      </p>
+                    )}
+                  </div>
+                ) : null}
                 <div className="cfg-panel-nav" style={{ padding: "16px 28px 24px", display: "flex", gap: 10 }}>
                   <button
                     type="button"

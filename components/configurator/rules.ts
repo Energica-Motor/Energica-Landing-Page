@@ -79,6 +79,9 @@ export function toggleLayer(cfg: ConfigSchema, prev: Layers, layerId: string, ex
 
   // cascadeOwn: within the group also clear the layer's own auto-added deps
   // (seat → rider seat); across groups keep them (a cover keeps the rider seat).
+  // TODO: this also clears dependencies the visitor chose themselves:
+  // deselecting a bag plate removes the side bag kit (pre-redesign behaviour,
+  // kept as is for this release).
   const clear = (id: string, cascadeOwn: boolean) => {
     if (always.has(id)) return;
     next.delete(id);
