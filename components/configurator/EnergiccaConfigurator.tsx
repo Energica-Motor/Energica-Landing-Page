@@ -923,7 +923,7 @@ export default function EnergiccaConfigurator({
   }, [config, visibleLayers, alwaysVisible, model]);
 
   const makePdf = useCallback(async (link: { code: string; url: string }, customerName?: string) => {
-    const { createConfiguratorPdf } = await import("@/lib/configurator-pdf");
+    const { createConfiguratorPdf } = await import("@/lib/build-pdf");
     return createConfiguratorPdf({
       modelName: MODEL_DISPLAY_NAMES[model] ?? model,
       imageUrl: previewUrl,
