@@ -23,6 +23,18 @@ const MAX_PDF_BASE64 = 3_800_000;
 
 interface OptionItem { group: string; name: string }
 
+type EmailPayload = Parameters<typeof resend.emails.send>[0];
+
+// Resend occasionally can't be reached; one retry avoids losing the enquiry.
+async function sendEmail(payload: EmailPayload) {
+  let result = await resend.emails.send(payload);
+  if (result.error) {
+    await new Promise((r) => setTimeout(r, 1000));
+    result = await resend.emails.send(payload);
+  }
+  return result;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -71,7 +83,7 @@ export async function POST(req: NextRequest) {
     };
     const isUpdate = intent === "update";
 
-    const { error: err1 } = await resend.emails.send({
+    const { error: err1 } = await sendEmail({
       from: FROM,
       to: ENQUIRY_TO,
       cc: ENQUIRY_CC,
@@ -113,7 +125,7 @@ export async function POST(req: NextRequest) {
 
     // Visitor confirmation only for the first submission, not for build updates.
     if (confirm !== false && !isUpdate) {
-      const { error: err2 } = await resend.emails.send({
+      const { error: err2 } = await sendEmail({
         from: FROM,
         to: String(email),
         subject: `Your Energica ${model || ""} build — we'll be in touch`.replace(/\s+/g, " "),
@@ -138,7 +150,8 @@ export async function POST(req: NextRequest) {
           </div>
         `,
       });
-      if (err2) throw new Error(err2.message);
+      // The enquiry already reached sales; a failed confirmation is only logged.
+      if (err2) console.error("[configurator-contact] confirmation not sent:", err2.message);
     }
 
     return NextResponse.json({ success: true });
