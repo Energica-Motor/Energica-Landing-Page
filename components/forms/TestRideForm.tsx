@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useRef } from "react";
-import Image from "next/image";
+import { Photo } from "@/components/ui/Photo";
 import { gsap, useGSAP } from "@/lib/gsap";
+import { REVEAL, prefersReducedMotion } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 /* ─── Types ────────────────────────────────────────────── */
@@ -145,9 +146,10 @@ export default function TestRideForm() {
   const formRef = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
-    // Animate x/y position only — no opacity changes so content is always visible
-    gsap.from(".tr-left", { x: -40, duration: 1, ease: "power3.out", delay: 0.1 });
-    gsap.from(".tr-field", { y: 24, stagger: 0.07, duration: 0.6, ease: "power3.out", delay: 0.05 });
+    // Entrance on load: position only, so content is always visible
+    if (prefersReducedMotion()) return;
+    gsap.from(".tr-left", { x: -20, duration: REVEAL.duration, ease: REVEAL.ease });
+    gsap.from(".tr-field", { y: 16, stagger: 0.05, duration: REVEAL.duration, ease: REVEAL.ease });
   }, { scope: formRef });
 
   const update =
@@ -193,10 +195,9 @@ export default function TestRideForm() {
     <>
     {/* Mobile hero image — shown above form on mobile, hidden on lg+ */}
     <div className="relative h-[35vh] lg:hidden overflow-hidden">
-      <Image
+      <Photo
         src="/images/Pagina%20Experia/Experia_MM_0218.jpg"
         alt="Energica test ride"
-        fill
         className="object-cover object-center"
         sizes="100vw"
       />
@@ -206,10 +207,9 @@ export default function TestRideForm() {
 
       {/* ── LEFT: Brand image panel ──────────────────────── */}
       <div className="tr-left relative hidden lg:flex flex-col justify-end overflow-hidden bg-[#080808]">
-        <Image
+        <Photo
           src="/images/Pagina%20Experia/Experia_MM_0218.jpg"
           alt="Energica Experia test ride"
-          fill
           priority
           className="object-cover object-center"
           sizes="50vw"

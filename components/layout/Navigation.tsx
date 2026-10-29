@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { Photo } from "@/components/ui/Photo";
 import { usePathname } from "next/navigation";
 import { navItems, type MegaMenuItem } from "@/data/navigation";
 import { CurrentYear } from "@/components/ui/CurrentYear";
@@ -72,7 +73,7 @@ function MegaMenu({
       )}
       style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}
     >
-      <div className="max-w-[1600px] mx-auto px-[clamp(24px,4vw,64px)] py-10">
+      <div className="ds-container py-10">
         <div className="grid grid-cols-4 gap-6">
           {items.map((item) => (
             <Link
@@ -102,10 +103,9 @@ function MegaMenu({
                   el.style.setProperty("--glint-opacity", "0");
                 }}
               >
-                <Image
+                <Photo
                   src={item.image}
                   alt={item.name}
-                  fill
                   className="object-contain p-3 transition-transform duration-500 group-hover:scale-105"
                   sizes="(max-width: 1024px) 50vw, 20vw"
                 />
@@ -331,7 +331,9 @@ function SplitLabel({ label }: { label: string }) {
 }
 
 /* ── Main Navigation ──────────────────────────────────────── */
-export default function Navigation({ alwaysDark = false }: { alwaysDark?: boolean }) {
+// fullWidth: the configurator's app layout, where the header follows the
+// model bar's full-width gutter instead of the site container.
+export default function Navigation({ alwaysDark = false, fullWidth = false }: { alwaysDark?: boolean; fullWidth?: boolean }) {
   const [scrolled, setScrolled] = useState(false);
   const [megaOpen, setMegaOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -391,7 +393,7 @@ export default function Navigation({ alwaysDark = false }: { alwaysDark?: boolea
         )}
         style={{ transitionTimingFunction: "cubic-bezier(0.25, 1, 0.5, 1)" }}
       >
-        <div className="max-w-[1600px] mx-auto px-[clamp(24px,4vw,64px)] h-20 md:h-24 flex items-center justify-between">
+        <div className={cn(fullWidth ? "px-[var(--container-px)] min-[1000px]:px-8" : "ds-container", "h-20 md:h-24 flex items-center justify-between")}>
           {/* Logo */}
           <Link href="/" className="relative z-50 flex-shrink-0">
             <EnergicaLogo className="h-auto w-[150px] md:w-[180px]" />

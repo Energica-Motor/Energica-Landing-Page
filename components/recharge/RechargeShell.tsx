@@ -343,7 +343,7 @@ export default function RechargeShell() {
       <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" strategy="lazyOnload" />
 
       {/* HERO */}
-      <header className="max-w-[1200px] mx-auto px-5 sm:px-8 pt-16 sm:pt-24 pb-14 sm:pb-20 border-b border-white/[0.07]">
+      <header className="ds-container pt-16 sm:pt-24 pb-14 sm:pb-20 border-b border-white/[0.07]">
         <div className="inline-flex items-center gap-2 px-3 py-1.5 border border-white/[0.13] rounded-sm font-[var(--font-ibm-mono)] text-[11px] tracking-[0.14em] uppercase text-white/40 mb-10">
           <span className="w-1.5 h-1.5 rounded-full bg-[#78BE20]" />
           Energica ReCharge — Certified Pre-Owned Programme
@@ -382,8 +382,8 @@ export default function RechargeShell() {
       </header>
 
       {/* PROCESS */}
-      <section className="bg-[#141414] border-b border-white/[0.07] py-14 sm:py-18 px-5 sm:px-8">
-        <div className="max-w-[1200px] mx-auto">
+      <section className="bg-[#141414] border-b border-white/[0.07] ds-section">
+        <div className="ds-container">
           <div className="font-[var(--font-ibm-mono)] text-[11px] tracking-[0.16em] uppercase text-[#78BE20] mb-3">— How it works</div>
           <h2 className="font-[var(--font-barlow)] font-bold uppercase text-[28px] sm:text-[44px] leading-none mb-12">Four steps.</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 border border-white/[0.07] rounded-lg overflow-hidden">
@@ -400,7 +400,7 @@ export default function RechargeShell() {
       </section>
 
       {/* FORM */}
-      <section id="offer" className="py-16 sm:py-24 px-5 sm:px-8">
+      <section id="offer" className="ds-section px-[var(--container-px)]">
         <div className="max-w-[680px] mx-auto">
           <div className="font-[var(--font-ibm-mono)] text-[11px] tracking-[0.16em] uppercase text-[#78BE20] mb-3">— Valuation</div>
           <h2 className="font-[var(--font-barlow)] font-bold uppercase text-[28px] sm:text-[44px] leading-none mb-10">Get your offer.</h2>
@@ -782,8 +782,8 @@ export default function RechargeShell() {
       </section>
 
       {/* FAQ */}
-      <section className="bg-[#141414] border-y border-white/[0.07] py-16 sm:py-24 px-5 sm:px-8">
-        <div className="max-w-[1200px] mx-auto grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-9 lg:gap-16">
+      <section className="bg-[#141414] border-y border-white/[0.07] ds-section">
+        <div className="ds-container grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-9 lg:gap-16">
           <div>
             <div className="font-[var(--font-ibm-mono)] text-[11px] tracking-[0.16em] uppercase text-[#78BE20] mb-3">— Questions</div>
             <h2 className="font-[var(--font-barlow)] font-bold uppercase text-[28px] sm:text-[44px] leading-none">FAQ.</h2>

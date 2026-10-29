@@ -3,8 +3,8 @@ import Reveal from "@/components/ui/Reveal";
 
 export default function TestRideCTA() {
   return (
-    <section className="w-full bg-[#0A0A0A] py-16 md:py-28 lg:py-40">
-      <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-20">
+    <section className="w-full bg-[#0A0A0A] ds-section">
+      <div className="ds-container">
         <Reveal className="max-w-2xl">
 
           <p className="text-[10px] tracking-[0.4em] text-white/65 uppercase mb-6">

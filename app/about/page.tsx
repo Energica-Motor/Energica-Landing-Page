@@ -33,7 +33,7 @@ export default function AboutPage() {
       <AboutHero />
 
       {/* ── STORY + STATS ─────────────────────────────────────── */}
-      <section className="w-full py-[120px]">
+      <section className="w-full ds-section">
         <Container>
           <div className="grid lg:grid-cols-[3fr_2fr] gap-16 lg:gap-24 items-start">
 
@@ -92,7 +92,7 @@ export default function AboutPage() {
       </section>
 
       {/* ── CULTURAL VALIDATION ───────────────────────────────── */}
-      <section className="w-full py-[120px]">
+      <section className="w-full ds-section">
         <Container>
           <div className="grid lg:grid-cols-[1fr_2fr] gap-16 items-start">
 
@@ -126,7 +126,7 @@ export default function AboutPage() {
       </section>
 
       {/* ── CTA ───────────────────────────────────────────────── */}
-      <section className="w-full bg-[#0d0d0d] py-[120px] border-t border-white/[0.04]">
+      <section className="w-full bg-[#0d0d0d] ds-section border-t border-white/[0.04]">
         <Container className="text-center">
           <p className="inline-flex items-center gap-3 mb-6 justify-center">
             <span className="w-6 h-px bg-[#CE2B37]" />

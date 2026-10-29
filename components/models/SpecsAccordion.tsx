@@ -1,7 +1,8 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { gsap, useGSAP } from "@/lib/gsap";
+import { useGSAP } from "@/lib/gsap";
+import { reveal } from "@/lib/motion";
 import { type ModelSpecs } from "@/data/models";
 import { cn } from "@/lib/utils";
 
@@ -72,17 +73,7 @@ export default function SpecsAccordion({ specs }: SpecsAccordionProps) {
 
   useGSAP(
     () => {
-      gsap.from(".sa-row", {
-        y: 30,
-        opacity: 0,
-        stagger: 0.06,
-        duration: 0.7,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: wrapRef.current,
-          start: "top 80%",
-        },
-      });
+      reveal(".sa-row", { y: 20, stagger: 0.06, trigger: wrapRef.current });
     },
     { scope: wrapRef }
   );

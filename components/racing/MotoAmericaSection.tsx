@@ -1,8 +1,9 @@
 "use client";
 
 import { useRef } from "react";
-import Image from "next/image";
+import { Photo } from "@/components/ui/Photo";
 import { useGSAP } from "@gsap/react";
+import { reveal } from "@/lib/motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { StatCounter } from "@/components/ui/StatCounter";
@@ -25,30 +26,12 @@ export default function MotoAmericaSection() {
 
   useGSAP(
     () => {
-      gsap.from(".ma-eyebrow", {
-        y: 24, opacity: 0, duration: 0.6, ease: "power3.out", immediateRender: false,
-        scrollTrigger: { trigger: ".ma-eyebrow", start: "top 88%" },
-      });
-      gsap.from(".ma-headline", {
-        y: 40, opacity: 0, duration: 0.85, ease: "power3.out", immediateRender: false,
-        scrollTrigger: { trigger: ".ma-headline", start: "top 88%" },
-      });
-      gsap.from(".ma-para", {
-        y: 30, opacity: 0, stagger: 0.12, duration: 0.75, ease: "power3.out", immediateRender: false,
-        scrollTrigger: { trigger: ".ma-copy", start: "top 82%" },
-      });
-      gsap.from(".ma-cta", {
-        y: 20, opacity: 0, duration: 0.6, ease: "power3.out", immediateRender: false,
-        scrollTrigger: { trigger: ".ma-cta", start: "top 90%" },
-      });
-      gsap.from(".ma-hero-img", {
-        scale: 1.05, opacity: 0, duration: 1, ease: "power3.out", immediateRender: false,
-        scrollTrigger: { trigger: ".ma-hero-img", start: "top 82%" },
-      });
-      gsap.from(".ma-cell", {
-        y: 50, opacity: 0, stagger: 0.08, duration: 0.85, ease: "power3.out", immediateRender: false,
-        scrollTrigger: { trigger: ".ma-grid", start: "top 78%" },
-      });
+      reveal(".ma-eyebrow", { y: 20 });
+      reveal(".ma-headline", { y: 20 });
+      reveal(".ma-para", { y: 20, stagger: 0.08, trigger: ".ma-copy" });
+      reveal(".ma-cta", { y: 20 });
+      reveal(".ma-hero-img", { scale: 1.02 });
+      reveal(".ma-cell", { y: 20, stagger: 0.08, trigger: ".ma-grid" });
     },
     { scope: sectionRef }
   );
@@ -57,7 +40,7 @@ export default function MotoAmericaSection() {
     <section ref={sectionRef} className="w-full border-t border-white/[0.04]">
 
       {/* ── STORY PANEL ─────────────────────────────────────────── */}
-      <div className="w-full py-[120px] bg-[#0a0a0a]">
+      <div className="w-full ds-section bg-[#0a0a0a]">
         <Container>
           <div className="grid lg:grid-cols-2 gap-16 items-center">
 
@@ -102,12 +85,11 @@ export default function MotoAmericaSection() {
 
             {/* Featured photo */}
             <div className="ma-hero-img relative aspect-[4/3] overflow-hidden bg-[#111]">
-              <Image
+              <Photo
                 src={PHOTOS[0]}
                 alt="Eva Ribelle — MotoAmerica Super Hooligan Championship"
-                fill
                 className="object-cover"
-                sizes="(max-width: 1024px) 100vw, 50vw"
+                sizes="(max-width: 1024px) 100vw, (max-width: 1343px) 50vw, 640px"
               />
               {/* Corner accents */}
               <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-[#78BE20]" />
@@ -166,7 +148,7 @@ export default function MotoAmericaSection() {
       </div>
 
       {/* ── PHOTO GRID ──────────────────────────────────────────── */}
-      <div className="w-full py-[120px] bg-[#0d0d0d]">
+      <div className="w-full ds-section bg-[#0d0d0d]">
         <Container>
           <div className="mb-10 inline-flex items-center gap-3">
             <span className="w-6 h-px bg-[#CE2B37]" />
@@ -182,10 +164,9 @@ export default function MotoAmericaSection() {
               className="ma-cell md:col-span-3 group relative overflow-hidden bg-[#111]"
               style={{ aspectRatio: "21/9" }}
             >
-              <Image
+              <Photo
                 src={PHOTOS[3]}
                 alt="Eva Ribelle MotoAmerica — race action"
-                fill
                 className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
                 style={{ objectPosition: "center 65%" }}
                 sizes="100vw"
@@ -200,12 +181,11 @@ export default function MotoAmericaSection() {
                 className="ma-cell group relative overflow-hidden bg-[#111]"
                 style={{ aspectRatio: "4/3" }}
               >
-                <Image
+                <Photo
                   src={src}
                   alt={`Eva Ribelle MotoAmerica — ${i + 2}`}
-                  fill
                   className="object-cover transition-transform duration-700 group-hover:scale-[1.05]"
-                  sizes="(max-width: 768px) 100vw, 33vw"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1343px) 33vw, 420px"
                 />
                 <div className="absolute inset-x-0 bottom-0 h-[2px] bg-[#78BE20] scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
               </div>

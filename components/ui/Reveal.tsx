@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useRef, ElementType } from "react";
+import { prefersReducedMotion } from "@/lib/motion";
 
 interface RevealProps {
   children: React.ReactNode;
   className?: string;
-  delay?: number;      // ms
-  threshold?: number;  // 0–1
+  delay?: number;      // ms, at most 80 per sibling
   as?: ElementType;
 }
 
@@ -14,14 +14,13 @@ export default function Reveal({
   children,
   className = "",
   delay = 0,
-  threshold = 0.12,
   as: Tag = "div",
 }: RevealProps) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const el = ref.current;
-    if (!el) return;
+    if (!el || prefersReducedMotion()) return;
 
     // Set hidden state after mount (avoids SSR mismatch)
     el.classList.add("will-reveal");
@@ -35,12 +34,13 @@ export default function Reveal({
           obs.disconnect();
         }
       },
-      { threshold }
+      // Fires once the element's top is 15% into the viewport
+      { rootMargin: "0px 0px -15% 0px" }
     );
 
     obs.observe(el);
     return () => obs.disconnect();
-  }, [delay, threshold]);
+  }, [delay]);
 
   return <Tag ref={ref} className={className}>{children}</Tag>;
 }

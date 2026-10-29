@@ -1,8 +1,9 @@
 "use client";
 
 import { useRef } from "react";
-import Image from "next/image";
-import { gsap, useGSAP } from "@/lib/gsap";
+import { Photo } from "@/components/ui/Photo";
+import { useGSAP } from "@/lib/gsap";
+import { reveal } from "@/lib/motion";
 import { type BikeModel } from "@/data/models";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
@@ -16,18 +17,8 @@ export default function NextModelCTA({ nextModel }: NextModelCTAProps) {
 
   useGSAP(
     () => {
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: "top 80%",
-        },
-      });
-
-      tl.from(".nm-label", { y: 20, opacity: 0, duration: 0.6, ease: "power3.out" })
-        .from(".nm-name", { y: 50, opacity: 0, duration: 0.8, ease: "power3.out" }, "-=0.3")
-        .from(".nm-tag", { y: 20, opacity: 0, duration: 0.5, ease: "power3.out" }, "-=0.4")
-        .from(".nm-cta", { y: 20, opacity: 0, duration: 0.5, ease: "power3.out" }, "-=0.3")
-        .from(".nm-bike", { x: 60, opacity: 0, duration: 1, ease: "power3.out" }, "-=0.8");
+      reveal([".nm-label", ".nm-name", ".nm-tag", ".nm-cta"], { y: 20, stagger: 0.08, trigger: sectionRef.current });
+      reveal(".nm-bike", { x: 30, trigger: sectionRef.current });
     },
     { scope: sectionRef }
   );
@@ -57,16 +48,15 @@ export default function NextModelCTA({ nextModel }: NextModelCTAProps) {
         }}
       />
 
-      <Container className="relative py-[60px] lg:py-[120px]">
+      <Container className="relative ds-section">
       <div className="flex flex-col lg:grid lg:grid-cols-2 lg:gap-12 lg:items-center gap-0">
         {/* ── Bike preview — shown FIRST on mobile, right column on desktop ── */}
         <div className="nm-bike relative h-[40vh] lg:h-[60vh] order-first lg:order-last mb-6 lg:mb-0">
-          <Image
+          <Photo
             src={nextModel.heroImage}
             alt={nextModel.name}
-            fill
             className="object-contain object-center lg:object-right"
-            sizes="(max-width: 1024px) 100vw, 50vw"
+            sizes="(max-width: 1024px) 100vw, (max-width: 1343px) 50vw, 640px"
           />
         </div>
 

@@ -50,14 +50,14 @@ export default async function ModelPage({ params }: PageProps) {
 
       {/* § 4 — Colour selector */}
       <section className="bg-[#0a0a0a] border-t border-white/[0.04]">
-        <Container className="py-[120px]">
+        <Container className="ds-section">
           <ColorSelector colors={model.colors} />
         </Container>
       </section>
 
       {/* § 5 — Gallery */}
       <section className="bg-[#080808] border-t border-white/[0.04]">
-        <Container className="py-[120px]">
+        <Container className="ds-section">
           <div className="mb-[48px]">
             <p className="inline-flex items-center gap-3 mb-6">
               <span className="w-6 h-px bg-[#CE2B37]" />
@@ -78,7 +78,7 @@ export default async function ModelPage({ params }: PageProps) {
 
       {/* § 6 — Full specs accordion */}
       <section className="bg-[#0a0a0a] border-t border-white/[0.04]">
-        <Container className="py-[120px]">
+        <Container className="ds-section">
           <div className="mb-[48px]">
             <p className="inline-flex items-center gap-3 mb-6">
               <span className="w-6 h-px bg-[#CE2B37]" />

@@ -26,7 +26,7 @@ const pillars = [
 export default function TechStrip() {
   return (
     <section className="w-full bg-[#0A0A0A]">
-      <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-20 py-20 md:py-28">
+      <div className="ds-container ds-section">
 
         {/* Header */}
         <Reveal className="flex items-end justify-between mb-16">

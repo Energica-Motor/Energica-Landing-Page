@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { Photo } from "@/components/ui/Photo";
 import Link from "next/link";
 import { models } from "@/data/models";
 import { SectionReveal } from "@/components/ui/SectionReveal";
@@ -23,7 +23,7 @@ export default function ModelsPage() {
   return (
     <div className="min-h-screen bg-[#0a0a0a] pt-20">
       {/* Header */}
-      <Container className="py-[120px]">
+      <Container className="ds-section">
         <SectionReveal>
           <span className="flex items-center gap-3 mb-6">
             <span className="w-8 h-px bg-[#CE2B37]" />
@@ -46,7 +46,7 @@ export default function ModelsPage() {
       </Container>
 
       {/* Models grid */}
-      <Container className="pb-[120px]">
+      <Container className="ds-section-bottom">
         <div className="grid md:grid-cols-2 gap-6">
           {models.map((model, i) => (
             <SectionReveal key={model.id} delay={i * 80}>
@@ -56,12 +56,11 @@ export default function ModelsPage() {
               >
                 {/* Image */}
                 <div className="relative aspect-[16/9] w-full overflow-hidden bg-[#0d0d0d]">
-                  <Image
+                  <Photo
                     src={showcaseImages[model.id] ?? model.heroImage}
                     alt={model.name}
-                    fill
                     className="object-contain p-6 group-hover:scale-105 transition-transform duration-700"
-                    sizes="(max-width: 768px) 100vw, 50vw"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1343px) 50vw, 640px"
                   />
                   <div
                     className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"

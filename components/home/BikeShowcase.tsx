@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
+import { Photo } from "@/components/ui/Photo";
 import Link from "next/link";
 import { gsap } from "@/lib/gsap";
 
@@ -423,11 +423,9 @@ export default function BikeShowcase() {
             }}
             data-cursor-view
           >
-            <Image
+            <Photo
               src={bike.image} alt={bike.name}
-              fill
               sizes="(max-width: 768px) 0vw, 62vw"
-              priority={i === 0}
               style={{ objectFit:"contain", objectPosition:"center bottom", filter:"brightness(0.9) contrast(1.05)", userSelect:"none", pointerEvents:"none" }}
             />
 
@@ -463,11 +461,9 @@ export default function BikeShowcase() {
               zIndex: i === activeIndex ? 2 : 0,
             }}
           >
-            <Image
+            <Photo
                 src={bike.image} alt={bike.name}
-                fill
                 sizes="100vw"
-                priority={i === 0}
                 style={{ objectFit:"contain", objectPosition:"center 50%" }}
               />
           </div>
@@ -481,7 +477,7 @@ export default function BikeShowcase() {
       <div className="absolute inset-0 md:hidden pointer-events-none z-[3]" style={{ background:"linear-gradient(to right, #0A0A0A 30%, rgba(10,10,10,0.5) 55%, transparent 100%)" }} />
 
       {/* Top label */}
-      <div className="absolute top-0 left-0 right-0 z-20 max-w-[1440px] mx-auto px-6 md:px-12 lg:px-20 pt-14">
+      <div className="absolute top-0 left-0 right-0 z-20 ds-container pt-14">
         <div className="flex items-center justify-between border-b border-white/[0.06] pb-4">
           <p className="text-[10px] tracking-[0.45em] text-white/50 uppercase">The Lineup</p>
           <Link href="/models" className="text-[10px] tracking-[0.3em] text-white/50 uppercase hover:text-white transition-colors duration-200">View all →</Link>
@@ -490,7 +486,7 @@ export default function BikeShowcase() {
 
       {/* Text blocks */}
       <div className="absolute inset-0 z-10 flex md:items-center items-end pb-24 md:pb-0">
-        <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-20 w-full">
+        <div className="ds-container w-full">
           <div className="relative md:max-w-[44%]" style={{ height:"clamp(280px,45vh,490px)" }}>
             {bikes.map((bike, i) => (
               <div

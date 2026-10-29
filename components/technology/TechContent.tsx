@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { gsap, useGSAP } from "@/lib/gsap";
+import { REVEAL, formatCount, prefersReducedMotion, reveal, useCountUp } from "@/lib/motion";
 import Link from "next/link";
 
 /* ─────────────────────────────────────────────────────────
@@ -10,6 +11,7 @@ import Link from "next/link";
 function HeroRings() {
   const ref = useRef<SVGSVGElement>(null);
   useGSAP(() => {
+    if (prefersReducedMotion()) { gsap.set(".hr-node", { opacity: 0.15 }); return; }
     gsap.to(".hr-ring-1", { rotation: 360, transformOrigin: "200px 200px", duration: 18, ease: "none", repeat: -1 });
     gsap.to(".hr-ring-2", { rotation: -360, transformOrigin: "200px 200px", duration: 28, ease: "none", repeat: -1 });
     gsap.to(".hr-ring-3", { rotation: 360, transformOrigin: "200px 200px", duration: 40, ease: "none", repeat: -1 });
@@ -126,29 +128,23 @@ function MotorDiagram() {
 
   // ── GSAP animations ───────────────────────────────────────
   useGSAP(() => {
+    if (prefersReducedMotion()) return;
     rotorTween.current = gsap.to(".md-rotor", {
       rotation: 360, svgOrigin: "200 200", duration: 6, ease: "none", repeat: -1,
     });
     gsap.from(".md-stator", {
-      strokeDasharray: "0 1200", duration: 1.4, ease: "power2.out",
-      scrollTrigger: { trigger: svgRef.current, start: "top 60%" },
+      strokeDasharray: "0 1200", duration: REVEAL.duration, ease: REVEAL.ease,
+      scrollTrigger: { trigger: svgRef.current, start: REVEAL.start },
     });
-    gsap.from(".md-rotor", {
-      opacity: 0, scale: 0.7, svgOrigin: "200 200",
-      duration: 0.9, ease: "back.out(1.7)", delay: 0.4,
-      scrollTrigger: { trigger: svgRef.current, start: "top 60%" },
-    });
-    gsap.from(".md-slot", {
-      opacity: 0, duration: 0.35, stagger: 0.018, ease: "power2.out",
-      scrollTrigger: { trigger: svgRef.current, start: "top 60%" },
-    });
+    reveal(".md-rotor", { scale: 0.85, svgOrigin: "200 200", delay: 0.2, trigger: svgRef.current, clearProps: "opacity" });
+    reveal(".md-slot", { duration: 0.3, stagger: 0.018, trigger: svgRef.current });
     const fluxEls = svgRef.current?.querySelectorAll<SVGPathElement>(".md-flux");
     fluxEls?.forEach((p, i) => {
       const len = p.getTotalLength();
       gsap.set(p, { strokeDasharray: len, strokeDashoffset: len });
       gsap.to(p, {
-        strokeDashoffset: 0, duration: 0.8, delay: 0.6 + i * 0.08, ease: "power2.out",
-        scrollTrigger: { trigger: svgRef.current, start: "top 60%" },
+        strokeDashoffset: 0, duration: REVEAL.duration, delay: 0.2 + i * 0.05, ease: REVEAL.ease,
+        scrollTrigger: { trigger: svgRef.current, start: REVEAL.start },
       });
     });
   }, { scope: svgRef });
@@ -312,27 +308,24 @@ function MotorDiagram() {
 /* ─────────────────────────────────────────────────────────
    SVG: Battery cell grid
 ───────────────────────────────────────────────────────── */
+const BATTERY_KWH = 22.5;
+
 function BatteryGrid() {
   const ref = useRef<SVGSVGElement>(null);
+  const numRef = useRef<SVGTextElement>(null);
+  useCountUp(numRef, BATTERY_KWH, 1);
   useGSAP(() => {
     const cells = ref.current?.querySelectorAll<SVGRectElement>(".bg-cell");
-    if (cells) {
+    if (cells && !prefersReducedMotion()) {
       gsap.set(cells, { fill: "#111111" });
       gsap.to(cells, {
         fill: "#78BE20",
         duration: 0.25,
-        stagger: { each: 0.055, from: "end" },
+        stagger: { each: 0.015, from: "end" },
         ease: "power1.out",
-        scrollTrigger: { trigger: ref.current, start: "top 50%" },
+        scrollTrigger: { trigger: ref.current, start: REVEAL.start },
       });
     }
-    const proxy = { n: 0 };
-    const el = ref.current?.querySelector<SVGTextElement>(".bg-num");
-    gsap.to(proxy, {
-      n: 22.5, duration: 2.2, ease: "power2.out",
-      onUpdate: () => { if (el) el.textContent = proxy.n.toFixed(1); },
-      scrollTrigger: { trigger: ref.current, start: "top 50%", once: true },
-    });
   }, { scope: ref });
 
   const cols = 6, rows = 4, cw = 44, ch = 30, gap = 6;
@@ -352,8 +345,8 @@ function BatteryGrid() {
             fill="#111" stroke="rgba(255,255,255,0.04)" strokeWidth="0.5" />
         ))
       )}
-      <text className="bg-num" x="190" y="215" textAnchor="middle"
-        fill="white" fontSize="40" fontFamily="monospace" fontWeight="700">0.0</text>
+      <text ref={numRef} className="bg-num" x="190" y="215" textAnchor="middle"
+        fill="white" fontSize="40" fontFamily="monospace" fontWeight="700">{formatCount(BATTERY_KWH, 1)}</text>
       <text x="190" y="234" textAnchor="middle"
         fill="rgba(120, 190, 32, 0.7)" fontSize="9" letterSpacing="4" fontFamily="monospace">kWh TOTAL CAPACITY</text>
       <text x="190" y="252" textAnchor="middle"
@@ -368,24 +361,18 @@ function BatteryGrid() {
 function ChargingCurve() {
   const ref = useRef<SVGSVGElement>(null);
   useGSAP(() => {
+    if (prefersReducedMotion()) return;
     const curve = ref.current?.querySelector<SVGPathElement>(".cc-curve");
     if (curve) {
       const len = curve.getTotalLength();
       gsap.set(curve, { strokeDasharray: len, strokeDashoffset: len });
       gsap.to(curve, {
-        strokeDashoffset: 0, duration: 2.2, ease: "power2.out",
-        scrollTrigger: { trigger: ref.current, start: "top 50%" },
+        strokeDashoffset: 0, duration: REVEAL.duration, ease: REVEAL.ease,
+        scrollTrigger: { trigger: ref.current, start: REVEAL.start },
       });
     }
-    gsap.from(".cc-dot", {
-      opacity: 0, scale: 0, transformOrigin: "center", duration: 0.5, delay: 2,
-      ease: "back.out(2)",
-      scrollTrigger: { trigger: ref.current, start: "top 50%" },
-    });
-    gsap.from(".cc-label", {
-      opacity: 0, duration: 0.4, delay: 2.3,
-      scrollTrigger: { trigger: ref.current, start: "top 50%" },
-    });
+    reveal(".cc-dot", { scale: 0, transformOrigin: "center", delay: 0.3, trigger: ref.current });
+    reveal(".cc-label", { delay: 0.3, trigger: ref.current });
   }, { scope: ref });
 
   return (
@@ -432,16 +419,16 @@ function ChargingCurve() {
 function ThrottleGraph() {
   const ref = useRef<SVGSVGElement>(null);
   useGSAP(() => {
+    if (prefersReducedMotion()) return;
     [".tg-electric", ".tg-ice"].forEach((sel, i) => {
       const el = ref.current?.querySelector<SVGPathElement>(sel);
       if (!el) return;
       const len = el.getTotalLength();
       gsap.set(el, { strokeDasharray: len, strokeDashoffset: len });
-      gsap.to(el, { strokeDashoffset: 0, duration: 1.6, delay: i * 0.4, ease: "power2.out",
-        scrollTrigger: { trigger: ref.current, start: "top 50%" } });
+      gsap.to(el, { strokeDashoffset: 0, duration: REVEAL.duration, delay: i * 0.08, ease: REVEAL.ease,
+        scrollTrigger: { trigger: ref.current, start: REVEAL.start } });
     });
-    gsap.from(".tg-label", { opacity: 0, duration: 0.5, delay: 1.8,
-      scrollTrigger: { trigger: ref.current, start: "top 50%" } });
+    reveal(".tg-label", { delay: 0.3, trigger: ref.current });
   }, { scope: ref });
 
   return (
@@ -494,10 +481,7 @@ const SAFETY_FEATURES = [
 function SafetyCards() {
   const ref = useRef<HTMLDivElement>(null);
   useGSAP(() => {
-    gsap.from(".sf-card", {
-      y: 40, opacity: 0, stagger: 0.08, duration: 0.7, ease: "power3.out",
-      scrollTrigger: { trigger: ref.current, start: "top 80%" },
-    });
+    reveal(".sf-card", { y: 20, stagger: 0.08, trigger: ref.current });
   }, { scope: ref });
 
   return (
@@ -531,10 +515,7 @@ function TechSection({
 }) {
   const ref = useRef<HTMLDivElement>(null);
   useGSAP(() => {
-    gsap.from(".ts-text > *", {
-      y: 36, stagger: 0.1, duration: 0.8, ease: "power3.out",
-      scrollTrigger: { trigger: ref.current, start: "top 65%" },
-    });
+    reveal(".ts-text > *", { y: 20, stagger: 0.08, trigger: ref.current });
   }, { scope: ref });
 
   const textCol = (
@@ -574,7 +555,7 @@ function TechSection({
 
   return (
     <div ref={ref} className="border-t border-white/[0.04]">
-      <div className="max-w-[1600px] mx-auto px-[clamp(24px,4vw,64px)] py-[60px] md:py-[120px]">
+      <div className="ds-container ds-section">
         <div className={`grid lg:grid-cols-2 gap-16 lg:gap-24 items-center ${flip ? "lg:[&>*:first-child]:order-last" : ""}`}>
           {flip ? <>{visualCol}{textCol}</> : <>{textCol}{visualCol}</>}
         </div>
@@ -589,10 +570,7 @@ function TechSection({
 export default function TechContent() {
   const heroRef = useRef<HTMLDivElement>(null);
   useGSAP(() => {
-    const tl = gsap.timeline({ delay: 0.1 });
-    tl.from(".th-eyebrow", { y: 20, opacity: 0, duration: 0.6, ease: "power3.out" })
-      .from(".th-h1 span", { y: 80, opacity: 0, stagger: 0.12, duration: 1, ease: "power3.out" }, "-=0.3")
-      .from(".th-body", { y: 30, opacity: 0, duration: 0.6, ease: "power3.out" }, "-=0.4");
+    reveal([".th-eyebrow", ".th-h1 span", ".th-body"], { y: 20, stagger: 0.08, scroll: false });
   }, { scope: heroRef });
 
   return (
@@ -605,7 +583,7 @@ export default function TechContent() {
           <HeroRings />
         </div>
 
-        <div className="relative z-10 max-w-[1600px] mx-auto px-[clamp(24px,4vw,64px)] w-full">
+        <div className="relative z-10 ds-container">
           <p className="th-eyebrow inline-flex items-center gap-3 mb-6">
             <span className="w-6 h-px bg-[#CE2B37]" />
             <span className="text-[10px] uppercase tracking-[0.35em] text-white/65">Under the fairing</span>
@@ -682,7 +660,7 @@ export default function TechContent() {
 
       {/* ── 05 SAFETY ───────────────────────────────────────── */}
       <div className="border-t border-white/[0.04]">
-        <div className="max-w-[1600px] mx-auto px-[clamp(24px,4vw,64px)] py-[60px] md:py-[120px]">
+        <div className="ds-container ds-section">
           <div className="mb-14">
             <p className="inline-flex items-center gap-3 mb-6">
               <span className="font-display text-5xl text-white/[0.20]">05</span>
@@ -702,7 +680,7 @@ export default function TechContent() {
 
       {/* ── CTA ─────────────────────────────────────────────── */}
       <div className="border-t border-white/[0.04] bg-[#080808]">
-        <div className="max-w-[1600px] mx-auto px-[clamp(24px,4vw,64px)] py-[60px] md:py-[120px] flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
+        <div className="ds-container ds-section flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
           <div>
             <h3 className="font-display text-white leading-none mb-2" style={{ fontSize: "clamp(32px, 4vw, 56px)" }}>
               Want to know more?

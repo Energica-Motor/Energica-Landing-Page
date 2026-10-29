@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function ContactPage() {
   return (
     <main className="min-h-screen bg-[#0A0A0A] pt-32 pb-24">
-      <div className="max-w-[1400px] mx-auto px-6 md:px-12 lg:px-20">
+      <div className="ds-container">
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,420px)_1fr] gap-16 lg:gap-20 items-start">
 
           {/* Left: Header + Info */}

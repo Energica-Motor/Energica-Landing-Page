@@ -1,8 +1,9 @@
 "use client";
 
 import { useRef } from "react";
-import Image from "next/image";
-import { gsap, useGSAP } from "@/lib/gsap";
+import { Photo } from "@/components/ui/Photo";
+import { useGSAP } from "@/lib/gsap";
+import { reveal } from "@/lib/motion";
 
 interface GalleryGridProps {
   images: string[];
@@ -19,18 +20,7 @@ export default function GalleryGrid({
 
   useGSAP(
     () => {
-      gsap.from(".gg-cell", {
-        y: 50,
-        opacity: 0,
-        stagger: 0.1,
-        duration: 0.85,
-        ease: "power3.out",
-        immediateRender: false,
-        scrollTrigger: {
-          trigger: gridRef.current,
-          start: "top 80%",
-        },
-      });
+      reveal(".gg-cell", { y: 20, stagger: 0.08, trigger: gridRef.current });
     },
     { scope: gridRef }
   );
@@ -51,12 +41,11 @@ export default function GalleryGrid({
             }`}
             style={{ aspectRatio: isWide ? "21/9" : "4/3" }}
           >
-            <Image
+            <Photo
               src={src}
               alt={`${altPrefix} — gallery ${i + 1}`}
-              fill
               className="object-cover transition-transform duration-700 group-hover:scale-[1.05]"
-              sizes={isWide ? "100vw" : "(max-width: 768px) 100vw, 50vw"}
+              sizes={isWide ? "(max-width: 1343px) 100vw, 1280px" : "(max-width: 768px) 100vw, (max-width: 1343px) 50vw, 640px"}
             />
 
             {/* Caption overlay — slides up on hover */}

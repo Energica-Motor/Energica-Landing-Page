@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useRef } from "react";
-import Image from "next/image";
-import { gsap, useGSAP } from "@/lib/gsap";
+import { Photo } from "@/components/ui/Photo";
+import { useGSAP } from "@/lib/gsap";
+import { reveal } from "@/lib/motion";
 import { type ColorOption } from "@/data/models";
 import { cn } from "@/lib/utils";
 
@@ -16,20 +17,7 @@ export default function ColorSelector({ colors }: ColorSelectorProps) {
 
   useGSAP(
     () => {
-      gsap.from(".cs-left", {
-        x: -30,
-        opacity: 0,
-        duration: 0.8,
-        ease: "power3.out",
-        scrollTrigger: { trigger: sectionRef.current, start: "top 80%" },
-      });
-      gsap.from(".cs-right", {
-        x: 30,
-        opacity: 0,
-        duration: 0.9,
-        ease: "power3.out",
-        scrollTrigger: { trigger: sectionRef.current, start: "top 80%" },
-      });
+      reveal([".cs-left", ".cs-right"], { y: 20, stagger: 0.08, trigger: sectionRef.current });
     },
     { scope: sectionRef }
   );
@@ -40,7 +28,7 @@ export default function ColorSelector({ colors }: ColorSelectorProps) {
       className="flex flex-col lg:flex-row w-full min-h-[560px] lg:min-h-[calc(100vh-80px)]"
     >
       {/* ── Left — controls ──────────────────────────────────── */}
-      <div className="cs-left flex flex-col justify-center px-[clamp(24px,4vw,64px)] py-16 lg:py-0 lg:w-[340px] xl:w-[400px] shrink-0 border-r border-white/[0.04]">
+      <div className="cs-left flex flex-col justify-center ds-container-start pr-[var(--container-px)] py-16 lg:py-0 lg:w-[340px] xl:w-[400px] shrink-0 border-r border-white/[0.04]">
 
         <p className="inline-flex items-center gap-3 mb-5">
           <span className="w-6 h-px bg-[#CE2B37]" />
@@ -119,10 +107,9 @@ export default function ColorSelector({ colors }: ColorSelectorProps) {
             className="absolute inset-0 transition-opacity duration-500"
             style={{ opacity: i === active ? 1 : 0 }}
           >
-            <Image
+            <Photo
               src={color.image}
               alt={color.name}
-              fill
               className="object-contain p-4 sm:p-6 lg:p-14"
               sizes="(max-width: 1024px) 100vw, 70vw"
             />

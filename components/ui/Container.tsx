@@ -6,12 +6,13 @@ interface ContainerProps {
 }
 
 /**
- * Layout container — max-width 1400px, centred, responsive horizontal padding.
- * Use as the inner wrapper for every page section.
+ * Layout container — the site's one width and gutter (.ds-container in
+ * globals.css): 1280px of content, 16/24/32px gutters. Use as the inner
+ * wrapper for every page section, the header and the footer.
  */
 export function Container({ children, className }: ContainerProps) {
   return (
-    <div className={cn("w-full max-w-[1280px] mx-auto px-[clamp(24px,4vw,64px)]", className)}>
+    <div className={cn("ds-container", className)}>
       {children}
     </div>
   );

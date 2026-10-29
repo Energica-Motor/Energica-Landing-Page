@@ -85,7 +85,7 @@ export default function DealersPage() {
     <main className="min-h-screen bg-[#0a0a0a] pt-20">
 
       {/* ── Page header ─────────────────────────────────────── */}
-      <Container className="py-[120px] border-b border-white/[0.04]">
+      <Container className="ds-section border-b border-white/[0.04]">
         <p className="inline-flex items-center gap-3 mb-6">
           <span className="w-6 h-px bg-[#CE2B37]" />
           <span className="text-[10px] uppercase tracking-[0.35em] text-white/60">
@@ -103,11 +103,11 @@ export default function DealersPage() {
       </Container>
 
       {/* ── Two-column layout ────────────────────────────────── */}
-      <div className="max-w-[1400px] mx-auto">
+      <div className="ds-container">
         <div className="grid lg:grid-cols-[1fr_480px] xl:grid-cols-[1fr_560px] min-h-[80vh]">
 
           {/* LEFT: Dealer list */}
-          <div className="px-8 md:px-16 py-12 border-r border-white/[0.04] overflow-y-auto">
+          <div className="pr-8 md:pr-16 py-12 border-r border-white/[0.04] overflow-y-auto">
             {regions.map((region) => (
               <div key={region.region} className="mb-14">
                 {/* Region header */}

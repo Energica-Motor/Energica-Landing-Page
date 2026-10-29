@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { Photo } from "@/components/ui/Photo";
 import { useState } from "react";
 
 export interface CulturalItem {
@@ -35,10 +35,9 @@ export function CulturalCards({ items }: { items: CulturalItem[] }) {
             }`}
           >
             <div className="relative aspect-video w-full overflow-hidden rounded border border-white/10 shadow-2xl">
-              <Image
+              <Photo
                 src={`https://img.youtube.com/vi/${item.ytId}/maxresdefault.jpg`}
                 alt={item.title}
-                fill
                 className="object-cover"
                 unoptimized
               />

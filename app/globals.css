@@ -42,9 +42,12 @@
   --text-sm:      14px;
 
   /* ── Layout ────────────────────────────────────────────── */
-  --container-max: 1280px;
-  --container-px:  clamp(24px, 4vw, 64px);
-  --section-py:    120px;
+  /* One container for header, sections and footer: 1280px of content
+     between gutters, so every left edge sits at 80px at 1440px wide. */
+  --container-max: 1280px;  /* content width, gutters excluded */
+  --container-px:  16px;    /* gutter: 16 phones, 24 tablets, 32 from 1024 */
+  /* One vertical rhythm for page sections: 48 phones, 64 tablets, 96 desktop */
+  --section-py:    48px;
   --prose-max:     750px;
   --grid-cols:     12;
   --grid-gap:      24px;
@@ -167,13 +170,28 @@ h4, h5, h6 { font-size: var(--text-h4); }
   border: 1px solid var(--border);
 }
 
+@media (min-width: 640px) {
+  :root { --container-px: 24px; }
+}
+@media (min-width: 768px) {
+  :root { --section-py: 64px; }
+}
+@media (min-width: 1024px) {
+  :root { --container-px: 32px; --section-py: 96px; }
+}
+
 /* ── Design-system utility classes ──────────────────────── */
-/* Container — max 1400px, centred, responsive horizontal padding */
+/* Container — the shared width and gutter (also components/ui/Container) */
 .ds-container {
   width: 100%;
-  max-width: var(--container-max);
+  max-width: calc(var(--container-max) + 2 * var(--container-px));
   margin-inline: auto;
   padding-inline: var(--container-px);
+}
+
+/* Full-bleed split layouts: inner edge lines up with the container's */
+.ds-container-start {
+  padding-left: max(var(--container-px), calc((100% - var(--container-max)) / 2));
 }
 
 /* 12-column grid with standard gutter */
@@ -183,10 +201,12 @@ h4, h5, h6 { font-size: var(--text-h4); }
   gap: var(--grid-gap);
 }
 
-/* Section — standardised 120px vertical rhythm */
+/* Section — the shared vertical rhythm (48 / 64 / 96px) */
 .ds-section {
   padding-block: var(--section-py);
 }
+.ds-section-top { padding-top: var(--section-py); }
+.ds-section-bottom { padding-bottom: var(--section-py); }
 
 /* Prose width cap for readable body paragraphs */
 .ds-prose {
@@ -359,9 +379,9 @@ h4, h5, h6 { font-size: var(--text-h4); }
    then IntersectionObserver removes it to trigger the reveal. */
 .will-reveal {
   opacity: 0;
-  transform: translateY(28px);
-  transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(20px);
+  transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .is-revealed {
   opacity: 1;
@@ -536,6 +556,33 @@ h4, h5, h6 { font-size: var(--text-h4); }
   transition: opacity 0.4s ease;
 }
 
+/* ── Photos (components/ui/Photo) ────────────────────────── */
+/* A blurred preview fills the box while the photo loads, then the photo
+   fades in over 200ms (an animation, so hover-zoom transitions on the same
+   image keep working). Hidden only when JS is running (html.js), so a page
+   without JS still shows every photo. */
+.photo-blur {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: blur(14px);
+  transform: scale(1.08);
+}
+.js .photo-fade:not([data-loaded]) {
+  opacity: 0;
+}
+.photo-fade[data-loaded] {
+  animation: photo-in 200ms ease both;
+}
+@keyframes photo-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .photo-fade[data-loaded] { animation: none; }
+}
+
 /* ── Primary button ──────────────────────────────────────── */
 /* The one green action style (matches the configurator's Contact Dealer).
    Colour only: each button keeps its own size, padding and type. Solid
@@ -612,6 +659,13 @@ h4, h5, h6 { font-size: var(--text-h4); }
   :root {
     --anim-scale: 0;
     --scroll-blur: 0px;
+  }
+  /* Decorative CSS loops (scroll cues) and transitions finish immediately */
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
   .nav-split-link:hover .nav-char {
     transform: none;

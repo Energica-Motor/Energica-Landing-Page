@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import Lenis from "lenis";
 import { gsap } from "@/lib/gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { prefersReducedMotion } from "@/lib/motion";
 
 /**
  * Mounts Lenis smooth-scroll and wires it to GSAP ScrollTrigger.
@@ -12,6 +13,8 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 export default function SmoothScroll() {
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
+    // Reduced motion keeps the browser's own scrolling
+    if (prefersReducedMotion()) return;
 
     const lenis = new Lenis({
       duration: 1.2,

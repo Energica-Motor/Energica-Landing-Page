@@ -1,8 +1,9 @@
 "use client";
 
-import Image from "next/image";
+import { Photo } from "@/components/ui/Photo";
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
+import { prefersReducedMotion, reveal } from "@/lib/motion";
 import { Container } from "@/components/ui/Container";
 
 export default function AboutHero() {
@@ -11,22 +12,17 @@ export default function AboutHero() {
 
   useEffect(() => {
     // Ken Burns — slow zoom into the image
-    gsap.fromTo(
-      imgRef.current,
-      { scale: 1 },
-      { scale: 1.07, duration: 12, ease: "none" }
-    );
+    if (!prefersReducedMotion()) {
+      gsap.fromTo(
+        imgRef.current,
+        { scale: 1 },
+        { scale: 1.07, duration: 12, ease: "none" }
+      );
+    }
 
     // Text stagger entry
     const ctx = gsap.context(() => {
-      gsap.from(".ah-item", {
-        opacity: 0,
-        y: 28,
-        duration: 1,
-        stagger: 0.13,
-        ease: "power3.out",
-        delay: 0.3,
-      });
+      reveal(".ah-item", { y: 20, stagger: 0.08, scroll: false });
     }, wrapRef);
 
     return () => ctx.revert();
@@ -37,10 +33,9 @@ export default function AboutHero() {
 
       {/* Background — zoom wrapper */}
       <div ref={imgRef} className="absolute inset-0 will-change-transform">
-        <Image
+        <Photo
           src="/images/new/home-slide-1.jpg"
           alt="Energica Motor Company — the full lineup on track"
-          fill
           priority
           className="object-cover object-center"
           sizes="100vw"

@@ -7,7 +7,7 @@ export default function OwnersPage() {
   const [submitted, setSubmitted] = useState(false);
 
   return (
-    <main className="bg-[#0a0a0a] text-white min-h-screen pt-32 pb-[120px]">
+    <main className="bg-[#0a0a0a] text-white min-h-screen pt-32 ds-section-bottom">
       <Container>
         <p className="inline-flex items-center gap-3 mb-6">
           <span className="w-6 h-px bg-[#CE2B37]" />
