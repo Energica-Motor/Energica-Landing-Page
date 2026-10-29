@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useGSAP } from "@/lib/gsap";
 import { reveal } from "@/lib/motion";
 import { type ModelSpecs } from "@/data/models";
@@ -62,9 +62,18 @@ function SpecRow({ label, value }: { label: string; value: string }) {
   );
 }
 
+// Each section is a <details>, so the specs open and close without
+// JavaScript too (Motor starts open). With JavaScript the same look animates:
+// one section open at a time, the panel easing its height and opacity, and a
+// closing section staying a real open <details> until its animation ends.
+const PANEL_MS = 500;
+
 export default function SpecsAccordion({ specs }: SpecsAccordionProps) {
-  const [open, setOpen] = useState<AccordionKey>("motor");
+  const [open, setOpen] = useState<AccordionKey>("motor"); // drawn as expanded
+  const [shown, setShown] = useState<AccordionKey[]>(["motor"]); // <details open>
   const wrapRef = useRef<HTMLDivElement>(null);
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => { if (closeTimer.current) clearTimeout(closeTimer.current); }, []);
 
   // Build the section order — insert performance between motor and battery when present
   const sectionOrder: AccordionKey[] = specs.performance
@@ -77,6 +86,16 @@ export default function SpecsAccordion({ specs }: SpecsAccordionProps) {
     },
     { scope: wrapRef }
   );
+
+  const toggle = (key: AccordionKey) => {
+    const next = open === key ? "motor" : key;
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    // Open the target <details> collapsed, then expand it on the next frame
+    setShown((s) => (s.includes(next) ? s : [...s, next]));
+    requestAnimationFrame(() => requestAnimationFrame(() => setOpen(next)));
+    // Close the others once their collapse has played
+    closeTimer.current = setTimeout(() => setShown([next]), PANEL_MS);
+  };
 
   const sectionsData: Partial<Record<AccordionKey, Record<string, string | undefined>>> = {
     motor: specs.motor as Record<string, string | undefined>,
@@ -98,10 +117,13 @@ export default function SpecsAccordion({ specs }: SpecsAccordionProps) {
         const entries = Object.entries(data).filter(([, v]) => !!v) as [string, string][];
 
         return (
-          <div key={key} className="sa-row">
-            <button
-              onClick={() => setOpen(isOpen ? "motor" : key)}
-              className="w-full flex items-center justify-between py-5 text-left group"
+          <details key={key} className="sa-row" open={shown.includes(key)}>
+            <summary
+              onClick={(e) => {
+                e.preventDefault();
+                toggle(key);
+              }}
+              className="w-full flex items-center justify-between py-5 text-left group cursor-pointer list-none [&::-webkit-details-marker]:hidden"
             >
               {/* Left: number tag + label */}
               <span className="flex items-center gap-4">
@@ -113,7 +135,7 @@ export default function SpecsAccordion({ specs }: SpecsAccordionProps) {
                     "font-display text-xl transition-colors duration-200",
                     isOpen
                       ? "text-[#78BE20]"
-                      : "text-white group-hover:text-white/80"
+                      : "text-white group-hover:text-white/80 [html:not(.js)_[open]>summary_&]:text-[#78BE20]"
                   )}
                 >
                   {SECTION_LABELS[key]}
@@ -122,20 +144,23 @@ export default function SpecsAccordion({ specs }: SpecsAccordionProps) {
 
               {/* Right: plus / close icon */}
               <span
+                aria-hidden="true"
                 className={cn(
                   "text-[#78BE20] text-xl transition-transform duration-300 flex-shrink-0 ml-4",
-                  isOpen ? "rotate-45" : "rotate-0"
+                  isOpen ? "rotate-45" : "rotate-0 [html:not(.js)_[open]>summary_&]:rotate-45"
                 )}
               >
                 +
               </span>
-            </button>
+            </summary>
 
-            {/* Panel */}
+            {/* Panel — collapsed styles only apply while JS runs the animation;
+                without JS (no .js on <html>) the native open state shows the
+                panel and the label/icon follow it via [html:not(.js)...] */}
             <div
               className={cn(
                 "overflow-hidden transition-all duration-500",
-                isOpen ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
+                isOpen ? "max-h-[2000px] opacity-100" : "[.js_&]:max-h-0 [.js_&]:opacity-0"
               )}
               style={{ transitionTimingFunction: "cubic-bezier(0.16,1,0.3,1)" }}
             >
@@ -151,7 +176,7 @@ export default function SpecsAccordion({ specs }: SpecsAccordionProps) {
                 )}
               </div>
             </div>
-          </div>
+          </details>
         );
       })}
     </div>

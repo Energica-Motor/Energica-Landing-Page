@@ -28,7 +28,7 @@ export default function EvaRibellePage() {
       <ModelSchema
         name="Eva Ribelle"
         description="Electric naked motorcycle with Italian design. 107 HP, 200 km/h top speed. EMCE motor from MotoE. Made in Modena, Italy."
-        image="/images/Pagina%20Eva/EVA_Ribelle.webp"
+        image={model.heroImage}
         url="/models/eva-ribelle"
         specs={{ power: "Peak 80 kW / 107 HP", torque: "200 Nm at wheel", topSpeed: "200 km/h", range: "180 km city / 120 km combined" }}
       />

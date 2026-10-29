@@ -28,7 +28,7 @@ export default function EgoPage() {
       <ModelSchema
         name="Ego+"
         description="MotoE-derived electric superbike. Track tested, street legal. 147 HP, 0–100 km/h in under 3 seconds. Made in Modena, Italy."
-        image="/images/Pagina%20EGO/EGO.webp"
+        image={model.heroImage}
         url="/models/ego"
         specs={{ power: "Peak 107 kW / 145 HP", torque: "215 Nm at wheel", topSpeed: "200 km/h", range: "180 km city / 120 km combined" }}
       />
