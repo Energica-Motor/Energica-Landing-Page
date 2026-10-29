@@ -51,8 +51,6 @@ export default function ColorSelector({ colors }: ColorSelectorProps) {
               key={color.name}
               onClick={() => setActive(i)}
               title={color.name}
-              aria-label={color.name}
-              aria-pressed={i === active}
               className="relative group focus:outline-none"
             >
               <span
@@ -69,10 +67,7 @@ export default function ColorSelector({ colors }: ColorSelectorProps) {
                   i === active ? "scale-110" : "group-hover:scale-105"
                 )}
                 style={{
-                  // Same swatches as the configurator; Tricolore as three stripes
-                  background: color.stripes
-                    ? `linear-gradient(to right, ${color.stripes.map((c, k) => `${c} ${(k * 100) / color.stripes!.length}% ${((k + 1) * 100) / color.stripes!.length}%`).join(", ")})`
-                    : color.hex,
+                  backgroundColor: color.hex,
                   border: "1px solid rgba(255,255,255,0.12)",
                 }}
               />

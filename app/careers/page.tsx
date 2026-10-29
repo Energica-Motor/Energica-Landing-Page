@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Container } from "@/components/ui/Container";
-import { PrimaryButton } from "@/components/ui/Button";
+import { PrimaryButton, SecondaryButton } from "@/components/ui/Button";
 
 export const metadata: Metadata = {
   title: "Careers | Energica Motor Company",
@@ -19,13 +19,16 @@ export default function CareersPage() {
           className="font-display text-white leading-none mb-6"
           style={{ fontSize: "clamp(60px, 10vw, 140px)" }}
         >
-          Careers
+          Coming Soon.
         </h1>
         <p className="text-white/60 text-[length:var(--text-body)] max-w-[750px] leading-relaxed mb-[32px]">
-          We&rsquo;re always looking for passionate engineers, designers, and riders to join
-          our team in Modena, Italy.
+          Open positions are being updated. We&rsquo;re always looking for passionate
+          engineers, designers, and riders to join our team in Modena, Italy.
         </p>
-        <PrimaryButton href="/contact">Contact Us</PrimaryButton>
+        <div className="flex flex-wrap gap-4">
+          <PrimaryButton href="mailto:careers@energicamotor.com">Send Your CV</PrimaryButton>
+          <SecondaryButton href="/">Back Home</SecondaryButton>
+        </div>
       </Container>
     </main>
   );

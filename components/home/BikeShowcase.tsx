@@ -4,17 +4,14 @@ import { useEffect, useRef, useState } from "react";
 import { Photo } from "@/components/ui/Photo";
 import Link from "next/link";
 import { gsap } from "@/lib/gsap";
-import { configureHref, peakPower } from "@/lib/model-links";
 
 /* ── Data ──────────────────────────────────────────────────────── */
-// Every card shows the same stat: peak power from specs.ts
-const lineup = [
-  { id:"experia",    index:"01", name:"Experia",    tagline:"420 km. One charge.",              category:"Grand Tourer",   accent:"#78BE20", href:"/models/experia",     image:"/images/Pagina Experia/EXPERIA_Bormio Ice.webp"      },
-  { id:"esseesse9",  index:"02", name:"EsseEsse9",  tagline:"207 Nm. Instant.",                 category:"Naked Sport",    accent:"#78BE20", href:"/models/esseesse9",   image:"/images/Pagina SS9/EsseEsse9 RS_Sunrise Red.webp"    },
-  { id:"eva-ribelle",index:"03", name:"Eva Ribelle",tagline:"147 HP. Italian design.",          category:"Street Fighter", accent:"#78BE20", href:"/models/eva-ribelle", image:"/images/Pagina Eva/EVA Ribelle RS_Stealth Grey.webp" },
-  { id:"ego",        index:"04", name:"Ego",        tagline:"169 HP. MotoE-derived. Road legal.",category:"Supersport",   accent:"#78BE20", href:"/models/ego",         image:"/images/Pagina EGO/EGO RS_Metal Black.webp"         },
+const bikes = [
+  { id:"experia",    index:"01", name:"Experia",    tagline:"420 km. One charge.",              category:"Grand Tourer",   stat:{value:"420", unit:"km", label:"City Range"},   accent:"#78BE20", href:"/models/experia",     image:"/images/Pagina Experia/EXPERIA_Bormio Ice.webp"      },
+  { id:"esseesse9",  index:"02", name:"EsseEsse9",  tagline:"207 Nm. Instant.",                 category:"Naked Sport",    stat:{value:"207", unit:"Nm", label:"Wheel Torque"}, accent:"#78BE20", href:"/models/esseesse9",   image:"/images/Pagina SS9/EsseEsse9 RS_Sunrise Red.webp"    },
+  { id:"eva-ribelle",index:"03", name:"Eva Ribelle",tagline:"147 HP. Italian design.",          category:"Street Fighter", stat:{value:"147", unit:"HP", label:"Peak Power"},   accent:"#78BE20", href:"/models/eva-ribelle", image:"/images/Pagina Eva/EVA Ribelle RS_Stealth Grey.webp" },
+  { id:"ego",        index:"04", name:"Ego",        tagline:"169 HP. MotoE-derived. Road legal.",category:"Supersport",   stat:{value:"2.6", unit:"s",  label:"0–60 mph"},    accent:"#78BE20", href:"/models/ego",         image:"/images/Pagina EGO/EGO RS_Metal Black.webp"         },
 ];
-const bikes = lineup.map((b) => ({ ...b, stat: peakPower(b.id)!, configure: configureHref(b.id) }));
 
 /* ── Physics — identical to reference HTML ─────────────────────── */
 const MAX_VISUAL = 28;
@@ -387,35 +384,7 @@ export default function BikeShowcase() {
 
   /* ── Render ──────────────────────────────────────────────────── */
   return (
-    <>
-    {/* Without JavaScript the pinned showcase can't switch models, so the
-        lineup is listed one model after another instead */}
-    <section aria-label="The lineup" className="hidden [html:not(.js)_&]:block bg-[#0A0A0A] ds-section">
-      <div className="ds-container">
-        <p className="text-[10px] tracking-[0.45em] text-white/50 uppercase border-b border-white/[0.06] pb-4 mb-10">The Lineup</p>
-        <ul className="flex flex-col gap-16">
-          {bikes.map((bike) => (
-            <li key={bike.id} className="grid md:grid-cols-2 gap-8 items-center">
-              <div>
-                <span className="mono-tag">{bike.index} · {bike.category}</span>
-                <h2 className="font-display text-[clamp(38px,6vw,88px)] text-white leading-[0.9] uppercase mt-3 mb-3">{bike.name}</h2>
-                <p className="text-sm md:text-base text-white/65 mb-5 font-light">{bike.tagline}</p>
-                <p className="mb-6"><span className="font-display text-5xl text-[#78BE20]">{bike.stat.value}</span> <span className="text-xl text-white/60">{bike.stat.unit}</span><span className="block text-[11px] tracking-[0.4em] text-white/50 uppercase mt-1">{bike.stat.label}</span></p>
-                <p className="flex flex-wrap gap-x-6 gap-y-3 text-[11px] tracking-[0.3em] uppercase">
-                  <Link href={bike.href} className="text-white">Discover {bike.name}</Link>
-                  <Link href={bike.configure} className="text-white/70">Configure</Link>
-                  <Link href="/dealers" className="text-white/70">Find a dealer</Link>
-                </p>
-              </div>
-              <div className="relative aspect-[16/10]">
-                <Photo src={bike.image} alt={bike.name} sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: "contain" }} />
-              </div>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </section>
-    <section ref={sectionRef} className="relative h-screen overflow-hidden bg-[#0A0A0A] [html:not(.js)_&]:hidden">
+    <section ref={sectionRef} className="relative h-screen overflow-hidden bg-[#0A0A0A]">
 
       {/* ── Lock status ──────────────────────────────────────────── */}
       <span
@@ -454,9 +423,6 @@ export default function BikeShowcase() {
             }}
             data-cursor-view
           >
-            {bike.id === "ego" && (
-              <div aria-hidden style={{ position:"absolute", inset:"8% 4% 0", background:"radial-gradient(ellipse 55% 48% at 50% 62%, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.05) 45%, transparent 72%)", pointerEvents:"none" }} />
-            )}
             <Photo
               src={bike.image} alt={bike.name}
               sizes="(max-width: 768px) 0vw, 62vw"
@@ -495,9 +461,6 @@ export default function BikeShowcase() {
               zIndex: i === activeIndex ? 2 : 0,
             }}
           >
-            {bike.id === "ego" && (
-              <div aria-hidden style={{ position:"absolute", inset:"8% 4% 0", background:"radial-gradient(ellipse 55% 48% at 50% 62%, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.05) 45%, transparent 72%)", pointerEvents:"none" }} />
-            )}
             <Photo
                 src={bike.image} alt={bike.name}
                 sizes="100vw"
@@ -547,15 +510,11 @@ export default function BikeShowcase() {
                   </div>
                   <p className="text-[11px] tracking-[0.4em] text-white/50 uppercase" style={{ fontFamily:"var(--font-ibm-mono)" }}>{bike.stat.label}</p>
                 </div>
-                <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-                  <Link href={bike.href} tabIndex={i === activeIndex ? undefined : -1} className="inline-flex items-center gap-3 group">
-                    <span className="h-px w-8 group-hover:w-16 transition-all duration-300 bg-[#CE2B37]" />
-                    <span className="text-[11px] tracking-[0.3em] text-white uppercase group-hover:text-white/50 transition-colors duration-200">Discover {bike.name}</span>
-                    <span className="text-xs opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all duration-200" style={{ color:bike.accent }}>→</span>
-                  </Link>
-                  <Link href={bike.configure} tabIndex={i === activeIndex ? undefined : -1} className="text-[11px] tracking-[0.3em] text-white/70 uppercase border-b border-white/25 pb-0.5 hover:text-white hover:border-white transition-colors duration-200">Configure</Link>
-                  <Link href="/dealers" tabIndex={i === activeIndex ? undefined : -1} className="text-[11px] tracking-[0.3em] text-white/70 uppercase border-b border-white/25 pb-0.5 hover:text-white hover:border-white transition-colors duration-200">Find a dealer</Link>
-                </div>
+                <Link href={bike.href} className="inline-flex items-center gap-3 group">
+                  <span className="h-px w-8 group-hover:w-16 transition-all duration-300 bg-[#CE2B37]" />
+                  <span className="text-[11px] tracking-[0.3em] text-white uppercase group-hover:text-white/50 transition-colors duration-200">Discover {bike.name}</span>
+                  <span className="text-xs opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all duration-200" style={{ color:bike.accent }}>→</span>
+                </Link>
               </div>
             ))}
           </div>
@@ -604,6 +563,5 @@ export default function BikeShowcase() {
         style={{ background:"linear-gradient(to bottom, transparent, rgba(120,190,32,0.18), transparent)" }} />
 
     </section>
-    </>
   );
 }

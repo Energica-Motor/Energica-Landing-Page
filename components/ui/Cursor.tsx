@@ -5,12 +5,11 @@ import { useEffect, useRef } from "react";
 /**
  * Advanced custom cursor:
  * - Dot: instant follow with magnetic pull to [data-magnetic] elements
- * - Ring: eases after the pointer (lerp 0.35), velocity-scaled; its loop
- *   runs only while catching up
+ * - Ring: spring-lagged, velocity-scaled
  * - Label modes: via CustomEvent('cursormode', { detail: 'view'|'drag'|'explore'|'default' })
  * - Click burst: CSS keyframe (.cursor-burst in globals.css)
  * - Light section inversion: [data-cursor-light] sections flip color to #000
- * - Fine pointers only: off on touch devices and with reduced motion
+ * - Hidden on touch/coarse pointer devices
  */
 export default function Cursor() {
   const dotRef   = useRef<HTMLDivElement>(null);
@@ -18,14 +17,15 @@ export default function Cursor() {
   const labelRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
-    // Fine pointers only (mouse, trackpad); off on touch and with reduced motion
-    if (!window.matchMedia("(pointer: fine)").matches) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    // Bail out on touch/coarse devices
+    if (window.matchMedia("(hover: none) and (pointer: coarse)").matches) return;
 
-    const dot   = dotRef.current;
-    const ring  = ringRef.current;
+    const dot   = dotRef.current!;
+    const ring  = ringRef.current!;
     const label = labelRef.current;
-    if (!dot || !ring) return;
+    if (!dotRef.current || !ringRef.current) return;
+
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     // Show elements, and hide the native pointer while we're active
     dot.style.display = "block";
@@ -34,19 +34,28 @@ export default function Cursor() {
 
     // Hot-loop state (refs only — zero React re-renders)
     let mouseX = -200, mouseY = -200;
-    let prevX = -200, prevY = -200;
+    let prevMouseX = -200, prevMouseY = -200;
     let ringX = -200, ringY = -200;
     let ringScale = 1;
     let magnetTarget: { el: HTMLElement; cx: number; cy: number } | null = null;
     let isLight = false;
-    let rafId = 0;
-    const RING_FOLLOW = 0.35; // share of the remaining distance per frame (was 0.12)
+    let lightCheckFrame = 0;
+    let rafId: number;
 
     function lerp(a: number, b: number, t: number) { return a + (b - a) * t; }
 
-    // The dot is placed straight from the pointer event (no frame of lag)
-    function placeDot() {
-      let dotX = mouseX, dotY = mouseY;
+    // ── Main RAF loop ───────────────────────────────────────
+    function tick() {
+      // Velocity
+      const vx = mouseX - prevMouseX;
+      const vy = mouseY - prevMouseY;
+      const speed = Math.hypot(vx, vy);
+      prevMouseX = mouseX;
+      prevMouseY = mouseY;
+
+      // Magnetic warp on dot position
+      let dotX = mouseX;
+      let dotY = mouseY;
       if (magnetTarget) {
         const { cx, cy } = magnetTarget;
         const dist = Math.hypot(mouseX - cx, mouseY - cy);
@@ -57,54 +66,78 @@ export default function Cursor() {
           dotY = cy + (mouseY - cy) * (1 - pull * 0.6);
         }
       }
-      dot!.style.transform = `translate(${dotX - 4}px, ${dotY - 4}px)`;
-    }
+      dot.style.transform = `translate(${dotX - 4}px, ${dotY - 4}px)`;
 
-    // The ring eases after it; the loop runs only until it has caught up
-    function tick() {
-      const speed = Math.hypot(mouseX - prevX, mouseY - prevY);
-      prevX = mouseX; prevY = mouseY;
-      ringX = lerp(ringX, mouseX, RING_FOLLOW);
-      ringY = lerp(ringY, mouseY, RING_FOLLOW);
-      ringScale = lerp(ringScale, 1 + Math.min(speed * 0.011, 0.45), 0.2);
-      ring!.style.transform = `translate(${ringX - 20}px, ${ringY - 20}px) scale(${ringScale})`;
-      const settled = Math.abs(ringX - mouseX) < 0.3 && Math.abs(ringY - mouseY) < 0.3 && Math.abs(ringScale - 1) < 0.005;
-      rafId = settled ? 0 : requestAnimationFrame(tick);
-    }
+      if (!reducedMotion) {
+        // Ring spring lag
+        ringX = lerp(ringX, mouseX, 0.12);
+        ringY = lerp(ringY, mouseY, 0.12);
 
-    // Light section inversion, checked on movement rather than every frame
-    let lastLightCheck = 0;
-    function checkLight(now: number) {
-      if (now - lastLightCheck < 150) return;
-      lastLightCheck = now;
-      const el = document.elementFromPoint(mouseX, mouseY) as HTMLElement | null;
-      const shouldBeLight = !!el?.closest("[data-cursor-light]");
-      if (shouldBeLight !== isLight) {
-        isLight = shouldBeLight;
-        const col = isLight ? "#000" : "";
-        dot!.style.background = col || "var(--cursor-dot-color, #fff)";
-        ring!.style.borderColor = col || "rgba(255,255,255,0.55)";
-        if (label) label.style.color = col || "#fff";
+        // Velocity-based scale
+        const targetScale = 1 + Math.min(speed * 0.011, 0.45);
+        ringScale = lerp(ringScale, targetScale, 0.09);
+
+        ring.style.transform = `translate(${ringX - 20}px, ${ringY - 20}px) scale(${ringScale})`;
+      } else {
+        ring.style.transform = `translate(${mouseX - 20}px, ${mouseY - 20}px)`;
       }
+
+      // Light section inversion — check every 12 frames for performance
+      lightCheckFrame++;
+      if (lightCheckFrame % 12 === 0) {
+        const el = document.elementFromPoint(mouseX, mouseY) as HTMLElement | null;
+        const shouldBeLight = !!el?.closest("[data-cursor-light]");
+        if (shouldBeLight !== isLight) {
+          isLight = shouldBeLight;
+          const col = isLight ? "#000" : "";
+          dot.style.background = col || "var(--cursor-dot-color, #fff)";
+          ring.style.borderColor = col || "rgba(255,255,255,0.55)";
+          if (label) label.style.color = col || "#fff";
+        }
+      }
+
+      rafId = requestAnimationFrame(tick);
     }
 
-    const onMove = (e: PointerEvent) => {
-      if (e.pointerType !== "mouse" && e.pointerType !== "pen") return;
-      mouseX = e.clientX; mouseY = e.clientY;
-      placeDot();
-      checkLight(e.timeStamp);
-      if (!rafId) rafId = requestAnimationFrame(tick);
-    };
-    window.addEventListener("pointermove", onMove, { passive: true });
+    // ── Mouse tracking ──────────────────────────────────────
+    const onMove = (e: MouseEvent) => { mouseX = e.clientX; mouseY = e.clientY; };
+    window.addEventListener("mousemove", onMove, { passive: true });
 
-    // ── Ring size / label modes ─────────────────────────────
+    // ── Magnetic targets ────────────────────────────────────
+    function registerMagnetic() {
+      document.querySelectorAll<HTMLElement>("[data-magnetic]").forEach(el => {
+        el.addEventListener("mouseenter", () => {
+          const r = el.getBoundingClientRect();
+          magnetTarget = { el, cx: r.left + r.width / 2, cy: r.top + r.height / 2 };
+          setRingSize(56);
+        });
+        el.addEventListener("mouseleave", () => {
+          magnetTarget = null;
+          resetRingSize();
+        });
+        el.addEventListener("mousemove", () => {
+          if (magnetTarget?.el === el) {
+            const r = el.getBoundingClientRect();
+            magnetTarget.cx = r.left + r.width / 2;
+            magnetTarget.cy = r.top + r.height / 2;
+          }
+        });
+      });
+    }
+
+    // ── Cursor label / mode ─────────────────────────────────
     function setRingSize(size: number) {
-      ring!.style.width  = `${size}px`;
-      ring!.style.height = `${size}px`;
-      ring!.style.marginTop  = `${-size / 2}px`;
-      ring!.style.marginLeft = `${-size / 2}px`;
+      ring.style.width  = `${size}px`;
+      ring.style.height = `${size}px`;
+      ring.style.marginTop  = `${-size / 2}px`;
+      ring.style.marginLeft = `${-size / 2}px`;
     }
-    function resetRingSize() { setRingSize(40); }
+    function resetRingSize() {
+      ring.style.width  = "40px";
+      ring.style.height = "40px";
+      ring.style.marginTop  = "-20px";
+      ring.style.marginLeft = "-20px";
+    }
 
     const onCursorMode = (e: Event) => {
       const mode = (e as CustomEvent<string>).detail;
@@ -123,38 +156,23 @@ export default function Cursor() {
     };
     document.addEventListener("cursormode", onCursorMode);
 
-    // ── [data-magnetic] and [data-cursor-view] hovers, delegated ──
-    // (one listener pair for the whole document instead of re-adding
-    // listeners to every element on each DOM change)
-    const onOver = (e: PointerEvent) => {
-      const t = e.target as Element | null;
-      const magnetic = t?.closest<HTMLElement>("[data-magnetic]");
-      if (magnetic && magnetTarget?.el !== magnetic) {
-        const r = magnetic.getBoundingClientRect();
-        magnetTarget = { el: magnetic, cx: r.left + r.width / 2, cy: r.top + r.height / 2 };
-        setRingSize(56);
-      }
-      const view = t?.closest("[data-cursor-view]");
-      if (view && !(e.relatedTarget instanceof Node && view.contains(e.relatedTarget))) {
-        document.dispatchEvent(new CustomEvent("cursormode", { detail: "view" }));
-      }
-    };
-    const onOut = (e: PointerEvent) => {
-      const t = e.target as Element | null;
-      const to = e.relatedTarget instanceof Element ? e.relatedTarget : null;
-      const magnetic = t?.closest<HTMLElement>("[data-magnetic]");
-      if (magnetic && !(to && magnetic.contains(to))) { magnetTarget = null; resetRingSize(); }
-      const view = t?.closest("[data-cursor-view]");
-      if (view && !(to && view.contains(to))) {
-        document.dispatchEvent(new CustomEvent("cursormode", { detail: "default" }));
-      }
-    };
-    document.addEventListener("pointerover", onOver);
-    document.addEventListener("pointerout", onOut);
+    // ── [data-cursor-view] hover → VIEW label ───────────────
+    function registerCursorView() {
+      document.querySelectorAll<HTMLElement>("[data-cursor-view]").forEach(el => {
+        el.addEventListener("mouseenter", () =>
+          document.dispatchEvent(new CustomEvent("cursormode", { detail: "view" })));
+        el.addEventListener("mouseleave", () =>
+          document.dispatchEvent(new CustomEvent("cursormode", { detail: "default" })));
+      });
+    }
+
+    registerMagnetic();
+    registerCursorView();
 
     // ── Click burst ─────────────────────────────────────────
     const onPointerDown = () => {
       ring.classList.remove("cursor-burst");
+      // Use requestAnimationFrame instead of offsetWidth forced reflow
       requestAnimationFrame(() => ring.classList.add("cursor-burst"));
     };
     const onPointerUp = () => {
@@ -163,17 +181,23 @@ export default function Cursor() {
     window.addEventListener("pointerdown", onPointerDown);
     window.addEventListener("pointerup", onPointerUp);
 
+    // ── MutationObserver — re-register on DOM changes ───────
+    const observer = new MutationObserver(() => {
+      registerMagnetic();
+      registerCursorView();
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    rafId = requestAnimationFrame(tick);
+
     return () => {
       document.documentElement.classList.remove("has-custom-cursor");
-      if (rafId) cancelAnimationFrame(rafId);
-      window.removeEventListener("pointermove", onMove);
+      cancelAnimationFrame(rafId);
+      window.removeEventListener("mousemove", onMove);
       window.removeEventListener("pointerdown", onPointerDown);
       window.removeEventListener("pointerup", onPointerUp);
       document.removeEventListener("cursormode", onCursorMode);
-      document.removeEventListener("pointerover", onOver);
-      document.removeEventListener("pointerout", onOut);
-      dot.style.display = "none";
-      ring.style.display = "none";
+      observer.disconnect();
     };
   }, []);
 

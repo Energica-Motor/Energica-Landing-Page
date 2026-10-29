@@ -70,9 +70,8 @@ export default function AboutPage() {
               </p>
             </div>
 
-            {/* Stats — spread over the story's full height on desktop, so the
-                right column has no empty block under them */}
-            <div className="flex flex-col gap-8 lg:pt-14 lg:self-stretch lg:justify-between">
+            {/* Stats */}
+            <div className="flex flex-col gap-8 lg:pt-14">
               {STATS.map((item) => (
                 <div key={item.label} className="border-l-2 border-[#78BE20] pl-6 py-1">
                   <p

@@ -7,15 +7,13 @@ import ColorSelector from "@/components/models/ColorSelector";
 import GalleryGrid from "@/components/models/GalleryGrid";
 import SpecsAccordion from "@/components/models/SpecsAccordion";
 import NextModelCTA from "@/components/models/NextModelCTA";
-import ModelClosingActions from "@/components/models/ModelClosingActions";
 import type { Metadata } from "next";
-import { metaDescription } from "@/lib/model-links";
 import { notFound } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Ego | Energica Motor Company",
-  // Built from the page's own headline stats (specs.ts)
-  description: metaDescription("ego", "Track tested. Street legal."),
+  description:
+    "Track tested. Street legal. MotoE-derived 147 HP in a road-legal superbike.",
 };
 
 export default function EgoPage() {
@@ -77,7 +75,6 @@ export default function EgoPage() {
         </div>
       </section>
       {nextModel && <NextModelCTA nextModel={nextModel} />}
-      <ModelClosingActions modelId={model.id} modelName={model.name} />
     </main>
   );
 }

@@ -7,15 +7,13 @@ import ColorSelector from "@/components/models/ColorSelector";
 import GalleryGrid from "@/components/models/GalleryGrid";
 import SpecsAccordion from "@/components/models/SpecsAccordion";
 import NextModelCTA from "@/components/models/NextModelCTA";
-import ModelClosingActions from "@/components/models/ModelClosingActions";
 import type { Metadata } from "next";
-import { metaDescription } from "@/lib/model-links";
 import { notFound } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "EsseEsse9 | Energica Motor Company",
-  // Built from the page's own headline stats (specs.ts)
-  description: metaDescription("esseesse9", "The naked electric champion."),
+  description:
+    "The naked electric champion. 107 HP, 0–100 in 3.2 seconds, 200 km/h top speed.",
 };
 
 export default function EsseEsse9Page() {
@@ -77,7 +75,6 @@ export default function EsseEsse9Page() {
         </div>
       </section>
       {nextModel && <NextModelCTA nextModel={nextModel} />}
-      <ModelClosingActions modelId={model.id} modelName={model.name} />
     </main>
   );
 }

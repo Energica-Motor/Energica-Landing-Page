@@ -67,7 +67,8 @@ export const footerLinks = {
   company: [
     { label: "About Energica", href: "/about" },
     { label: "Racing", href: "/racing" },
-    // Press and Careers are left out until they have content (pages still reachable by URL)
+    { label: "Press", href: "/press" },
+    { label: "Careers", href: "/careers" },
   ],
   support: [
     { label: "Contact Us", href: "/contact" },

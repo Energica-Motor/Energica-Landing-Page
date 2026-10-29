@@ -7,9 +7,7 @@ import ColorSelector from "@/components/models/ColorSelector";
 import GalleryGrid from "@/components/models/GalleryGrid";
 import SpecsAccordion from "@/components/models/SpecsAccordion";
 import NextModelCTA from "@/components/models/NextModelCTA";
-import ModelClosingActions from "@/components/models/ModelClosingActions";
 import type { Metadata } from "next";
-import { metaDescription } from "@/lib/model-links";
 import { notFound } from "next/navigation";
 
 interface PageProps {
@@ -27,7 +25,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return {
     title: `${model.name} | Energica Motor Company`,
-    description: metaDescription(model.id, model.tagline),
+    description: model.description,
   };
 }
 
@@ -101,7 +99,6 @@ export default async function ModelPage({ params }: PageProps) {
 
       {/* § 7 — Next model CTA */}
       {nextModel && <NextModelCTA nextModel={nextModel} />}
-      <ModelClosingActions modelId={model.id} modelName={model.name} />
     </main>
   );
 }
