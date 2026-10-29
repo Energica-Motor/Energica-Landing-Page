@@ -7,6 +7,7 @@ import GrainOverlay from "@/components/ui/GrainOverlay";
 import LoadingScreen from "@/components/ui/LoadingScreen";
 import SmoothScroll from "@/components/ui/SmoothScroll";
 import PageTransition from "@/components/ui/PageTransition";
+import { COMPANY_LEGAL_NAME } from "@/lib/company";
 
 const barlowCondensed = Barlow_Condensed({
   weight: ["300", "400", "500", "600", "700", "800", "900"],
@@ -74,8 +75,8 @@ export default function RootLayout({
                 {
                   "@type": "Organization",
                   "@id": "https://energicamotor.com/#organization",
-                  "name": "Energica Motor Company",
-                  "legalName": "Energica Motor Company S.p.A.",
+                  "name": COMPANY_LEGAL_NAME,
+                  "legalName": COMPANY_LEGAL_NAME,
                   "url": "https://energicamotor.com",
                   "logo": {
                     "@type": "ImageObject",

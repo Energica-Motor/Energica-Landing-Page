@@ -17,7 +17,7 @@ export default function TestRideCTA() {
 
           <Link
             href="/contact"
-            className="inline-flex items-center justify-center gap-4 w-full sm:w-auto px-10 py-4 bg-[#78BE20] text-black text-xs tracking-[0.3em] uppercase font-medium hover:bg-[#5a9018] transition-colors duration-200"
+            className="btn-primary inline-flex items-center justify-center gap-4 w-full sm:w-auto px-10 py-4 text-xs tracking-[0.3em] uppercase font-medium"
           >
             Reserve a Test Ride
           </Link>

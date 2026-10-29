@@ -19,8 +19,7 @@ type ButtonAsLink = ButtonBaseProps & { href: string; className?: string; childr
 type ButtonProps = ButtonAsButton | ButtonAsLink;
 
 const variants: Record<ButtonVariant, string> = {
-  primary:
-    "bg-[#78BE20] text-black hover:bg-[#5a9018] active:scale-[0.97] btn-electric",
+  primary: "btn-primary active:scale-[0.97]",
   secondary:
     "border border-white/20 text-white hover:border-white/50 active:scale-[0.97]",
   outline:

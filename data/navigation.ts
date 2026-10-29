@@ -18,6 +18,7 @@ export interface NavItem {
   href: string;
   hasMega?: boolean;
   megaItems?: MegaMenuItem[];
+  mobileOnly?: boolean; // in the phone menu, not the desktop header
 }
 
 export const navItems: NavItem[] = [
@@ -48,6 +49,16 @@ export const navItems: NavItem[] = [
   {
     label: "Company",
     href: "/about",
+  },
+  {
+    label: "Dealers",
+    href: "/dealers",
+    mobileOnly: true,
+  },
+  {
+    label: "Configure",
+    href: "/configurator",
+    mobileOnly: true,
   },
 ];
 

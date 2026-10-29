@@ -140,7 +140,7 @@ export default function OwnersPage() {
               <div className="pt-2">
                 <button
                   type="submit"
-                  className="bg-[#78BE20] text-black text-[11px] uppercase tracking-[0.2em] font-semibold px-8 py-4 hover:bg-[#8fd424] transition-colors duration-200"
+                  className="btn-primary text-[11px] uppercase tracking-[0.2em] font-semibold px-8 py-4"
                 >
                   Send Message
                 </button>

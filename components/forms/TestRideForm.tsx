@@ -356,7 +356,7 @@ export default function TestRideForm() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-4 bg-[#78BE20] text-black font-display text-sm uppercase tracking-widest hover:bg-[#5a9018] transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+                  className="btn-primary w-full py-4 font-display text-sm uppercase tracking-widest flex items-center justify-center gap-3"
                 >
                   {loading ? (
                     <>

@@ -160,7 +160,7 @@ export default function ContactForm() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#78BE20] text-black text-[11px] tracking-[0.3em] uppercase font-medium py-4 hover:bg-white transition-colors duration-200 disabled:opacity-50"
+            className="btn-primary w-full text-[11px] tracking-[0.3em] uppercase font-medium py-4"
           >
             {loading ? "Sending..." : "Send Enquiry"}
           </button>

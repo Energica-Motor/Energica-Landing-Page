@@ -710,7 +710,7 @@ export default function TechContent() {
             <p className="text-white/60 text-base">Get in touch. We&apos;ll connect you with the right person.</p>
           </div>
           <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto flex-shrink-0">
-            <Link href="/contact" className="px-8 py-4 bg-[#78BE20] text-black font-display text-sm uppercase tracking-widest hover:bg-[#5a9018] transition-colors duration-200 text-center">
+            <Link href="/contact" className="btn-primary px-8 py-4 font-display text-sm uppercase tracking-widest text-center">
               Contact Us
             </Link>
             <Link href="/models" className="px-8 py-4 border border-white/20 text-white font-display text-sm uppercase tracking-widest hover:border-white/50 transition-colors duration-200 text-center">
