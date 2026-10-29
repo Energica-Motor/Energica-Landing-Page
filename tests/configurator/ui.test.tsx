@@ -48,6 +48,26 @@ describe("step tabs", () => {
     expect(within(tabs[0]).getByText("1 SELECTED")).toBeTruthy();
     expect(within(tabs[1]).getByText("OPTIONAL")).toBeTruthy();
   });
+
+  it("fades only the sides with tabs hidden past them", () => {
+    render(<StepTabs steps={["Colour", "Performance", "Wheels", "Carbon", "Seat", "Upgrades"].map((label) => ({ label }))} counts={[1, 1, 1, 0, 1, 0]} active={0} onPick={() => {}} />);
+    const row = screen.getByRole("tablist");
+    const fade = (side: string) => screen.getByTestId(`tabs-fade-${side}`).style.opacity;
+    const layout = (scrollWidth: number, scrollLeft: number) => {
+      Object.defineProperty(row, "clientWidth", { configurable: true, value: 400 });
+      Object.defineProperty(row, "scrollWidth", { configurable: true, value: scrollWidth });
+      row.scrollLeft = scrollLeft;
+      fireEvent.scroll(row);
+    };
+    layout(400, 0);
+    expect([fade("left"), fade("right")]).toEqual(["0", "0"]);
+    layout(500, 0);
+    expect([fade("left"), fade("right")]).toEqual(["0", "1"]);
+    layout(500, 50);
+    expect([fade("left"), fade("right")]).toEqual(["1", "1"]);
+    layout(500, 100);
+    expect([fade("left"), fade("right")]).toEqual(["1", "0"]);
+  });
 });
 
 describe("action bar", () => {

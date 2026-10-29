@@ -56,9 +56,26 @@ export function ModelTabs({ active, onPick, step, steps }: { active: Model; onPi
 // ── Step tabs ───────────────────────────────────────────────────────────────
 
 // Tabs keep their full label and the row scrolls sideways when they don't fit
-// (Ego's six steps); the active tab is kept in view.
+// (Ego's six steps); the active tab is kept in view, and a fade marks each
+// side with tabs hidden past it.
+const fadeBase: CSSProperties = { position: "absolute", top: 0, bottom: 1, width: 32, pointerEvents: "none", transition: "opacity 120ms ease" };
+
 export function StepTabs({ steps, counts, active, onPick }: { steps: { label: string }[]; counts: number[]; active: number; onPick: (i: number) => void }) {
   const rowRef = useRef<HTMLDivElement>(null);
+  const [hidden, setHidden] = useState({ left: false, right: false });
+  const updateHidden = () => {
+    const row = rowRef.current;
+    if (!row) return;
+    const left = row.scrollLeft > 1, right = row.scrollLeft + row.clientWidth < row.scrollWidth - 1;
+    setHidden((h) => (h.left === left && h.right === right ? h : { left, right }));
+  };
+  useEffect(() => {
+    const row = rowRef.current;
+    if (!row || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(updateHidden);
+    ro.observe(row);
+    return () => ro.disconnect();
+  }, []);
   useEffect(() => {
     const row = rowRef.current;
     const tab = row?.children[active] as HTMLElement | undefined;
@@ -66,31 +83,36 @@ export function StepTabs({ steps, counts, active, onPick }: { steps: { label: st
     // Scrolls the row only, never the page
     if (tab.offsetLeft < row.scrollLeft) row.scrollLeft = tab.offsetLeft;
     else if (tab.offsetLeft + tab.offsetWidth > row.scrollLeft + row.clientWidth) row.scrollLeft = tab.offsetLeft + tab.offsetWidth - row.clientWidth;
+    updateHidden();
   }, [active, counts.join()]); // eslint-disable-line react-hooks/exhaustive-deps -- counts change the tab widths
   return (
-    <div ref={rowRef} role="tablist" aria-label="Steps" className="cfg-scroll" style={{ display: "flex", flex: "none", borderBottom: BORDER.idle, position: "relative" }}>
-      {steps.map((s, i) => {
-        const on = i === active;
-        return (
-          <button
-            key={s.label}
-            type="button"
-            role="tab"
-            aria-selected={on}
-            onClick={() => onPick(i)}
-            className="cfg-tab"
-            style={{ ...tabBase, padding: "12px 10px 9px", gap: 3, minWidth: 72, borderBottom: `3px solid ${on ? COLOR.green : "transparent"}` }}
-          >
-            <span style={monoLabel(10, 0.1)}>{String(i + 1).padStart(2, "0")}</span>
-            <span style={{ fontFamily: FONT.display, fontWeight: 600, fontSize: 15, lineHeight: 1.15, letterSpacing: "0.02em", textTransform: "uppercase", color: on ? COLOR.text : COLOR.label, maxWidth: 120, overflowWrap: "normal" }}>
-              {s.label}
-            </span>
-            <span style={{ ...monoLabel(9, 0.08, COLOR.greenText), whiteSpace: "nowrap" }}>
-              {counts[i] ? `${counts[i]} SELECTED` : "OPTIONAL"}
-            </span>
-          </button>
-        );
-      })}
+    <div style={{ position: "relative", flex: "none" }}>
+      <div ref={rowRef} role="tablist" aria-label="Steps" className="cfg-scroll" onScroll={updateHidden} style={{ display: "flex", borderBottom: BORDER.idle, position: "relative" }}>
+        {steps.map((s, i) => {
+          const on = i === active;
+          return (
+            <button
+              key={s.label}
+              type="button"
+              role="tab"
+              aria-selected={on}
+              onClick={() => onPick(i)}
+              className="cfg-tab"
+              style={{ ...tabBase, padding: "12px 10px 9px", gap: 3, minWidth: 72, borderBottom: `3px solid ${on ? COLOR.green : "transparent"}` }}
+            >
+              <span style={monoLabel(10, 0.1)}>{String(i + 1).padStart(2, "0")}</span>
+              <span style={{ fontFamily: FONT.display, fontWeight: 600, fontSize: 15, lineHeight: 1.15, letterSpacing: "0.02em", textTransform: "uppercase", color: on ? COLOR.text : COLOR.label, maxWidth: 120, overflowWrap: "normal" }}>
+                {s.label}
+              </span>
+              <span style={{ ...monoLabel(9, 0.08, COLOR.greenText), whiteSpace: "nowrap" }}>
+                {counts[i] ? `${counts[i]} SELECTED` : "OPTIONAL"}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+      <div aria-hidden data-testid="tabs-fade-left" style={{ ...fadeBase, left: 0, opacity: hidden.left ? 1 : 0, background: `linear-gradient(to right, ${COLOR.white}, transparent)` }} />
+      <div aria-hidden data-testid="tabs-fade-right" style={{ ...fadeBase, right: 0, opacity: hidden.right ? 1 : 0, background: `linear-gradient(to left, ${COLOR.white}, transparent)` }} />
     </div>
   );
 }
