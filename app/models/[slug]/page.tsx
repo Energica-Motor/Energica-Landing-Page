@@ -7,6 +7,7 @@ import ColorSelector from "@/components/models/ColorSelector";
 import GalleryGrid from "@/components/models/GalleryGrid";
 import SpecsAccordion from "@/components/models/SpecsAccordion";
 import NextModelCTA from "@/components/models/NextModelCTA";
+import ModelClosingActions from "@/components/models/ModelClosingActions";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
@@ -99,6 +100,7 @@ export default async function ModelPage({ params }: PageProps) {
 
       {/* § 7 — Next model CTA */}
       {nextModel && <NextModelCTA nextModel={nextModel} />}
+      <ModelClosingActions modelId={model.id} modelName={model.name} />
     </main>
   );
 }

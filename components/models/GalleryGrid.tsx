@@ -20,7 +20,9 @@ export default function GalleryGrid({
 
   useGSAP(
     () => {
-      reveal(".gg-cell", { y: 20, stagger: 0.08, trigger: gridRef.current });
+      // Fade only: a vertical offset staggered across a row left the
+      // second-row cells briefly out of line with each other
+      reveal(".gg-cell", { stagger: 0.08, trigger: gridRef.current });
     },
     { scope: gridRef }
   );

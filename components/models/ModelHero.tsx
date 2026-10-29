@@ -43,12 +43,14 @@ export default function ModelHero({ model }: ModelHeroProps) {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full h-screen min-h-[680px] bg-[#0a0a0a] flex items-center overflow-hidden pt-20"
+      // Phones and small tablets stack the bike above the text; from md the
+      // bike sits to the right of it
+      className="relative w-full bg-[#0a0a0a] flex flex-col pt-24 pb-12 md:pb-0 md:flex-row md:items-center md:h-screen md:min-h-[680px] overflow-hidden md:pt-20"
     >
       {/* ── Radial glow behind the bike ─────────────────────── */}
       <div
         aria-hidden
-        className="absolute right-0 top-1/2 -translate-y-1/2 w-[65vw] h-[90vh] pointer-events-none"
+        className="absolute right-0 top-1/2 -translate-y-1/2 w-[65vw] h-[90vh] pointer-events-none hidden md:block"
         style={{
           background: `radial-gradient(ellipse at 75% 50%, ${model.colors[0]?.hex ?? "#78BE20"}18 0%, transparent 60%)`,
         }}
@@ -57,7 +59,7 @@ export default function ModelHero({ model }: ModelHeroProps) {
       {/* ── Ghost watermark name ─────────────────────────────── */}
       <div
         aria-hidden
-        className="absolute inset-0 overflow-hidden pointer-events-none select-none"
+        className="absolute inset-0 overflow-hidden pointer-events-none select-none hidden md:block"
         style={{ left: "42%" }}
       >
         <span
@@ -69,25 +71,20 @@ export default function ModelHero({ model }: ModelHeroProps) {
       </div>
 
       {/* ── Bike image ──────────────────────────────────────── */}
-      <div className="mh-bike absolute right-0 top-1/2 -translate-y-1/2 w-[80vw] sm:w-[65vw] md:w-[55vw] max-w-[860px] h-[60vh] md:h-[72vh] pointer-events-none will-change-transform">
+      <div className="mh-bike relative w-full aspect-[16/10] mb-6 md:mb-0 md:absolute md:right-0 md:top-1/2 md:-translate-y-1/2 md:w-[55vw] md:max-w-[860px] md:h-[72vh] md:aspect-auto pointer-events-none will-change-transform">
         <Photo
           src={model.heroImage}
           alt={`${model.name} motorcycle`}
           priority
-          className="object-contain object-right"
-          sizes="(max-width: 640px) 80vw, (max-width: 1024px) 65vw, 55vw"
+          className="object-contain object-center md:object-right"
+          sizes="(max-width: 767px) 100vw, 55vw"
         />
       </div>
 
-      {/* ── Gradient overlay — protects text on mobile ───────── */}
+      {/* ── Gradient overlay — protects the text beside the bike (md+) ── */}
       <div
         aria-hidden
-        className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/90 md:via-[#0a0a0a]/60 to-transparent pointer-events-none z-[1]"
-      />
-      {/* Extra bottom gradient on mobile to protect stats/CTAs */}
-      <div
-        aria-hidden
-        className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-[#0a0a0a] to-transparent pointer-events-none z-[1] md:hidden"
+        className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/60 to-transparent pointer-events-none z-[1] hidden md:block"
       />
 
       {/* ── Vertical accent line (large screens) ────────────── */}
@@ -148,11 +145,12 @@ export default function ModelHero({ model }: ModelHeroProps) {
               Configure
             </SecondaryButton>
           )}
+          <SecondaryButton href="/dealers" className="mh-cta">Find a Dealer</SecondaryButton>
         </div>
       </div>
 
       {/* ── Scroll hint ─────────────────────────────────────── */}
-      <div className="mh-scroll absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
+      <div className="mh-scroll absolute bottom-8 left-1/2 -translate-x-1/2 hidden md:flex flex-col items-center gap-2">
         <span className="text-[9px] uppercase tracking-[0.3em] text-white/60">Scroll</span>
         <div className="w-px h-8 bg-white/15 relative overflow-hidden">
           <div className="absolute inset-x-0 top-0 h-full bg-[linear-gradient(to_bottom,#009246_0%,#009246_33%,#F1F2F1_33%,#F1F2F1_66%,#CE2B37_66%,#CE2B37_100%)] scroll-indicator-line" />

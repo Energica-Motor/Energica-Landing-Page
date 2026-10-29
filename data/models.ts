@@ -1,6 +1,7 @@
 export interface ColorOption {
   name: string;
-  hex: string;
+  hex: string; // swatch colour, the same as the configurator's (components/configurator/config.ts)
+  stripes?: string[]; // multi-colour swatch (Tricolore), drawn as vertical stripes
   image: string;
 }
 
@@ -122,17 +123,17 @@ export const models: BikeModel[] = [
     colors: [
       {
         name: "Bormio ICE",
-        hex: "#8BB8D4",
+        hex: "#DCE2E5",
         image: "/images/Pagina%20Experia/EXPERIA_Bormio%20Ice.webp",
       },
       {
         name: "White Flame",
-        hex: "#F5F0E8",
+        hex: "#F5F5F2",
         image: "/images/Pagina%20Experia/EXPERIA_White%20Flame.webp",
       },
       {
         name: "Metal Black",
-        hex: "#1a1a1a",
+        hex: "#1C1D1F",
         image: "/images/Pagina%20Experia/EXPERIA_Metal%20Black.webp",
       },
     ],
@@ -214,17 +215,17 @@ export const models: BikeModel[] = [
     colors: [
       {
         name: "Bormio ICE",
-        hex: "#8BB8D4",
+        hex: "#DCE2E5",
         image: "/images/Pagina%20SS9/EsseEsse9%20RS_Bormio%20Ice.webp",
       },
       {
         name: "Sunrise Red",
-        hex: "#CC2200",
+        hex: "#C8262C",
         image: "/images/Pagina%20SS9/EsseEsse9%20RS_Sunrise%20Red.webp",
       },
       {
         name: "Riviera Green",
-        hex: "#2E7D6E",
+        hex: "#1F5B47",
         image: "/images/Pagina%20SS9/EsseEsse9%20RS_Riviera%20Green.webp",
       },
     ],
@@ -297,17 +298,18 @@ export const models: BikeModel[] = [
     colors: [
       {
         name: "Stealth Grey",
-        hex: "#4A4A52",
+        hex: "#4E5257",
         image: "/images/Pagina%20Eva/EVA%20Ribelle%20RS_Stealth%20Grey.webp",
       },
       {
         name: "Rosso Corsa",
-        hex: "#CC0000",
+        hex: "#B3121F",
         image: "/images/Pagina%20Eva/EVA%20Ribelle%20RS_Rosso%20Corsa.webp",
       },
       {
         name: "Tricolore",
         hex: "#009246",
+        stripes: ["#009246", "#F1F2F1", "#CE2B37"],
         image: "/images/Pagina%20Eva/EVA%20Ribelle%20RS_Tricolore.webp",
       },
     ],
@@ -380,17 +382,18 @@ export const models: BikeModel[] = [
     colors: [
       {
         name: "Metal Black",
-        hex: "#1a1a1a",
+        hex: "#1C1D1F",
         image: "/images/Pagina%20EGO/EGO%20RS_Metal%20Black.webp",
       },
       {
         name: "Rosso Corsa",
-        hex: "#CC0000",
+        hex: "#B3121F",
         image: "/images/Pagina%20EGO/EGO%20RS_Rosso%20Corsa.webp",
       },
       {
         name: "Tricolore",
         hex: "#009246",
+        stripes: ["#009246", "#F1F2F1", "#CE2B37"],
         image: "/images/Pagina%20EGO/EGO%20RS_Tricolore.webp",
       },
     ],
