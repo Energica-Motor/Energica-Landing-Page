@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Container } from "@/components/ui/Container";
-import { PrimaryButton, SecondaryButton } from "@/components/ui/Button";
+import { PrimaryButton } from "@/components/ui/Button";
 
 export const metadata: Metadata = {
   title: "Press & Media | Energica Motor Company",
@@ -19,16 +19,12 @@ export default function PressPage() {
           className="font-display text-white leading-none mb-6"
           style={{ fontSize: "clamp(60px, 10vw, 140px)" }}
         >
-          Coming Soon.
+          Press &amp; Media
         </h1>
         <p className="text-white/60 text-[length:var(--text-body)] max-w-[750px] leading-relaxed mb-[32px]">
-          Our press section is being prepared. For media enquiries, press releases,
-          or high-resolution assets, please contact us directly.
+          For media enquiries, press releases, or high-resolution assets, please contact us directly.
         </p>
-        <div className="flex flex-wrap gap-4">
-          <PrimaryButton href="mailto:press@energicamotor.com">Contact Press Office</PrimaryButton>
-          <SecondaryButton href="/">Back Home</SecondaryButton>
-        </div>
+        <PrimaryButton href="/contact">Contact Us</PrimaryButton>
       </Container>
     </main>
   );
