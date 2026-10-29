@@ -234,6 +234,32 @@ export function summarise(options: { id: string; name: string; groupKey: string 
   return { count, countLabel: `${count} ${count === 1 ? "SELECTION" : "SELECTIONS"}`, text: names.join(" · ") };
 }
 
+/**
+ * One line naming chosen options a colour change removed and the colour they
+ * need ("Titanium Grey finish removed: only available on Bormio Ice."), or
+ * null when nothing was removed. `prev` and `next` come from toggleLayer.
+ */
+export function colourRemovalNotice(cfg: ConfigSchema, prev: Layers, next: Layers): string | null {
+  const colours = cfg.groups.base_color ?? [];
+  const byId = new Map(cfg.layers.map((l) => [l.id, l]));
+  const colourName = (id: string) => cleanLayerName(byId.get(id)!, "base_color").title;
+  // The colour a dependency asks for, or the colours an incompatibility leaves
+  const needs = (id: string) => {
+    const required = deps(cfg, id).filter((d) => colours.includes(d));
+    const clash = cfg.rules.incompatibilities?.[id] ?? [];
+    return (required.length ? required : colours.filter((c) => !clash.includes(c))).filter((c) => byId.has(c)).map(colourName).join(" or ");
+  };
+  const removed = selectedOptions(cfg, prev).filter((o) => o.groupKey !== "base_color" && !next.has(o.id) && needs(o.id));
+  if (!removed.length) return null;
+  const where = needs(removed[0].id);
+  const names = removed.filter((o) => needs(o.id) === where).map((o, i) => {
+    const { title } = cleanLayerName(o, o.groupKey);
+    if (o.groupKey === "bellypan") return i ? "bellypan" : "Bellypan";
+    return o.groupKey === "cnc_options" ? `${title} finish` : title;
+  });
+  return `${names.join(" and ")} removed: only available on ${where}.`;
+}
+
 /** Number of chosen options per step, for the step tabs. */
 export function stepCounts(options: { groupKey: string }[], steps: StepDef[]) {
   return steps.map((s) => options.filter((o) => s.groups.includes(o.groupKey)).length);

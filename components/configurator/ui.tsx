@@ -55,9 +55,20 @@ export function ModelTabs({ active, onPick, step, steps }: { active: Model; onPi
 
 // ── Step tabs ───────────────────────────────────────────────────────────────
 
+// Tabs keep their full label and the row scrolls sideways when they don't fit
+// (Ego's six steps); the active tab is kept in view.
 export function StepTabs({ steps, counts, active, onPick }: { steps: { label: string }[]; counts: number[]; active: number; onPick: (i: number) => void }) {
+  const rowRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const row = rowRef.current;
+    const tab = row?.children[active] as HTMLElement | undefined;
+    if (!row || !tab) return;
+    // Scrolls the row only, never the page
+    if (tab.offsetLeft < row.scrollLeft) row.scrollLeft = tab.offsetLeft;
+    else if (tab.offsetLeft + tab.offsetWidth > row.scrollLeft + row.clientWidth) row.scrollLeft = tab.offsetLeft + tab.offsetWidth - row.clientWidth;
+  }, [active, counts.join()]); // eslint-disable-line react-hooks/exhaustive-deps -- counts change the tab widths
   return (
-    <div role="tablist" aria-label="Steps" className="cfg-scroll" style={{ display: "grid", gridTemplateColumns: `repeat(${steps.length}, minmax(72px, 1fr))`, borderBottom: BORDER.idle }}>
+    <div ref={rowRef} role="tablist" aria-label="Steps" className="cfg-scroll" style={{ display: "flex", flex: "none", borderBottom: BORDER.idle, position: "relative" }}>
       {steps.map((s, i) => {
         const on = i === active;
         return (
@@ -67,10 +78,11 @@ export function StepTabs({ steps, counts, active, onPick }: { steps: { label: st
             role="tab"
             aria-selected={on}
             onClick={() => onPick(i)}
-            style={{ ...tabBase, padding: "12px 8px 9px", gap: 3, minWidth: 0, borderBottom: `3px solid ${on ? COLOR.green : "transparent"}` }}
+            className="cfg-tab"
+            style={{ ...tabBase, padding: "12px 10px 9px", gap: 3, minWidth: 72, borderBottom: `3px solid ${on ? COLOR.green : "transparent"}` }}
           >
             <span style={monoLabel(10, 0.1)}>{String(i + 1).padStart(2, "0")}</span>
-            <span style={{ fontFamily: FONT.display, fontWeight: 600, fontSize: 15, letterSpacing: "0.04em", textTransform: "uppercase", color: on ? COLOR.text : COLOR.label, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "100%" }}>
+            <span style={{ fontFamily: FONT.display, fontWeight: 600, fontSize: 15, lineHeight: 1.15, letterSpacing: "0.02em", textTransform: "uppercase", color: on ? COLOR.text : COLOR.label, maxWidth: 120, overflowWrap: "normal" }}>
               {s.label}
             </span>
             <span style={{ ...monoLabel(9, 0.08, COLOR.greenText), whiteSpace: "nowrap" }}>
@@ -202,6 +214,7 @@ export interface ActionBarProps {
   pdfLabel: string;
   pdfDisabled: boolean;
   linkDisabled: boolean;
+  flash?: number; // each increase briefly highlights the build summary ("Review build")
   onReset: () => void;
   onCopy: () => void;
   onPdf: () => void;
@@ -230,9 +243,22 @@ export function ActionBar(p: ActionBarProps) {
   }, [menuOpen]);
   const fromMenu = (action: () => void) => () => { setMenuOpen(false); action(); };
 
+  // The bar is always on screen, so reviewing only highlights and focuses it
+  const infoRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const info = infoRef.current;
+    if (!p.flash || !info) return;
+    info.classList.remove("cfg-flash");
+    void info.offsetWidth; // restart the animation
+    info.classList.add("cfg-flash");
+    info.focus({ preventScroll: true });
+    const t = setTimeout(() => info.classList.remove("cfg-flash"), 1600);
+    return () => clearTimeout(t);
+  }, [p.flash]);
+
   return (
     <div className="cfg-actionbar" style={{ position: "sticky", bottom: 0, zIndex: 20, background: COLOR.dark, color: COLOR.white, padding: "14px 32px", display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: "14px 24px", borderTop: `1px solid ${COLOR.darkRule}` }}>
-      <div className="cfg-bar-info" style={{ display: "flex", flexDirection: "column", gap: 4, flex: "1 1 360px", minWidth: 0 }}>
+      <div ref={infoRef} tabIndex={-1} data-testid="build-info" role="group" aria-label={`Your build: ${p.countLabel}. ${p.summary}`} className="cfg-bar-info" style={{ display: "flex", flexDirection: "column", gap: 4, flex: "1 1 360px", minWidth: 0, outline: "none", margin: "-4px -8px", padding: "4px 8px" }}>
         <span style={monoLabel(10, 0.14, COLOR.onDark)}>
           <span className="cfg-bar-prefix">YOUR BUILD · </span>
           <span data-testid="selection-count" style={{ color: COLOR.green }}>{p.countLabel}</span>

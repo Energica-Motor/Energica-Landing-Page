@@ -16,15 +16,17 @@ export default async function ConfiguratorPage({
 }) {
   // ?build=<code> restores a saved build (short links); ?model=<id> (from a
   // model page's "Configure" button) opens that model; otherwise the default.
+  // A build code that can't be found opens the standard bike with a notice.
   const params = await searchParams;
   const first = (v?: string | string[]) => (Array.isArray(v) ? v[0] : v);
 
-  const build = first(params.build) ? await loadBuild(first(params.build)!) : null;
+  const code = first(params.build);
+  const build = code ? await loadBuild(code) : null;
   if (build && isConfiguratorModel(build.model)) {
     return <ConfiguratorShell initialModel={build.model} initialLayers={build.layers} />;
   }
 
   const requested = first(params.model);
   const initialModel = isConfiguratorModel(requested) ? requested : undefined;
-  return <ConfiguratorShell initialModel={initialModel} />;
+  return <ConfiguratorShell initialModel={initialModel} buildNotFound={!!code} />;
 }

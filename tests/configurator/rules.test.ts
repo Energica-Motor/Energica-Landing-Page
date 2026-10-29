@@ -181,6 +181,48 @@ describe("step mapping", () => {
   it("skips steps with no groups for the model", () => {
     expect(STEP_MAP.experia.map((s) => s.label)).not.toContain("Performance");
   });
+
+  it("gives Experia four steps, with the ergal screws under Upgrades", () => {
+    const steps = rules.buildSteps("experia", Object.keys(CONFIGS.experia.groups));
+    expect(steps.map((s) => [s.label, s.groups])).toEqual([
+      ["Colour", ["base_color"]],
+      ["Wheels", ["wheels"]],
+      ["Bodywork", ["front_fender", "windscreen"]],
+      ["Upgrades", ["optional_upgrades", "ergal_screws"]],
+    ]);
+  });
+
+  it("gives Ego six steps", () => {
+    expect(rules.buildSteps("ego", Object.keys(CONFIGS.ego.groups))).toHaveLength(6);
+  });
+});
+
+describe("bellypan names and colour-change notices", () => {
+  const cfg = CONFIGS.essesse9;
+  const titles = (set: Set<string>) => rules.sectionsFor(cfg, set).find((x) => x.key === "bellypan")?.options.map((o) => o.title);
+
+  it("names each bellypan card by colour and stripe", () => {
+    let s = rules.initialLayers(cfg);
+    expect(titles(s)).toEqual(["Bormio Ice, grey stripes", "Bormio Ice, yellow stripes"]);
+    s = click(cfg, s, "es_13_esseesse9_sunrise_red");
+    expect(titles(s)).toEqual(["Sunrise Red, grey stripes", "Sunrise Red, yellow stripes"]);
+    s = click(cfg, s, "es_14_esseesse9_riviera_green");
+    expect(titles(s)).toEqual(["Riviera Green, grey stripes", "Riviera Green, yellow stripes"]);
+  });
+
+  it("says which colour a removed option needs", () => {
+    let s = click(cfg, rules.initialLayers(cfg), "es_02_cnc_titanium_grey");
+    const red = click(cfg, s, "es_13_esseesse9_sunrise_red");
+    expect(rules.colourRemovalNotice(cfg, s, red)).toBe("Titanium Grey finish removed: only available on Bormio Ice.");
+
+    s = click(cfg, red, "es_23_bellypan_sunrise_red_grey_stripes");
+    const green = click(cfg, s, "es_14_esseesse9_riviera_green");
+    expect(rules.colourRemovalNotice(cfg, s, green)).toBe("Bellypan removed: only available on Sunrise Red.");
+
+    // Nothing dependent chosen: no notice
+    const plain = rules.initialLayers(cfg);
+    expect(rules.colourRemovalNotice(cfg, plain, click(cfg, plain, "es_13_esseesse9_sunrise_red"))).toBeNull();
+  });
 });
 
 describe("summary", () => {

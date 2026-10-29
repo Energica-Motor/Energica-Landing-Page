@@ -44,8 +44,7 @@ export const STEP_MAP: Record<Model, StepDef[]> = {
     { label: "Colour", groups: ["base_color"] },
     { label: "Wheels", groups: ["wheels"] },
     { label: "Bodywork", groups: ["front_fender", "windscreen"] },
-    { label: "Details", groups: ["ergal_screws"] },
-    { label: "Upgrades", groups: ["optional_upgrades"] },
+    { label: "Upgrades", groups: ["optional_upgrades", "ergal_screws"] },
   ],
 };
 
@@ -104,5 +103,9 @@ export function cleanLayerName(layer: { id: string; name: string }, groupKey: st
   if (!row) return { title: layer.name, description: "" };
   if (row.label === "COLOURWAY") return { title: row.title.replace(/ livery$/, ""), description: "" };
   if (row.label === "VERSION") return { title: `${row.title} version`, description: row.description };
+  // Bellypans share a title per colour in the catalog (PDF and email keep it);
+  // the cards need the stripe colour to tell them apart.
+  const belly = row.label === "BELLYPAN" && row.description.match(/^Bellypan in (.+) with (grey|yellow) stripes\.$/);
+  if (belly) return { title: `${belly[1]}, ${belly[2]} stripes`, description: row.description };
   return { title: row.title, description: row.description };
 }
