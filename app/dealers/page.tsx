@@ -14,8 +14,11 @@ interface Dealer {
   type: "Importer" | "Dealer";
   country: string;
   address?: string;
-  mapsQuery: string;
 }
+
+// Google Maps search for the dealer's own name and address
+const mapUrl = (d: Dealer) =>
+  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${d.name}, ${d.address}, ${d.country}`)}`;
 
 const regions: { region: string; dealers: Dealer[] }[] = [
   {
@@ -25,42 +28,36 @@ const regions: { region: string; dealers: Dealer[] }[] = [
         name: "Future Mobility",
         type: "Importer",
         country: "Belgium",
-        mapsQuery: "Future+Mobility+Belgium",
       },
       {
         name: "Infidel j.d.o.o.",
         type: "Importer",
         country: "Croatia",
         address: "ul. Vukovarska 99, 21000 Split",
-        mapsQuery: "ul.+Vukovarska+99+21000+Split+Croatia",
       },
       {
         name: "Alwin Otten",
         type: "Dealer",
         country: "Germany",
         address: "Industriestr. 22, 49716 Meppen",
-        mapsQuery: "Industriestr.+22+49716+Meppen+Germany",
       },
       {
         name: "Autohaus Richter & Zech GmbH",
         type: "Dealer",
         country: "Germany",
         address: "Richtweg 55, 90530 Wendelstein",
-        mapsQuery: "Richtweg+55+90530+Wendelstein+Germany",
       },
       {
         name: "Ramsperger Automobile GmbH & Co. KG",
         type: "Dealer",
         country: "Germany",
         address: "Robert-Bosch-Str. 9-11, 72622 Nuertingen",
-        mapsQuery: "Robert-Bosch-Str.+9+72622+Nuertingen+Germany",
       },
       {
         name: "Mob'Elec 83",
         type: "Dealer",
         country: "France",
         address: "470 avenue Colonel Picot, 83100 Toulon",
-        mapsQuery: "470+avenue+Colonel+Picot+83100+Toulon+France",
       },
     ],
   },
@@ -72,14 +69,16 @@ const regions: { region: string; dealers: Dealer[] }[] = [
         type: "Importer",
         country: "Hong Kong",
         address: "B3 G/F, Superluck Industrial Centre Phase 2, 30-38 Tai Chung Rd, Tsuen Wan",
-        mapsQuery: "30+Tai+Chung+Rd+Tsuen+Wan+Hong+Kong",
       },
     ],
   },
 ];
 
 export default function DealersPage() {
+  // Counts worked out from the dealer list
   const totalDealers = regions.reduce((n, r) => n + r.dealers.length, 0);
+  const totalRegions = regions.filter((r) => r.dealers.length).length;
+  const totalCountries = new Set(regions.flatMap((r) => r.dealers.map((d) => d.country))).size;
 
   return (
     <main className="min-h-screen bg-[#0a0a0a] pt-20">
@@ -145,14 +144,16 @@ export default function DealersPage() {
 
                       {/* Actions */}
                       <div className="flex gap-3 mt-auto pt-3 border-t border-white/[0.04]">
-                        <a
-                          href={`https://maps.google.com/?q=${dealer.mapsQuery}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-[9px] uppercase tracking-widest text-[#78BE20]/70 hover:text-[#78BE20] transition-colors"
-                        >
-                          View on Map →
-                        </a>
+                        {dealer.address && (
+                          <a
+                            href={mapUrl(dealer)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[9px] uppercase tracking-widest text-[#78BE20]/70 hover:text-[#78BE20] transition-colors"
+                          >
+                            View on Map →
+                          </a>
+                        )}
                         <Link
                           href="/test-ride"
                           className="text-[9px] uppercase tracking-widest text-white/65 hover:text-white transition-colors ml-auto"
@@ -211,7 +212,7 @@ export default function DealersPage() {
 
                 {/* Stats */}
                 <div className="flex gap-6 mt-4">
-                  {[["2", "Regions"], [totalDealers.toString(), "Locations"], ["3", "Countries"]].map(([val, lbl]) => (
+                  {[[totalRegions.toString(), "Regions"], [totalDealers.toString(), "Locations"], [totalCountries.toString(), "Countries"]].map(([val, lbl]) => (
                     <div key={lbl} className="text-center">
                       <p className="font-display text-2xl text-white">{val}</p>
                       <p className="text-[9px] uppercase tracking-widest text-white/65">{lbl}</p>

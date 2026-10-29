@@ -162,7 +162,11 @@ export default function RechargeShell() {
   const turnstileToken = useRef("");
   const cardRef = useRef<HTMLDivElement>(null);
 
+  // Bring the form card into view when the step changes — not on first
+  // load, which used to open the page scrolled past the hero
+  const stepShown = useRef(false);
   useEffect(() => {
+    if (!stepShown.current) { stepShown.current = true; return; }
     cardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [step]);
 
@@ -365,17 +369,17 @@ export default function RechargeShell() {
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
         </a>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-0 max-w-[640px] mt-16 pt-10 border-t border-white/[0.07]">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-0 max-w-[740px] mt-16 pt-10 border-t border-white/[0.07]">
           <div className="sm:pr-8 sm:border-r border-white/[0.07] pb-6 sm:pb-0 border-b sm:border-b-0 border-white/[0.07]">
-            <div className="font-[var(--font-barlow)] font-semibold text-[32px] sm:text-[40px] leading-none">~<span className="text-[#78BE20]">90</span>s</div>
+            <div className="font-[var(--font-barlow)] font-semibold text-[32px] sm:text-[40px] leading-none whitespace-nowrap">~<span className="text-[#78BE20]">90</span>s</div>
             <div className="mt-2 font-[var(--font-ibm-mono)] text-[11px] uppercase tracking-[0.08em] text-white/40">To your indicative offer</div>
           </div>
           <div className="sm:px-8 sm:border-r border-white/[0.07] pb-6 sm:pb-0 border-b sm:border-b-0 border-white/[0.07]">
-            <div className="font-[var(--font-barlow)] font-semibold text-[32px] sm:text-[40px] leading-none"><span className="text-[#78BE20]">Same</span> day</div>
+            <div className="font-[var(--font-barlow)] font-semibold text-[32px] sm:text-[40px] leading-none whitespace-nowrap"><span className="text-[#78BE20]">Same</span> day</div>
             <div className="mt-2 font-[var(--font-ibm-mono)] text-[11px] uppercase tracking-[0.08em] text-white/40">Evaluation to payment</div>
           </div>
           <div className="sm:pl-8">
-            <div className="font-[var(--font-barlow)] font-semibold text-[32px] sm:text-[40px] leading-none"><span className="text-[#78BE20]">€0</span></div>
+            <div className="font-[var(--font-barlow)] font-semibold text-[32px] sm:text-[40px] leading-none whitespace-nowrap"><span className="text-[#78BE20]">€0</span></div>
             <div className="mt-2 font-[var(--font-ibm-mono)] text-[11px] uppercase tracking-[0.08em] text-white/40">Cost to you</div>
           </div>
         </div>

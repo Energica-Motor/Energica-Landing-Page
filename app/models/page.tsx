@@ -85,7 +85,7 @@ export default function ModelsPage() {
                   </div>
 
                   <p className="text-white/65 text-sm leading-relaxed mb-6 max-w-[750px]">
-                    {model.description.substring(0, 120)}...
+                    {model.description}
                   </p>
 
                   {/* Key specs */}

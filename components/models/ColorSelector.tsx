@@ -67,7 +67,10 @@ export default function ColorSelector({ colors }: ColorSelectorProps) {
                   i === active ? "scale-110" : "group-hover:scale-105"
                 )}
                 style={{
-                  backgroundColor: color.hex,
+                  // Tricolore as three stripes, like the configurator's swatch
+                  background: color.stripes
+                    ? `linear-gradient(to right, ${color.stripes.map((c, k) => `${c} ${(k * 100) / color.stripes!.length}% ${((k + 1) * 100) / color.stripes!.length}%`).join(", ")})`
+                    : color.hex,
                   border: "1px solid rgba(255,255,255,0.12)",
                 }}
               />

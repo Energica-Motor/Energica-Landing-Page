@@ -69,9 +69,10 @@ export default function Cursor() {
       dot.style.transform = `translate(${dotX - 4}px, ${dotY - 4}px)`;
 
       if (!reducedMotion) {
-        // Ring spring lag
-        ringX = lerp(ringX, mouseX, 0.12);
-        ringY = lerp(ringY, mouseY, 0.12);
+        // Ring spring lag — 0.35 of the remaining distance per frame (was
+        // 0.12, which left the ring hundreds of pixels behind the pointer)
+        ringX = lerp(ringX, mouseX, 0.35);
+        ringY = lerp(ringY, mouseY, 0.35);
 
         // Velocity-based scale
         const targetScale = 1 + Math.min(speed * 0.011, 0.45);
