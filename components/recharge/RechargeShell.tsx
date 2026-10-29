@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Script from "next/script";
+import { Photo } from "@/components/ui/Photo";
 import { cn } from "@/lib/utils";
 
 /* ─── Types ────────────────────────────────────────────── */
@@ -162,7 +163,11 @@ export default function RechargeShell() {
   const turnstileToken = useRef("");
   const cardRef = useRef<HTMLDivElement>(null);
 
+  // Bring the form card into view when the step changes — not on first
+  // load, which used to open the page scrolled past the hero
+  const stepShown = useRef(false);
   useEffect(() => {
+    if (!stepShown.current) { stepShown.current = true; return; }
     cardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [step]);
 
@@ -343,17 +348,18 @@ export default function RechargeShell() {
       <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" strategy="lazyOnload" />
 
       {/* HERO */}
-      <header className="ds-container pt-16 sm:pt-24 pb-14 sm:pb-20 border-b border-white/[0.07]">
+      <header className="ds-container pt-16 sm:pt-24 pb-14 sm:pb-20 border-b border-white/[0.07] lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-x-10 lg:items-center">
+        <div>
         <div className="inline-flex items-center gap-2 px-3 py-1.5 border border-white/[0.13] rounded-sm font-[var(--font-ibm-mono)] text-[11px] tracking-[0.14em] uppercase text-white/40 mb-10">
           <span className="w-1.5 h-1.5 rounded-full bg-[#78BE20]" />
           Energica ReCharge — Certified Pre-Owned Programme
         </div>
-        <h1 className="font-[var(--font-barlow)] font-bold uppercase leading-[0.96] tracking-tight text-[44px] sm:text-[64px] lg:text-[88px] max-w-[14ch] mb-8">
+        <h1 className="font-display font-bold uppercase leading-[0.96] text-[length:var(--text-h1)] max-w-[14ch] mb-8">
           Sell your<br />
           <span className="text-[#78BE20]">Energica.</span><br />
           Paid in days.
         </h1>
-        <p className="max-w-[54ch] text-[17px] text-white/55 leading-relaxed font-light mb-11">
+        <p className="max-w-[54ch] text-[length:var(--text-body)] text-white/55 leading-relaxed font-light mb-11">
           The first factory-backed buyback for electric motorcycles. Six questions about your bike, an instant
           indicative offer. We collect the bike, inspect it at our Fiorano facility, and pay you on agreement.
         </p>
@@ -364,18 +370,30 @@ export default function RechargeShell() {
           Get your offer
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
         </a>
+        </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-0 max-w-[640px] mt-16 pt-10 border-t border-white/[0.07]">
+        <div className="relative hidden lg:block aspect-[3/2]">
+          <Photo
+            src="/images/Pagina%20Experia/EXPERIA_Bormio%20Ice.webp"
+            alt="Energica Experia"
+            priority
+            className="object-contain"
+            sizes="(min-width: 1024px) 45vw, 0px"
+          />
+        </div>
+
+        {/* 19. Stats on one baseline: each value stays on one line */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-0 max-w-[720px] mt-16 pt-10 border-t border-white/[0.07] lg:col-span-2">
           <div className="sm:pr-8 sm:border-r border-white/[0.07] pb-6 sm:pb-0 border-b sm:border-b-0 border-white/[0.07]">
-            <div className="font-[var(--font-barlow)] font-semibold text-[32px] sm:text-[40px] leading-none">~<span className="text-[#78BE20]">90</span>s</div>
+            <div className="font-display font-semibold text-[32px] sm:text-[40px] leading-none whitespace-nowrap">~<span className="text-[#78BE20]">90</span>s</div>
             <div className="mt-2 font-[var(--font-ibm-mono)] text-[11px] uppercase tracking-[0.08em] text-white/40">To your indicative offer</div>
           </div>
           <div className="sm:px-8 sm:border-r border-white/[0.07] pb-6 sm:pb-0 border-b sm:border-b-0 border-white/[0.07]">
-            <div className="font-[var(--font-barlow)] font-semibold text-[32px] sm:text-[40px] leading-none"><span className="text-[#78BE20]">Same</span> day</div>
+            <div className="font-display font-semibold text-[32px] sm:text-[40px] leading-none whitespace-nowrap"><span className="text-[#78BE20]">Same</span> day</div>
             <div className="mt-2 font-[var(--font-ibm-mono)] text-[11px] uppercase tracking-[0.08em] text-white/40">Evaluation to payment</div>
           </div>
           <div className="sm:pl-8">
-            <div className="font-[var(--font-barlow)] font-semibold text-[32px] sm:text-[40px] leading-none"><span className="text-[#78BE20]">€0</span></div>
+            <div className="font-display font-semibold text-[32px] sm:text-[40px] leading-none whitespace-nowrap"><span className="text-[#78BE20]">€0</span></div>
             <div className="mt-2 font-[var(--font-ibm-mono)] text-[11px] uppercase tracking-[0.08em] text-white/40">Cost to you</div>
           </div>
         </div>
@@ -385,7 +403,7 @@ export default function RechargeShell() {
       <section className="bg-[#141414] border-b border-white/[0.07] ds-section">
         <div className="ds-container">
           <div className="font-[var(--font-ibm-mono)] text-[11px] tracking-[0.16em] uppercase text-[#78BE20] mb-3">— How it works</div>
-          <h2 className="font-[var(--font-barlow)] font-bold uppercase text-[28px] sm:text-[44px] leading-none mb-12">Four steps.</h2>
+          <h2 className="font-display font-bold uppercase text-[length:var(--text-h2)] leading-none mb-12">Four steps.</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 border border-white/[0.07] rounded-lg overflow-hidden">
             {PROCESS_STEPS.map((s, i) => (
               <div key={s.num} className={cn("p-7 hover:bg-[#1a1a1a] transition-colors", i < 3 && "lg:border-r border-white/[0.07]", i % 2 === 0 && "sm:border-r lg:border-r border-white/[0.07]", i >= 1 && "border-t sm:border-t-0 lg:border-t-0 border-white/[0.07]", i >= 2 && "sm:border-t lg:border-t-0 border-white/[0.07]")}>
@@ -403,7 +421,7 @@ export default function RechargeShell() {
       <section id="offer" className="ds-section px-[var(--container-px)]">
         <div className="max-w-[680px] mx-auto">
           <div className="font-[var(--font-ibm-mono)] text-[11px] tracking-[0.16em] uppercase text-[#78BE20] mb-3">— Valuation</div>
-          <h2 className="font-[var(--font-barlow)] font-bold uppercase text-[28px] sm:text-[44px] leading-none mb-10">Get your offer.</h2>
+          <h2 className="font-display font-bold uppercase text-[length:var(--text-h2)] leading-none mb-10">Get your offer.</h2>
 
           <div ref={cardRef} className="bg-[#1a1a1a] border border-white/[0.13] rounded-xl overflow-hidden scroll-mt-6">
             {/* Progress */}
@@ -418,7 +436,7 @@ export default function RechargeShell() {
             {step === 1 && (
               <div className="p-7 sm:p-9">
                 <div className="font-[var(--font-ibm-mono)] text-[11px] tracking-[0.16em] uppercase text-[#78BE20] mb-3">— Bike details</div>
-                <h2 className="font-[var(--font-barlow)] font-bold uppercase text-[24px] sm:text-[32px] leading-tight mb-2.5">
+                <h2 className="font-display font-bold uppercase text-[length:var(--text-h4)] sm:text-[length:var(--text-h3)] leading-tight mb-2.5">
                   Which <span className="text-[#78BE20]">Energica</span> are you selling?
                 </h2>
                 <p className="text-[14px] text-white/55 leading-relaxed mb-8 max-w-[52ch] font-light">
@@ -464,7 +482,7 @@ export default function RechargeShell() {
             {step === 2 && (
               <div className="p-7 sm:p-9">
                 <div className="font-[var(--font-ibm-mono)] text-[11px] tracking-[0.16em] uppercase text-[#78BE20] mb-3">— Condition</div>
-                <h2 className="font-[var(--font-barlow)] font-bold uppercase text-[24px] sm:text-[32px] leading-tight mb-2.5">
+                <h2 className="font-display font-bold uppercase text-[length:var(--text-h4)] sm:text-[length:var(--text-h3)] leading-tight mb-2.5">
                   Three <span className="text-[#78BE20]">honest</span> answers.
                 </h2>
                 <p className="text-[14px] text-white/55 leading-relaxed mb-8 max-w-[52ch] font-light">
@@ -573,7 +591,7 @@ export default function RechargeShell() {
             {step === 5 && (
               <div className="p-7 sm:p-9">
                 <div className="font-[var(--font-ibm-mono)] text-[11px] tracking-[0.16em] uppercase text-[#78BE20] mb-3">— Lock it in</div>
-                <h2 className="font-[var(--font-barlow)] font-bold uppercase text-[24px] sm:text-[32px] leading-tight mb-2.5">
+                <h2 className="font-display font-bold uppercase text-[length:var(--text-h4)] sm:text-[length:var(--text-h3)] leading-tight mb-2.5">
                   Where do we <span className="text-[#78BE20]">reach you</span>?
                 </h2>
                 <p className="text-[14px] text-white/55 leading-relaxed mb-8 max-w-[52ch] font-light">
@@ -685,7 +703,7 @@ export default function RechargeShell() {
             {step === 6 && (
               <div className="p-7 sm:p-9">
                 <div className="font-[var(--font-ibm-mono)] text-[11px] tracking-[0.16em] uppercase text-[#78BE20] mb-3">— Payment</div>
-                <h2 className="font-[var(--font-barlow)] font-bold uppercase text-[24px] sm:text-[32px] leading-tight mb-2.5">
+                <h2 className="font-display font-bold uppercase text-[length:var(--text-h4)] sm:text-[length:var(--text-h3)] leading-tight mb-2.5">
                   Where does the <span className="text-[#78BE20]">transfer</span> land?
                 </h2>
                 <p className="text-[14px] text-white/55 leading-relaxed mb-8 max-w-[52ch] font-light">
@@ -743,7 +761,7 @@ export default function RechargeShell() {
                   <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
                 </div>
                 <div className="font-[var(--font-ibm-mono)] text-[11px] tracking-[0.16em] uppercase text-[#78BE20] mb-3">— Confirmed</div>
-                <h2 className="font-[var(--font-barlow)] font-bold uppercase text-[24px] sm:text-[32px] leading-tight mb-3">
+                <h2 className="font-display font-bold uppercase text-[length:var(--text-h4)] sm:text-[length:var(--text-h3)] leading-tight mb-3">
                   Offer locked.<br /><span className="text-[#78BE20]">Ref: {ref}</span>
                 </h2>
                 <p className="text-[14px] text-white/55 mb-8 max-w-[52ch] mx-auto">
@@ -763,7 +781,7 @@ export default function RechargeShell() {
               <div className="text-center py-14 px-7 sm:px-9">
                 <div className="w-13 h-13 mx-auto mb-6 rounded-full bg-[#d4931a]/10 border border-[#d4931a]/25 grid place-items-center font-[var(--font-barlow)] font-bold text-[22px] text-[#d4931a]">!</div>
                 <div className="font-[var(--font-ibm-mono)] text-[11px] tracking-[0.16em] uppercase text-[#78BE20] mb-3">— Outside automated programme</div>
-                <h2 className="font-[var(--font-barlow)] font-bold uppercase text-[24px] sm:text-[32px] leading-tight mb-3">Needs a specialist review.</h2>
+                <h2 className="font-display font-bold uppercase text-[length:var(--text-h4)] sm:text-[length:var(--text-h3)] leading-tight mb-3">Needs a specialist review.</h2>
                 <p className="text-[14px] text-white/55 max-w-[46ch] mx-auto mb-8 leading-relaxed">
                   {dqReason === "coverage"
                     ? "That model and year sit outside the automated valuation table. A specialist values these directly."
@@ -786,7 +804,7 @@ export default function RechargeShell() {
         <div className="ds-container grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-9 lg:gap-16">
           <div>
             <div className="font-[var(--font-ibm-mono)] text-[11px] tracking-[0.16em] uppercase text-[#78BE20] mb-3">— Questions</div>
-            <h2 className="font-[var(--font-barlow)] font-bold uppercase text-[28px] sm:text-[44px] leading-none">FAQ.</h2>
+            <h2 className="font-display font-bold uppercase text-[length:var(--text-h2)] leading-none">FAQ.</h2>
           </div>
           <div>
             {FAQS.map((f) => <FaqItem key={f.q} q={f.q} a={f.a} />)}
