@@ -11,9 +11,10 @@ export const metadata: Metadata = {
     "Energica — exclusive supplier to the FIM Enel MotoE World Cup for 4 seasons. Championship-winning technology on road-legal machines.",
 };
 
-const STATS = [
+const STATS: { num: string; label: string; phrase?: boolean }[] = [
   { num: "4", label: "MotoE Seasons" },
-  { num: "1", label: "Exclusive Supplier" },
+  // A phrase rather than a number (seasons as stated on this page)
+  { num: "Sole MotoE supplier", label: "2019 to 2022", phrase: true },
   { num: "22+", label: "Race Rounds" },
 ];
 
@@ -29,10 +30,10 @@ export default function RacingPage() {
         <Container className="py-14">
           <div className="grid grid-cols-3 gap-8 text-center">
             {STATS.map((s) => (
-              <div key={s.label}>
+              <div key={s.label} className="flex flex-col justify-end">
                 <p
-                  className="font-display text-white"
-                  style={{ fontSize: "clamp(48px, 7vw, 96px)" }}
+                  className="font-display text-white leading-[1.1]"
+                  style={{ fontSize: s.phrase ? "clamp(22px, 3vw, 44px)" : "clamp(48px, 7vw, 96px)" }}
                 >
                   {s.num}
                 </p>

@@ -106,7 +106,7 @@ export default function MotoAmericaSection() {
       {/* ── STATS STRIP ─────────────────────────────────────────── */}
       <div className="w-full bg-[#111] border-y border-white/[0.06]">
         <Container className="py-14">
-          <div className="grid grid-cols-3 gap-4 sm:gap-8 text-center">
+          <div className="grid grid-cols-3 gap-4 sm:gap-8 text-center items-end">
             <div className="flex flex-col items-center gap-2">
               <StatCounter value={2} label="" className="items-center" />
               <p className="text-[10px] uppercase tracking-[0.3em] text-white/65">
@@ -137,10 +137,10 @@ export default function MotoAmericaSection() {
                 className="font-display text-[#78BE20] leading-none"
                 style={{ fontSize: "clamp(28px, 4vw, 56px)" }}
               >
-                SHRC
+                MotoAmerica
               </p>
               <p className="text-[10px] uppercase tracking-[0.3em] text-white/65">
-                Championship
+                Super Hooligan National Championship
               </p>
             </div>
           </div>
