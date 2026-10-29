@@ -9,12 +9,13 @@ import SpecsAccordion from "@/components/models/SpecsAccordion";
 import NextModelCTA from "@/components/models/NextModelCTA";
 import ModelClosingActions from "@/components/models/ModelClosingActions";
 import type { Metadata } from "next";
+import { metaDescription } from "@/lib/model-links";
 import { notFound } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Ego | Energica Motor Company",
-  description:
-    "Track tested. Street legal. MotoE-derived 147 HP in a road-legal superbike.",
+  // Built from the page's own headline stats (specs.ts)
+  description: metaDescription("ego", "Track tested. Street legal."),
 };
 
 export default function EgoPage() {

@@ -9,12 +9,13 @@ import SpecsAccordion from "@/components/models/SpecsAccordion";
 import NextModelCTA from "@/components/models/NextModelCTA";
 import ModelClosingActions from "@/components/models/ModelClosingActions";
 import type { Metadata } from "next";
+import { metaDescription } from "@/lib/model-links";
 import { notFound } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Experia | Energica Motor Company",
-  description:
-    "Europe's first electric green tourer. 420 km city range, 102 HP, CCS DC fast charging. Made in Italy.",
+  // Built from the page's own headline stats (specs.ts)
+  description: metaDescription("experia", "Europe's first electric green tourer.", "CCS DC fast charging. Made in Italy."),
 };
 
 export default function ExperiaPage() {

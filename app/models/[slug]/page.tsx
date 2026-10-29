@@ -9,6 +9,7 @@ import SpecsAccordion from "@/components/models/SpecsAccordion";
 import NextModelCTA from "@/components/models/NextModelCTA";
 import ModelClosingActions from "@/components/models/ModelClosingActions";
 import type { Metadata } from "next";
+import { metaDescription } from "@/lib/model-links";
 import { notFound } from "next/navigation";
 
 interface PageProps {
@@ -26,7 +27,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return {
     title: `${model.name} | Energica Motor Company`,
-    description: model.description,
+    description: metaDescription(model.id, model.tagline),
   };
 }
 

@@ -15,6 +15,18 @@ export function configureHref(siteModelId: string): string {
   return id ? `/configurator?model=${id}` : "/configurator";
 }
 
+/**
+ * Search description for a model page: a short lead, then the page's four
+ * headline stats from specs.ts with their own labels ("169 HP peak power").
+ */
+export function metaDescription(siteModelId: string, lead: string, tail = ""): string {
+  const id = configuratorModelFor(siteModelId);
+  const stats = id ? MODEL_SPECS[id].stats : [];
+  const label = (l: string) => l.toLowerCase().replace("(rs)", "(RS)");
+  const figures = stats.map((s) => `${s.value} ${s.unit} ${label(s.label)}`).join(", ");
+  return [lead, figures ? `${figures}.` : "", tail].filter(Boolean).join(" ");
+}
+
 /** First full sentence of a description, preferring one without figures. */
 export function leadSentence(description: string): string {
   const sentences = description.match(/[^.!?]+[.!?]+(\s|$)/g)?.map((s) => s.trim()) ?? [description];
