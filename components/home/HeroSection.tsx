@@ -116,14 +116,14 @@ export default function HeroSection() {
             <h1 className="font-display text-[clamp(52px,9vw,112px)] text-white leading-none uppercase tracking-wide whitespace-pre-line">
               PROGRESS,{"\n"}RIDDEN.
             </h1>
-            {/* Scramble overlay — aria-hidden so screen readers see real text only */}
-            <h1
-              ref={scrambleRef as React.RefObject<HTMLHeadingElement>}
+            {/* Scramble overlay — a styled div, not a second H1, hidden from screen readers */}
+            <div
+              ref={scrambleRef as React.RefObject<HTMLDivElement>}
               aria-hidden="true"
               className="font-display text-[clamp(52px,9vw,112px)] text-white leading-none uppercase tracking-wide whitespace-pre-line absolute inset-0 pointer-events-none"
             >
               PROGRESS,{"\n"}RIDDEN.
-            </h1>
+            </div>
           </div>
           <p className="text-sm text-white/70 font-light tracking-wide mb-7 max-w-md" style={{ fontFamily: "var(--font-ibm-sans)" }}>
             Born in Modena. Proven on the racetrack.{" "}<br className="hidden md:block" />Exclusive MotoE supplier. Four seasons.
@@ -131,6 +131,14 @@ export default function HeroSection() {
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
             <Link href="/models" className="text-xs tracking-[0.25em] uppercase text-white border-b border-white/40 pb-0.5 hover:border-white transition-colors duration-200" style={{ fontFamily: "var(--font-ibm-mono)" }}>
               Explore the lineup
+            </Link>
+            <span className="hidden sm:inline text-white/20">·</span>
+            <Link href="/configurator" className="text-xs tracking-[0.25em] uppercase text-white border-b border-white/40 pb-0.5 hover:border-white transition-colors duration-200" style={{ fontFamily: "var(--font-ibm-mono)" }}>
+              Configure your Energica
+            </Link>
+            <span className="hidden sm:inline text-white/20">·</span>
+            <Link href="/dealers" className="text-xs tracking-[0.25em] uppercase text-white border-b border-white/40 pb-0.5 hover:border-white transition-colors duration-200" style={{ fontFamily: "var(--font-ibm-mono)" }}>
+              Find a dealer
             </Link>
             <span className="hidden sm:inline text-white/20">·</span>
             <Link href="/contact" className="text-xs tracking-[0.25em] uppercase text-[#78BE20] border-b border-[#78BE20]/40 pb-0.5 hover:border-[#78BE20] transition-colors duration-200" style={{ fontFamily: "var(--font-ibm-mono)" }}>

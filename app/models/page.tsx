@@ -1,6 +1,7 @@
 import { Photo } from "@/components/ui/Photo";
 import Link from "next/link";
 import { models } from "@/data/models";
+import { configureHref, leadSentence } from "@/lib/model-links";
 import { SectionReveal } from "@/components/ui/SectionReveal";
 import { Container } from "@/components/ui/Container";
 import type { Metadata } from "next";
@@ -50,10 +51,9 @@ export default function ModelsPage() {
         <div className="grid md:grid-cols-2 gap-6">
           {models.map((model, i) => (
             <SectionReveal key={model.id} delay={i * 80}>
-              <Link
-                href={`/models/${model.id}`}
-                className="group flex flex-col h-full bg-[#111] border border-white/5 hover:border-[#78BE20]/30 transition-all duration-300 overflow-hidden"
-              >
+              {/* The model name is the card's link, stretched over the whole card;
+                  Configure sits above it as a link of its own */}
+              <article className="group relative flex flex-col h-full bg-[#111] border border-white/5 hover:border-[#78BE20]/30 transition-all duration-300 overflow-hidden">
                 {/* Image */}
                 <div className="relative aspect-[16/9] w-full overflow-hidden bg-[#0d0d0d]">
                   <Photo
@@ -75,7 +75,9 @@ export default function ModelsPage() {
                   <div className="flex items-start justify-between mb-4">
                     <div>
                       <h2 className="font-display text-4xl text-white group-hover:text-[#78BE20] transition-colors">
-                        {model.name}
+                        <Link href={`/models/${model.id}`} className="after:absolute after:inset-0 after:content-['']">
+                          {model.name}
+                        </Link>
                       </h2>
                       <p className="text-white/60 text-sm mt-1">{model.tagline}</p>
                     </div>
@@ -85,7 +87,7 @@ export default function ModelsPage() {
                   </div>
 
                   <p className="text-white/65 text-sm leading-relaxed mb-6 max-w-[750px]">
-                    {model.description.substring(0, 120)}...
+                    {leadSentence(model.description)}
                   </p>
 
                   {/* Key specs */}
@@ -104,8 +106,15 @@ export default function ModelsPage() {
                       </div>
                     ))}
                   </div>
+
+                  <Link
+                    href={configureHref(model.id)}
+                    className="relative z-10 self-start mt-6 text-[11px] tracking-[0.3em] uppercase text-white/70 border-b border-white/25 pb-0.5 hover:text-white hover:border-white transition-colors duration-200"
+                  >
+                    Configure {model.name}
+                  </Link>
                 </div>
-              </Link>
+              </article>
             </SectionReveal>
           ))}
         </div>
