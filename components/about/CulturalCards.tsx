@@ -22,7 +22,7 @@ export function CulturalCards({ items }: { items: CulturalItem[] }) {
           href={item.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="relative p-6 border border-white/[0.08] bg-[#0d0d0d] hover:border-[#78BE20]/40 transition-all duration-300 group block"
+          className="relative p-6 border border-white/[0.08] bg-[#0d0d0d] hover:border-[#78BE20]/40 transition-all duration-300 group flex flex-col justify-center"
           onMouseEnter={() => setHovered(item.title)}
           onMouseLeave={() => setHovered(null)}
         >
@@ -68,7 +68,8 @@ export function CulturalCards({ items }: { items: CulturalItem[] }) {
 
           {/* Animated play hint */}
           <div
-            className={`mt-4 flex items-center gap-2 text-[10px] text-[#78BE20] font-mono uppercase tracking-widest transition-opacity duration-200 ${
+            // Pinned top-right so the hidden hint doesn't leave an empty row at the bottom
+            className={`absolute top-6 right-6 flex items-center gap-2 text-[10px] text-[#78BE20] font-mono uppercase tracking-widest transition-opacity duration-200 ${
               hovered === item.title ? "opacity-100" : "opacity-0"
             }`}
           >

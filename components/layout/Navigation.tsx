@@ -294,7 +294,7 @@ function MobileOverlay({
           <Link
             href="/contact"
             onClick={onClose}
-            className="btn-primary block text-center py-4 font-display text-lg tracking-widest"
+            className="btn-contact block text-center py-4 font-display text-lg tracking-widest"
           >
             CONTACT US
           </Link>
@@ -444,7 +444,7 @@ export default function Navigation({ alwaysDark = false, fullWidth = false }: { 
             <Link
               href="/contact"
               data-magnetic
-              className="btn-primary px-5 py-2.5 text-sm uppercase tracking-[0.15em]"
+              className="btn-contact px-5 py-2.5 text-sm uppercase tracking-[0.15em]"
               style={{ fontFamily: "var(--font-ibm-mono)" }}
             >
               Contact Us

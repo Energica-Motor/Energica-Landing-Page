@@ -609,6 +609,24 @@ h4, h5, h6 { font-size: var(--text-h4); }
   cursor: not-allowed;
 }
 
+/* ── Header Contact Us (header and mobile menu only) ────── */
+/* Outline at rest, green fill on hover. The 1px line is an inset shadow so
+   the button keeps exactly the same size as before. */
+.btn-contact {
+  background-color: transparent;
+  color: #FFFFFF;
+  box-shadow: inset 0 0 0 1px #78BE20;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+.btn-contact:hover {
+  background-color: #78BE20;
+  color: #0F1012;
+}
+.btn-contact:focus-visible {
+  outline: 2px solid #3F6B10;
+  outline-offset: 2px;
+}
+
 /* ── Electric CTA sweep ──────────────────────────────────── */
 .btn-electric {
   position: relative;
