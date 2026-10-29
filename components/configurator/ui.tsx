@@ -188,7 +188,7 @@ export function StageHeading({ model, colour, version }: { model: Model; colour:
       <h1 className="cfg-title" style={{ margin: "6px 0 0", fontFamily: FONT.display, fontWeight: 600, fontSize: 76, lineHeight: 0.9, textTransform: "uppercase", color: COLOR.text }}>
         {MODEL_INFO[model].name}
       </h1>
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 14, minHeight: 26 }}>
+      <div data-stage-caption style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 14, minHeight: 26 }}>
         {colour && <span style={{ fontFamily: FONT.display, fontWeight: 500, fontSize: 22, letterSpacing: "0.02em", color: COLOR.text }}>{colour}</span>}
         {colour && version && <span aria-hidden style={{ width: 4, height: 4, background: COLOR.indicator, borderRadius: "50%" }} />}
         {version && (

@@ -29,6 +29,7 @@ import { buildSheetContent } from "@/lib/build-sheet/catalog";
 import { performanceFor } from "@/lib/build-sheet/specs";
 import { MODEL_INFO, cleanLayerName, type Model } from "./config";
 import * as rules from "./rules";
+import { fitBike, measureBike, paddedRegion, sameBox, unionBox, type BikeBox, type Rect } from "./trim";
 import { ActionBar, ModelTabs, OptionSection, SpecStrip, StageHeading, StepTabs } from "./ui";
 import { BORDER, COLOR, FONT, SIZE, monoLabel } from "./theme";
 
@@ -141,6 +142,10 @@ function useConfigurator(model: Model, apiUrl: string, restoredLayers?: string[]
   const [config, setConfig] = useState<ConfigSchema | null>(null);
   const [visibleLayers, setVisibleLayers] = useState<Set<string>>(new Set());
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  // Where the bike sits in the preview: the union of every render of this
+  // model, so changing colour or wheels never resizes it on screen
+  const [bikeBox, setBikeBox] = useState<BikeBox | null>(null);
+  const boxCache = useRef(new Map<string, BikeBox | null>());
   // The selection the shown image (or error) belongs to; while it differs
   // from the current one the stage shows "updating" from the first click.
   const [renderedKey, setRenderedKey] = useState<string | null>(null);
@@ -194,14 +199,24 @@ function useConfigurator(model: Model, apiUrl: string, restoredLayers?: string[]
       setError(null);
 
       renderConfiguration(model, [...visibleLayers], apiUrl)
-        .then((blob) => {
+        .then(async (blob) => {
           if (latestKey.current !== key) return;
+          const url = URL.createObjectURL(blob);
+          // Measure the bike before showing the image, so image and crop change
+          // together; a selection's image is measured once (object URLs are
+          // new on every fetch, so the selection is the image's identity)
+          const box = boxCache.current.has(key) ? boxCache.current.get(key)! : await measureBike(blob);
+          boxCache.current.set(key, box);
+          if (latestKey.current !== key) { URL.revokeObjectURL(url); return; }
           // Revoke previous object URL to avoid memory leaks
           if (prevObjectUrlRef.current) {
             URL.revokeObjectURL(prevObjectUrlRef.current);
           }
-          const url = URL.createObjectURL(blob);
           prevObjectUrlRef.current = url;
+          setBikeBox((prev) => {
+            const next = unionBox(prev, box);
+            return sameBox(prev, next) ? prev : next;
+          });
           setPreviewUrl(url);
         })
         .catch((err: Error) => {
@@ -243,6 +258,7 @@ function useConfigurator(model: Model, apiUrl: string, restoredLayers?: string[]
     configLoading,
     visibleLayers,
     previewUrl,
+    bikeBox,
     updating,
     error,
     toggleLayer,
@@ -341,9 +357,11 @@ const LAYOUT_CSS = `
   .cfg-root { --cfg-modelbar-h: 65px; --cfg-bar-h: 73px; }
   .cfg-main { display: flex; flex-wrap: wrap; align-items: stretch; flex-grow: 1; }
   .cfg-stage { flex: 999 1 560px; min-width: 0; padding: 36px 48px 28px; display: flex; flex-direction: column; box-sizing: border-box; }
-  .cfg-render { min-height: 220px; }
-  /* The box hugs the image (canvas ratio), so the floor shadow sits under the wheels */
-  .cfg-render-box { position: relative; aspect-ratio: var(--cfg-ratio); width: min(100%, 840px); }
+  .cfg-render { min-height: 220px; position: relative; }
+  /* The bike box is the bike's own region of the preview (white margins
+     trimmed), so the floor shadow sits under the wheels. Stacked layouts:
+     full width at the region's ratio. */
+  .cfg-bike { position: relative; width: 100%; aspect-ratio: var(--cfg-bike-ratio); }
   .cfg-panel { flex: 1 1 400px; max-width: ${SIZE.panelW}px; background: ${COLOR.white}; border-left: ${BORDER.idle}; display: flex; flex-direction: column; box-sizing: border-box; min-width: 0; }
   .cfg-tab { flex: 1 0 auto; }
   .cfg-flash { animation: cfg-flash 1.6s ease-out; }
@@ -357,14 +375,21 @@ const LAYOUT_CSS = `
     .cfg-main { flex: none; flex-wrap: nowrap; min-height: 460px;
       height: calc(100vh - var(--cfg-header, 80px) - var(--cfg-modelbar-h) - var(--cfg-bar-h));
       height: calc(100dvh - var(--cfg-header, 80px) - var(--cfg-modelbar-h) - var(--cfg-bar-h)); }
-    .cfg-stage { min-height: 0; overflow: hidden; }
-    .cfg-render { flex: 1 1 0; min-height: 0; container-type: size; }
-    .cfg-render-box { width: min(100cqw, 100cqh * var(--cfg-ratio), 840px); }
+    /* The title overlays the stage's top-left, so the bike gets the full
+       height between the model bar and the spec strip; the bike is sized and
+       placed in JS (fitBike) to fit and keep clear of the title. */
+    .cfg-stage { min-height: 0; overflow: hidden; position: relative; padding-top: 6px; }
+    .cfg-stage-title { position: absolute; top: 36px; left: 48px; z-index: 2; }
+    /* The image area reaches 16px from the stage edges, past its side padding */
+    .cfg-render { flex: 1 1 0; min-height: 0; margin: 0 -32px; }
+    .cfg-bike { position: absolute; aspect-ratio: auto; }
     .cfg-panel { height: 100%; overflow: hidden; }
     .cfg-panel-body { flex: 1 1 0 !important; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
   }
   @media (min-width: ${SIZE.stackBelow}px) and (max-height: 820px) {
-    .cfg-stage { padding: 24px 40px 20px; }
+    .cfg-stage { padding: 6px 40px 20px; }
+    .cfg-stage-title { top: 24px; left: 40px; }
+    .cfg-render { margin: 0 -24px; }
     .cfg-title { font-size: 56px !important; }
   }
   @media (max-width: ${SIZE.stackBelow - 1}px) {
@@ -414,6 +439,7 @@ export default function EnergiccaConfigurator({
     configLoading,
     visibleLayers,
     previewUrl,
+    bikeBox,
     updating,
     error,
     toggleLayer,
@@ -801,8 +827,54 @@ export default function EnergiccaConfigurator({
     };
   }, []);
 
+  // The bike's region of the preview; until it's measured (or if it can't
+  // be), the whole image, treated as solid so it still keeps clear of the title
   const canvas = config?.canvas;
-  const ratio = canvas ? `${canvas.width} / ${canvas.height}` : "16 / 9";
+  const box = useMemo<BikeBox | null>(
+    () => bikeBox ?? (canvas ? { x0: 0, y0: 0, x1: 1, y1: 1, sky: new Array(120).fill(0), aspect: canvas.width / canvas.height } : null),
+    [bikeBox, canvas],
+  );
+  const region = box ? paddedRegion(box) : null;
+
+  // Desktop: size the bike to the space between the model bar and the spec
+  // strip, centred and nudged right, shrinking it (never the title) if its
+  // outline would run into the title
+  const titleRef = useRef<HTMLDivElement>(null);
+  const [fit, setFit] = useState<ReturnType<typeof fitBike> | null>(null);
+  // Every caption the title can show for this model ("Colour · Version"),
+  // so the space kept clear for it doesn't change with the colour picked
+  const captionNames = useMemo(() => {
+    const colours = sections.find((s) => s.key === "base_color")?.options.map((o) => o.title) ?? [];
+    return { colours, versions: hasRsOption ? ["RS", "Standard"] : [] };
+  }, [sections, hasRsOption]);
+  const captionKey = `${captionNames.colours.join("|")}/${captionNames.versions.join("|")}`;
+  useEffect(() => {
+    const area = renderRef.current, title = titleRef.current;
+    if (!area || !title || !box || typeof ResizeObserver === "undefined" || !window.matchMedia) return;
+    const desktop = window.matchMedia(`(min-width: ${SIZE.stackBelow}px)`);
+    const update = () => {
+      if (!desktop.matches) { setFit(null); return; }
+      const a = area.getBoundingClientRect(), t = title.getBoundingClientRect();
+      const avoid: Rect = { left: t.left - a.left, top: t.top - a.top, right: t.right - a.left, bottom: t.bottom - a.top };
+      // Widest possible caption, measured in the caption's own fonts
+      const caption = title.querySelector<HTMLElement>("[data-stage-caption]");
+      const [colourEl, , versionEl] = caption ? Array.from(caption.children) as HTMLElement[] : [];
+      const ctx = document.createElement("canvas").getContext("2d");
+      if (caption && colourEl && ctx) {
+        const width = (el: HTMLElement, text: string) => { ctx.font = getComputedStyle(el).font; return ctx.measureText(text).width; };
+        const colourW = Math.max(0, ...captionNames.colours.map((n) => width(colourEl, n)));
+        const versionW = versionEl ? Math.max(0, ...captionNames.versions.map((v) => width(versionEl, v))) + 4 + 2 * 12 : 0;
+        avoid.right = Math.max(avoid.right, caption.getBoundingClientRect().left - a.left + colourW + versionW);
+      }
+      setFit(fitBike(box, { width: a.width, height: a.height }, avoid, { floorPad: 8 }));
+    };
+    const ro = new ResizeObserver(update);
+    ro.observe(area);
+    ro.observe(title);
+    desktop.addEventListener("change", update);
+    update();
+    return () => { ro.disconnect(); desktop.removeEventListener("change", update); };
+  }, [box, captionKey]); // eslint-disable-line react-hooks/exhaustive-deps -- captionKey stands for captionNames
   const modalFooter: React.CSSProperties = { flex: "none", padding: "14px 24px 20px", borderTop: BORDER.idle, background: COLOR.white };
 
   return (
@@ -815,33 +887,52 @@ export default function EnergiccaConfigurator({
         <main className="cfg-main">
           {/* Stage: model, live render and headline figures */}
           <section aria-label="Preview" className="cfg-stage">
-            {notFound && (
-              <div role="status" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 16, padding: "8px 8px 8px 14px", border: BORDER.idle, background: COLOR.white, fontSize: 13, color: COLOR.secondary }}>
-                <span>That build link could not be found. Showing the standard {MODEL_INFO[model].name}.</span>
-                <button type="button" onClick={() => setNotFound(false)} aria-label="Dismiss" style={{ background: "none", border: "none", color: COLOR.label, fontSize: 16, lineHeight: 1, minWidth: 32, minHeight: 32, flexShrink: 0 }}>✕</button>
-              </div>
-            )}
+            <div ref={titleRef} className="cfg-stage-title">
+              {notFound && (
+                <div role="status" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 16, padding: "8px 8px 8px 14px", border: BORDER.idle, background: COLOR.white, fontSize: 13, color: COLOR.secondary }}>
+                  <span>That build link could not be found. Showing the standard {MODEL_INFO[model].name}.</span>
+                  <button type="button" onClick={() => setNotFound(false)} aria-label="Dismiss" style={{ background: "none", border: "none", color: COLOR.label, fontSize: 16, lineHeight: 1, minWidth: 32, minHeight: 32, flexShrink: 0 }}>✕</button>
+                </div>
+              )}
 
-            <StageHeading model={model} colour={colourName} version={version} />
+              <StageHeading model={model} colour={colourName} version={version} />
+            </div>
 
-            <div ref={renderRef} className="cfg-render" style={{ flexGrow: 1, display: "flex", alignItems: "center", justifyContent: "center", position: "relative", padding: "20px 0", ["--cfg-ratio" as string]: ratio }}>
-              <div className="cfg-render-box">
-                {/* Floor shadow, placed on the image's own box so it stays under the wheels */}
-                <div aria-hidden style={{ position: "absolute", left: "12%", right: "12%", bottom: "-3%", height: "9%", borderRadius: "50%", background: "radial-gradient(closest-side, rgba(15,16,18,0.18), rgba(15,16,18,0))" }} />
-                {previewUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element -- object URL from the compositor
-                  <img
-                    src={previewUrl}
-                    alt={`${MODEL_INFO[model].name} configured preview`}
-                    className="cfg-render-img"
-                    style={{ display: "block", width: "100%", height: "100%", objectFit: "contain", mixBlendMode: "multiply", position: "relative", opacity: updating ? 0.72 : 1, transition: "opacity 120ms ease" }}
-                  />
-                ) : (
-                  <div style={{ ...monoLabel(11), position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12 }}>
-                    {configLoading || updating ? <div style={S.spinner} aria-label="Loading preview" /> : <span>Select options to preview</span>}
+            <div ref={renderRef} className="cfg-render" style={{ flexGrow: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: fit ? 0 : "20px 0" }}>
+              {previewUrl && region ? (
+                <div
+                  className="cfg-bike"
+                  style={fit
+                    ? { left: fit.left, top: fit.top, width: fit.width, height: fit.height }
+                    : { ["--cfg-bike-ratio" as string]: String(region.ratio) }}
+                >
+                  {/* Floor shadow, centred on the bike's bottom edge */}
+                  <div aria-hidden style={{ position: "absolute", left: "12%", right: "12%", height: "12%", bottom: `calc(${(region.floor * 100).toFixed(2)}% - 6%)`, borderRadius: "50%", background: "radial-gradient(closest-side, rgba(15,16,18,0.18), rgba(15,16,18,0))" }} />
+                  <div style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element -- object URL from the compositor */}
+                    <img
+                      src={previewUrl}
+                      alt={`${MODEL_INFO[model].name} configured preview`}
+                      className="cfg-render-img"
+                      style={{
+                        position: "absolute",
+                        maxWidth: "none",
+                        width: `${100 / (region.x1 - region.x0)}%`,
+                        height: `${100 / (region.y1 - region.y0)}%`,
+                        left: `${(-region.x0 / (region.x1 - region.x0)) * 100}%`,
+                        top: `${(-region.y0 / (region.y1 - region.y0)) * 100}%`,
+                        mixBlendMode: "multiply",
+                        opacity: updating ? 0.72 : 1,
+                        transition: "opacity 120ms ease",
+                      }}
+                    />
                   </div>
-                )}
-              </div>
+                </div>
+              ) : (
+                <div style={{ ...monoLabel(11), position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12 }}>
+                  {configLoading || updating ? <div style={S.spinner} aria-label="Loading preview" /> : <span>Select options to preview</span>}
+                </div>
+              )}
               {/* Redrawing after a change: the old image stays (dimmed) with a
                   thin progress line; the panel stays usable throughout. */}
               {previewUrl && (
