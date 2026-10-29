@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { gsap, useGSAP } from "@/lib/gsap";
 import { REVEAL, formatCount, prefersReducedMotion, reveal, useCountUp } from "@/lib/motion";
 import Link from "next/link";
@@ -53,6 +53,8 @@ function MotorDiagram() {
   // Smooth 3D tilt state (no re-renders — all via RAF)
   const tilt = useRef({ cx: 0, cy: 0, tx: 0, ty: 0 });
   const rafId = useRef(0);
+  // The diagram appears twice (hero and motor section): ids must be unique
+  const uid = useId().replace(/:/g, "");
 
   // Pre-round to 4dp — keeps SSR and client attribute strings identical
   const R4 = (v: number) => Math.round(v * 1e4) / 1e4;
@@ -196,24 +198,24 @@ function MotorDiagram() {
       <svg ref={svgRef} viewBox="0 0 400 400" className="w-full" aria-hidden>
         <defs>
           {/* Off-centre gradient simulates a top-left light source */}
-          <radialGradient id="gHousing" cx="35%" cy="30%">
+          <radialGradient id={`${uid}gHousing`} cx="35%" cy="30%">
             <stop offset="0%"   stopColor="#2c2c2a" />
             <stop offset="55%"  stopColor="#181816" />
             <stop offset="100%" stopColor="#0a0a09" />
           </radialGradient>
-          <radialGradient id="gRotor" cx="40%" cy="35%">
+          <radialGradient id={`${uid}gRotor`} cx="40%" cy="35%">
             <stop offset="0%"   stopColor="#222220" />
             <stop offset="100%" stopColor="#080808" />
           </radialGradient>
           {/* Glow filter for magnets + centre dot */}
-          <filter id="fGlow" x="-30%" y="-30%" width="160%" height="160%">
+          <filter id={`${uid}fGlow`} x="-30%" y="-30%" width="160%" height="160%">
             <feGaussianBlur stdDeviation="2.5" result="blur" />
             <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
           </filter>
         </defs>
 
         {/* ── Housing shell + depth edges ── */}
-        <circle cx="200" cy="200" r="182" fill="url(#gHousing)" stroke="rgba(255,255,255,0.1)" strokeWidth="3" />
+        <circle cx="200" cy="200" r="182" fill={`url(#${uid}gHousing)`} stroke="rgba(255,255,255,0.1)" strokeWidth="3" />
         {/* Specular rim highlight (top-left arc) */}
         <path d="M 76 100 A 162 162 0 0 1 260 42"
           fill="none" stroke="rgba(255,255,255,0.14)" strokeWidth="2.5" strokeLinecap="round" />
@@ -242,7 +244,7 @@ function MotorDiagram() {
 
         {/* ── Rotor group (spins) ── */}
         <g className="md-rotor">
-          <circle cx="200" cy="200" r="110" fill="url(#gRotor)" />
+          <circle cx="200" cy="200" r="110" fill={`url(#${uid}gRotor)`} />
           <circle cx="200" cy="200" r="109" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
           {/* Rotor specular highlight */}
           <ellipse cx="178" cy="162" rx="30" ry="13" fill="rgba(255,255,255,0.05)" />
@@ -254,7 +256,7 @@ function MotorDiagram() {
 
           {/* Arc magnets with glow + N/S labels */}
           {magnets.map(({ i, d, fill, isNorth, lx, ly }) => (
-            <g key={i} filter="url(#fGlow)">
+            <g key={i} filter={`url(#${uid}fGlow)`}>
               <path d={d} fill={fill} opacity="0.92" />
               <text x={lx} y={ly} textAnchor="middle" dominantBaseline="middle"
                 fill="white" fontSize="7.5" fontFamily="monospace" fontWeight="bold">
@@ -274,7 +276,7 @@ function MotorDiagram() {
           <circle cx="200" cy="200" r="19" fill="#1c1c1c" stroke="rgba(255,255,255,0.1)"  strokeWidth="1" />
           <line x1="200" y1="183" x2="200" y2="217" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" />
           <line x1="183" y1="200" x2="217" y2="200" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" />
-          <circle cx="200" cy="200" r="5" fill="#78BE20" filter="url(#fGlow)" />
+          <circle cx="200" cy="200" r="5" fill="#78BE20" filter={`url(#${uid}fGlow)`} />
         </g>
 
         {/* ── Annotations — dark pill backgrounds for readability ── */}
@@ -349,8 +351,6 @@ function BatteryGrid() {
         fill="white" fontSize="40" fontFamily="monospace" fontWeight="700">{formatCount(BATTERY_KWH, 1)}</text>
       <text x="190" y="234" textAnchor="middle"
         fill="rgba(120, 190, 32, 0.7)" fontSize="9" letterSpacing="4" fontFamily="monospace">kWh TOTAL CAPACITY</text>
-      <text x="190" y="252" textAnchor="middle"
-        fill="rgba(255,255,255,0.15)" fontSize="8" letterSpacing="2" fontFamily="monospace">84 INDIVIDUALLY MONITORED CELLS</text>
     </svg>
   );
 }
@@ -578,8 +578,11 @@ export default function TechContent() {
 
       {/* ── HERO ───────────────────────────────────────────── */}
       <div ref={heroRef} className="relative h-screen flex items-center overflow-hidden">
-        {/* Rings — fills background */}
-        <div aria-hidden className="absolute right-[-5vw] top-1/2 -translate-y-1/2 w-[50vw] h-[50vw] max-w-[640px] max-h-[640px] opacity-45 pointer-events-none">
+        {/* Motor diagram (as in the motor section), filling the right half */}
+        <div aria-hidden className="absolute right-[max(16px,calc((100vw-1280px)/2))] top-1/2 -translate-y-1/2 w-[min(46vw,620px)] hidden md:block">
+          <MotorDiagram />
+        </div>
+        <div aria-hidden className="absolute right-[-5vw] top-1/2 -translate-y-1/2 w-[50vw] h-[50vw] max-w-[640px] max-h-[640px] opacity-45 pointer-events-none md:hidden">
           <HeroRings />
         </div>
 
@@ -609,13 +612,12 @@ export default function TechContent() {
 
       {/* ── 01 MOTOR ────────────────────────────────────────── */}
       <TechSection
-        num="01" title="PMASynRM Motor"
-        sub="Permanent Magnet Assisted Synchronous Reluctance Motor"
+        num="01" title="HSM and PMASynRM Motors"
+        sub="HSM (Hybrid Synchronous Motor): Ego, Eva Ribelle, EsseEsse9 · Permanent Magnet Assisted Synchronous Reluctance Motor (PMASynRM): Experia"
         body="Energica's proprietary motor combines the efficiency of a permanent magnet design with the reliability of a reluctance motor. Maximum torque from a standstill — no heat throttling, no brushes, no compromise. Peak efficiency exceeds 96%, meaning almost all stored energy reaches the rear wheel."
         stats={[
-          { value: "145", unit: "HP", label: "Peak Power" },
-          { value: "96", unit: "%", label: "Peak Efficiency" },
-          { value: "215", unit: "Nm", label: "Wheel Torque" },
+          { value: "102–169", unit: "HP", label: "Peak Power" },
+          { value: "96", unit: "%", label: "Peak Efficiency (Experia)" },
         ]}
         visual={<MotorDiagram />}
       />
@@ -640,7 +642,7 @@ export default function TechContent() {
         body="Electric motorcycle fully compatible with DC fast-charge infrastructure. The chart shows a real CCS charging session — 0 to 80% in under 40 minutes, including the natural taper above 80% that protects cell longevity. On-board AC charger also supports Level 2 home charging."
         stats={[
           { value: "40", unit: "min", label: "0–80% DC Fast" },
-          { value: "3.3", unit: "kW", label: "AC Home Rate" },
+          { value: "3", unit: "kW", label: "Onboard Charger" },
         ]}
         visual={<ChargingCurve />}
       />
@@ -652,7 +654,6 @@ export default function TechContent() {
         body="Because an electric motor delivers full torque from the first revolution, Energica's Ride By Wire system maintains perfectly linear throttle mapping — what you ask for is exactly what you get, at any speed. The graph compares electric delivery (green) against a typical internal combustion power curve. No powerband, no hesitation, no surprises."
         stats={[
           { value: "0", unit: "rpm", label: "Full Torque From" },
-          { value: "<10", unit: "ms", label: "Throttle Response" },
         ]}
         visual={<ThrottleGraph />}
         flip
