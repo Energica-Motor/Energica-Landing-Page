@@ -9,7 +9,7 @@ export const ENQUIRY_CC = (process.env.ENQUIRY_CC_EMAIL ?? "keshav@energicamotor
   .filter(Boolean);
 
 /** Which website form an enquiry came from — shown in the subject and body. */
-export type EnquirySource = "Contact Form" | "Test Ride Form" | "Configurator" | "ReCharge";
+export type EnquirySource = "Contact Form" | "Test Ride Form" | "Configurator" | "ReCharge" | "Lounge";
 
 export function enquirySubject(source: EnquirySource, subject: string): string {
   return `[${source}] ${subject}`;

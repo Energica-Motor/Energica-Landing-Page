@@ -340,3 +340,19 @@ footer button{color:#aaa;border-color:#666;text-transform:uppercase;font:600 12p
   .bag-row h3{font-size:16px}
   .bag-row .quantity{gap:5px}
 }
+
+/* Enquiries to Energica (lead.js) */
+.lead-included{border:1px solid #3a3a3a;border-left:3px solid var(--green);background:#141414;padding:12px 16px;margin:18px 0 6px}
+.lead-included small{display:block;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.14em;color:var(--green);margin-bottom:6px}
+.lead-included p{margin:3px 0;font-size:12px;line-height:1.6;color:#ddd}
+.lead-included b{display:inline-block;min-width:92px;font-weight:500;color:#999}
+.lead-consent{display:flex;gap:10px;align-items:flex-start;margin:14px 0 4px;font-size:12px;line-height:1.6;color:#ccc;cursor:pointer}
+.lead-consent input{margin-top:3px;accent-color:var(--green);flex:none;width:16px;height:16px}
+.lead-consent a{color:var(--green)}
+.lead-status{min-height:18px;margin:8px 0 0;font-size:12px;color:#ccc}
+.lead-status.error{color:#ff8a7a}
+.lead-hp{position:absolute!important;left:-10000px!important;width:1px;height:1px;overflow:hidden}
+.lead-actions{display:flex;flex-wrap:wrap;gap:10px}
+.form-actions.lead-actions{justify-content:flex-start;margin-top:22px}
+.profile-lead-actions{margin-bottom:6px}
+.lead-form button[disabled]{opacity:.6;cursor:progress}

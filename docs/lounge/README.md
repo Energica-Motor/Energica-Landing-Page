@@ -113,3 +113,22 @@ link; no checkout, reseller agreement or live stock integration is implied.
 Verified: JavaScript syntax, catalogue/image/link integrity, desktop and 390px mobile rendering,
 category filtering, save/unsave, add/remove preview-bag item, research detail modal, and Curator
 recommendation of Unitree G1. Product links were checked in the rendered UI without placing orders.
+
+## Enquiries to Energica (November 2026)
+
+Six buttons open one shared form (`public/lounge/lead.js`) that posts to `/api/lounge`
+(`app/api/lounge/route.ts`, validation in `lib/lounge-lead.ts`). Each enquiry is emailed through
+Resend to the website enquiry inbox (`ENQUIRY_TO_EMAIL` / `ENQUIRY_CC_EMAIL`, subject prefix `[Lounge]`).
+
+| Button | Where | Sent with the form |
+|---|---|---|
+| Enquire with Energica | Collections → product | item, maker, price |
+| Send selection to Energica | Preview bag | items and quantities |
+| Ask Energica to join | Community → ride | ride, place, time, group |
+| Share with Energica | Organiser → ride plan | plan name, place, date, time, pace |
+| Request a service | Garage → mechanic card | motorcycle, year, odometer |
+| Join the Energica community | Profile → Personal | motorcycle, experience, pace, interests |
+
+The visitor sees everything that will be sent and must tick consent. Saved riders' contacts, notes,
+rides and videos are never sent. Bots are filtered by a hidden field and a minimum fill time;
+there is a per-IP limit of 5 enquiries per 10 minutes. Enquiries are not stored in a database.

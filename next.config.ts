@@ -88,7 +88,8 @@ const nextConfig: NextConfig = {
           destination: "/lounge/index.html",
         },
         {
-          source: "/:path((?!lounge/).+)",
+          // /api/* stays on the site's API routes (the lounge posts enquiries to /api/lounge).
+          source: "/:path((?!lounge/|api/).+)",
           has: [{ type: "host", value: LOUNGE_HOST }],
           destination: "/lounge/:path",
         },
