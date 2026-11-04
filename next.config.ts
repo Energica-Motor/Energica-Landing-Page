@@ -1,5 +1,11 @@
 import type { NextConfig } from "next";
 
+const LOUNGE_HOST = "lounge.energicamotor.com";
+const LOUNGE_HEADERS = [
+  { key: "Permissions-Policy", value: "camera=(self), microphone=(), geolocation=()" },
+  { key: "X-Robots-Tag",       value: "noindex, nofollow" },
+];
+
 const nextConfig: NextConfig = {
   output: "standalone",
   compress: true,
@@ -49,7 +55,45 @@ const nextConfig: NextConfig = {
           { key: "Permissions-Policy",            value: "camera=(), microphone=(), geolocation=()" },
         ],
       },
+      // Energica Lounge (static prototype in public/lounge). Listed after the
+      // catch-all so these values win: its rider QR scanner needs the camera,
+      // and the prototype is kept out of search results until it is approved.
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: LOUNGE_HOST }],
+        headers: LOUNGE_HEADERS,
+      },
+      {
+        source: "/lounge/:path*",
+        headers: LOUNGE_HEADERS,
+      },
     ];
+  },
+
+  async redirects() {
+    return [
+      // The lounge uses relative asset paths, so it must load from
+      // /lounge/index.html (not /lounge) when opened on the main domain.
+      { source: "/lounge", destination: "/lounge/index.html", permanent: false },
+    ];
+  },
+
+  async rewrites() {
+    return {
+      // lounge.energicamotor.com serves public/lounge at its root.
+      beforeFiles: [
+        {
+          source: "/",
+          has: [{ type: "host", value: LOUNGE_HOST }],
+          destination: "/lounge/index.html",
+        },
+        {
+          source: "/:path((?!lounge/).+)",
+          has: [{ type: "host", value: LOUNGE_HOST }],
+          destination: "/lounge/:path",
+        },
+      ],
+    };
   },
 };
 
