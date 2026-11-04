@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Energica Lounge: prebuilt static site with vendored minified libraries.
+    "public/lounge/**",
   ]),
 ]);
 
