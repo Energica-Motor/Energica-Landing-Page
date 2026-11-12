@@ -116,18 +116,19 @@ recommendation of Unitree G1. Product links were checked in the rendered UI with
 
 ## Enquiries to Energica (November 2026)
 
-Six buttons open one shared form (`public/lounge/lead.js`) that posts to `/api/lounge`
+Four buttons open one shared form (`public/lounge/lead.js`) that posts to `/api/lounge`
 (`app/api/lounge/route.ts`, validation in `lib/lounge-lead.ts`). Each enquiry is emailed through
 Resend to the website enquiry inbox (`ENQUIRY_TO_EMAIL` / `ENQUIRY_CC_EMAIL`, subject prefix `[Lounge]`).
 
 | Button | Where | Sent with the form |
 |---|---|---|
-| Enquire with Energica | Collections → product | item, maker, price |
-| Send selection to Energica | Preview bag | items and quantities |
-| Ask Energica to join | Community → ride | ride, place, time, group |
-| Share with Energica | Organiser → ride plan | plan name, place, date, time, pace |
+| Register interest | Collections → Energica concept items only | item, maker |
+| Register interest in Energica items | Preview bag (only if it holds Energica concepts) | Energica concept items and quantities |
 | Request a service | Garage → mechanic card | motorcycle, year, odometer |
 | Join the Energica community | Profile → Personal | motorcycle, experience, pace, interests |
+
+Per management (Shivangi, Nov 2026): no ride join or ride-plan sharing until real events exist, and
+no enquiries for third-party maker products until agreements are in place. The API rejects those kinds.
 
 The visitor sees everything that will be sent and must tick consent. Saved riders' contacts, notes,
 rides and videos are never sent. Bots are filtered by a hidden field and a minimum fill time;

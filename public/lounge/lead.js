@@ -3,10 +3,8 @@
 // Only what the visitor types here and the item shown in "Included" is sent.
 // Riders' saved contacts, notes, rides and other lounge data never leave the device.
 const leadCopy={
- ride:{eyebrow:'COMMUNITY · RIDE',title:'Join this ride.',intro:'Tell Energica you would like to ride. The team will contact you with details.',button:'Send request'},
- plan:{eyebrow:'COMMUNITY · YOUR PLAN',title:'Share your ride plan.',intro:'Send your plan to Energica so the team can help or invite other riders.',button:'Share plan'},
- product:{eyebrow:'THE COLLECTION · ENQUIRY',title:'Enquire with Energica.',intro:'Ask Energica about this item. The team will reply by email.',button:'Send enquiry'},
- selection:{eyebrow:'THE COLLECTION · ENQUIRY',title:'Send your selection.',intro:'Send the items in your bag to Energica. The team will reply by email.',button:'Send selection'},
+ product:{eyebrow:'ENERGICA CONCEPT · INTEREST',title:'Register your interest.',intro:'This is an Energica concept, not yet on sale. Tell Energica you are interested and the team may contact you about it.',button:'Register interest'},
+ selection:{eyebrow:'ENERGICA CONCEPTS · INTEREST',title:'Register your interest.',intro:'These Energica concepts are not yet on sale. Tell Energica which ones interest you and the team may contact you about them.',button:'Register interest'},
  service:{eyebrow:'GARAGE · SERVICE',title:'Request a service.',intro:'Ask Energica to arrange a service or inspection for your motorcycle.',button:'Send request'},
  community:{eyebrow:'YOUR ENERGICA',title:'Join the Energica community.',intro:'Share your details so Energica can invite you to rides and events.',button:'Join'}
 };

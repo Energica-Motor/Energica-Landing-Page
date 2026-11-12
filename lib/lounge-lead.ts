@@ -2,10 +2,8 @@
 // Kept free of Next/Resend imports so it can be unit-tested on its own.
 
 export const LOUNGE_LEAD_KINDS = {
-  ride: "Ride request",
-  plan: "Ride plan shared",
-  product: "Product enquiry",
-  selection: "Collection selection",
+  product: "Concept interest",
+  selection: "Concepts interest",
   service: "Service request",
   community: "Community sign-up",
 } as const;
