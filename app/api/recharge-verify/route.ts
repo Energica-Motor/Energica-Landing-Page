@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
             <p style="margin: 24px 0 0; color: #888; font-size: 13px;">This code expires in 10 minutes. If you didn't request this, ignore this email.</p>
           </div>
           <div style="padding: 16px 32px; background: #0A0A0A; color: #555; font-size: 12px;">
-            Energica Motor Company · energicamotor.com
+            ENERGICA PTE. LTD. · energicamotor.com
           </div>
         </div>
       `,

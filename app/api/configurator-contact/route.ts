@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
             <p style="margin: 0; color: #888; font-size: 13px;">Progress, Ridden.</p>
           </div>
           <div style="padding: 16px 32px; background: #0A0A0A; color: #555; font-size: 12px;">
-            Energica Motor Company · energicamotor.com
+            ENERGICA PTE. LTD. · energicamotor.com
           </div>
         </div>
       `,

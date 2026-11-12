@@ -24,7 +24,7 @@ export default function TermsPage() {
             <>
               <p>For the purposes of these Terms of Use, the following definitions apply:</p>
               <ul>
-                <li><strong>"Energica"</strong> means Energica Motor Company S.p.A., with registered office at Via Cesare della Chiesa 44, 41122 Modena, Italy.</li>
+                <li><strong>"Energica"</strong> means ENERGICA PTE. LTD., with registered office at 10 Anson Road, #33-10C International Plaza, Singapore 079903.</li>
                 <li><strong>"Site"</strong> means the website www.energicamotor.com and all associated pages, owned and managed by Energica.</li>
                 <li><strong>"User"</strong> or <strong>"You"</strong> means any visitor or user of the Site, regardless of the device used to access it.</li>
                 <li><strong>"Content"</strong> means all information, data, text, images, photographs, videos, graphics, software, and other material available on the Site.</li>
@@ -49,7 +49,7 @@ export default function TermsPage() {
           title: "3. Copyright Notice",
           content: (
             <>
-              <p>All Content on this Site — including but not limited to text, photographs, graphics, video, audio, software, icons, design, layout, and source code — is the property of Energica Motor Company S.p.A. or its licensors and is protected by applicable copyright, intellectual property and other laws.</p>
+              <p>All Content on this Site — including but not limited to text, photographs, graphics, video, audio, software, icons, design, layout, and source code — is the property of ENERGICA PTE. LTD. or its licensors and is protected by applicable copyright, intellectual property and other laws.</p>
               <p>Any reproduction, duplication, downloading, storage, publication, transmission, or distribution of any Content, in whole or in part, by any means or in any form — including electronic, mechanical, or otherwise — is strictly prohibited without the prior express written consent of Energica, except where permitted by applicable law.</p>
               <p>Limited personal, non-commercial use of the Content may be permitted where expressly stated. Any permitted use must retain all copyright and other proprietary notices in their original form.</p>
             </>
@@ -60,7 +60,7 @@ export default function TermsPage() {
           title: "4. Trademark Notice",
           content: (
             <>
-              <p>"Energica", "Energica Motor Company", "EGO", "EsseEsse9", "Eva Ribelle", "Experia", and the Energica logo are registered or unregistered trademarks of Energica Motor Company S.p.A.</p>
+              <p>"Energica", "Energica Motor Company", "EGO", "EsseEsse9", "Eva Ribelle", "Experia", and the Energica logo are registered or unregistered trademarks of ENERGICA PTE. LTD.</p>
               <p>Trademarks, trade names, and logos of third parties displayed on the Site are the exclusive property of their respective owners. Nothing on this Site should be construed as granting any licence or right to use any trademark displayed on the Site without the prior written consent of Energica or the relevant third-party owner.</p>
               <p>Unauthorised use, reproduction, or imitation of any Energica trademark in any form is strictly prohibited and may give rise to legal action.</p>
             </>
@@ -186,8 +186,8 @@ export default function TermsPage() {
             <>
               <p>For any requests, notices, or complaints relating to these Terms of Use, please contact:</p>
               <p>
-                Energica Motor Company S.p.A.<br />
-                Via Cesare della Chiesa 44, 41122 Modena, Italy<br />
+                ENERGICA PTE. LTD.<br />
+                10 Anson Road, #33-10C International Plaza, Singapore 079903<br />
                 <a href="mailto:legal@energicamotor.com">legal@energicamotor.com</a>
               </p>
             </>

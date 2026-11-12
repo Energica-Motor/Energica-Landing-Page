@@ -207,7 +207,7 @@ export default function Footer() {
           {/* Copyright + legal */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-4">
             <p className="flex items-center gap-2 text-[10px] text-white/45">
-              © {new Date().getFullYear()} ENERGICA PTE LTD — Modena, Italy
+              © {new Date().getFullYear()} ENERGICA PTE. LTD. — Modena, Italy
               <span className="inline-flex h-[8px] w-[12px] overflow-hidden rounded-[1px]" role="img" aria-label="Italian flag">
                 <span className="flex-1 bg-[#009246]" />
                 <span className="flex-1 bg-[#F1F2F1]" />

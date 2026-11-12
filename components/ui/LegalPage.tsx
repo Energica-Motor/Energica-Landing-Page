@@ -103,8 +103,8 @@ export default function LegalPage({ category, title, lastUpdated, sections, rela
             <div className="mt-14 pt-10 border-t border-white/[0.06]">
               <p className="text-[11px] uppercase tracking-[0.3em] text-white/35 mb-3" style={{ fontFamily: "var(--font-ibm-mono)" }}>Contact</p>
               <p className="text-sm text-white/60 leading-relaxed" style={{ fontFamily: "var(--font-ibm-sans)" }}>
-                Energica Motor Company S.p.A.<br />
-                Via Cesare della Chiesa 44, 41122 Modena, Italy<br />
+                ENERGICA PTE. LTD.<br />
+                10 Anson Road, #33-10C International Plaza, Singapore 079903<br />
                 <a href="mailto:privacy@energicamotor.com" className="text-[#78BE20] hover:text-[#78BE20]/80 transition-colors">privacy@energicamotor.com</a>
               </p>
             </div>

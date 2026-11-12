@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
             </p>
           </div>
           <div style="padding: 16px 32px; background: #0A0A0A; color: #555; font-size: 12px;">
-            Energica Motor Company · energicamotor.com
+            ENERGICA PTE. LTD. · energicamotor.com
           </div>
         </div>
       `,

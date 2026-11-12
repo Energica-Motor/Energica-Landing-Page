@@ -22,8 +22,8 @@ export default function PrivacyPage() {
           title: "1. Introduction",
           content: (
             <>
-              <p>Energica Motor Company S.p.A. ("Energica", "we", "us", or "our") respects your privacy and is committed to protecting your personal data. This Privacy Policy explains how we collect, use, store, and share information about you when you visit our website at www.energicamotor.com (the "Site"), contact us, request a test ride, or otherwise interact with us.</p>
-              <p>Energica Motor Company S.p.A., with registered office at Via Cesare della Chiesa 44, 41122 Modena, Italy, is the <strong>Data Controller</strong> for the purposes of the EU General Data Protection Regulation (GDPR) No. 2016/679 and applicable Italian data protection law.</p>
+              <p>ENERGICA PTE. LTD. ("Energica", "we", "us", or "our") respects your privacy and is committed to protecting your personal data. This Privacy Policy explains how we collect, use, store, and share information about you when you visit our website at www.energicamotor.com (the "Site"), contact us, request a test ride, or otherwise interact with us.</p>
+              <p>ENERGICA PTE. LTD., with registered office at 10 Anson Road, #33-10C International Plaza, Singapore 079903, is the <strong>Data Controller</strong> for the purposes of the EU General Data Protection Regulation (GDPR) No. 2016/679 and applicable Italian data protection law.</p>
               <p>This Policy should be read alongside our <a href="/cookies">Cookie Policy</a> and our <a href="/terms">Terms of Use</a>.</p>
             </>
           ),
@@ -181,8 +181,8 @@ export default function PrivacyPage() {
             <>
               <p>For any questions, requests, or concerns about this Privacy Policy or the processing of your personal data, please contact us:</p>
               <p>
-                Energica Motor Company S.p.A.<br />
-                Via Cesare della Chiesa 44, 41122 Modena, Italy<br />
+                ENERGICA PTE. LTD.<br />
+                10 Anson Road, #33-10C International Plaza, Singapore 079903<br />
                 <a href="mailto:privacy@energicamotor.com">privacy@energicamotor.com</a>
               </p>
             </>

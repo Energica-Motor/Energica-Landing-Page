@@ -75,7 +75,7 @@ export default function RootLayout({
                   "@type": "Organization",
                   "@id": "https://energicamotor.com/#organization",
                   "name": "Energica Motor Company",
-                  "legalName": "Energica Motor Company S.p.A.",
+                  "legalName": "ENERGICA PTE. LTD.",
                   "url": "https://energicamotor.com",
                   "logo": {
                     "@type": "ImageObject",

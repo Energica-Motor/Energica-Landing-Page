@@ -32,7 +32,7 @@ export default function CookiesPage() {
           title: "2. Who Sets Cookies on This Site?",
           content: (
             <>
-              <p>Cookies on this Site are set either by us (<strong>first-party cookies</strong>) or by third-party service providers whose services we have integrated into our Site (<strong>third-party cookies</strong>). First-party cookies are set by Energica Motor Company S.p.A. Third-party cookies are set by external companies and are governed by their own privacy and cookie policies.</p>
+              <p>Cookies on this Site are set either by us (<strong>first-party cookies</strong>) or by third-party service providers whose services we have integrated into our Site (<strong>third-party cookies</strong>). First-party cookies are set by ENERGICA PTE. LTD. Third-party cookies are set by external companies and are governed by their own privacy and cookie policies.</p>
             </>
           ),
         },
@@ -158,8 +158,8 @@ export default function CookiesPage() {
             <>
               <p>For questions about our use of cookies or this Cookie Policy, please contact:</p>
               <p>
-                Energica Motor Company S.p.A.<br />
-                Via Cesare della Chiesa 44, 41122 Modena, Italy<br />
+                ENERGICA PTE. LTD.<br />
+                10 Anson Road, #33-10C International Plaza, Singapore 079903<br />
                 <a href="mailto:privacy@energicamotor.com">privacy@energicamotor.com</a>
               </p>
             </>

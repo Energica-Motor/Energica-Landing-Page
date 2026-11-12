@@ -225,7 +225,7 @@ function MobileOverlay({
       </div>
 
       <p className="absolute bottom-8 left-8 text-xs text-white/20 uppercase tracking-widest">
-        © 2024 Energica Motor Company
+        © {new Date().getFullYear()} ENERGICA PTE. LTD.
       </p>
     </div>
   );
