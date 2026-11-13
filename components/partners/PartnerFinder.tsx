@@ -39,7 +39,8 @@ export default function PartnerFinder({ partners, initial }: { partners: Partner
   const [focus, setFocus] = useState<MapFocus | null>(null);
   const [view, setView] = useState<"list" | "map">("list");
   const [sheetId, setSheetId] = useState<string | null>(null);
-  const [isDesktop, setIsDesktop] = useState(true);
+  // false until measured: CSS decides the first paint, so phones never flash the desktop map.
+  const [isDesktop, setIsDesktop] = useState(false);
   const [headerH, setHeaderH] = useState(80);
   const cardRefs = useRef(new Map<string, HTMLElement>());
   const focusSeq = useRef(0);
@@ -279,12 +280,12 @@ export default function PartnerFinder({ partners, initial }: { partners: Partner
       <div className="border-t border-white/[0.06] lg:h-[calc(100vh-96px)] lg:grid lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
         <div className="lg:flex lg:flex-col lg:min-h-0 lg:border-r border-white/[0.06]">
           <div className="sticky top-20 md:top-24 z-30 lg:static">{filterBar}</div>
-          <div className={cn("lg:flex-1 lg:min-h-0 lg:overflow-y-auto overscroll-contain", !isDesktop && view === "map" && "hidden")}>{list}</div>
+          <div className={cn("lg:flex-1 lg:min-h-0 lg:overflow-y-auto overscroll-contain", view === "map" && "hidden lg:block")}>{list}</div>
         </div>
 
         <div
-          className={cn("relative", isDesktop ? "h-full" : view === "map" ? "block" : "hidden")}
-          style={isDesktop ? undefined : { height: `calc(100dvh - ${headerH}px - ${barH}px)` }}
+          className={cn("relative lg:block lg:!h-full", view === "map" ? "block" : "hidden")}
+          style={{ height: `calc(100dvh - ${headerH}px - ${barH}px)` }}
         >
           {(isDesktop || view === "map") && (
             <PartnerMap partners={results} activeId={active} hoverId={hoverId} focus={focus} onSelect={selectFromMap} popups={isDesktop} />
