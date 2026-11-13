@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef } from "react";
+import { forwardRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { TYPE_LABELS, type PartnerType } from "@/data/partners";
 import { directionsUrl, formatKm, telHref, type RankedPartner } from "@/lib/partners";
@@ -41,6 +41,19 @@ const PartnerCard = forwardRef<HTMLElement, Props>(function PartnerCard({ partne
   // First action is the primary one: solid green only on the selected card.
   const phone = p.phones?.[0];
   const email = p.emails?.[0];
+  // mailto: does nothing on computers without a mail app (common on Windows with webmail).
+  // If the window never loses focus after the click, offer webmail and copy instead.
+  const [mailFallback, setMailFallback] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const onMail = () => {
+    let left = false;
+    const onBlur = () => (left = true);
+    window.addEventListener("blur", onBlur, { once: true });
+    setTimeout(() => {
+      window.removeEventListener("blur", onBlur);
+      if (!left && document.visibilityState === "visible") setMailFallback(true);
+    }, 900);
+  };
   const actions = [
     dir && { label: "Directions", href: dir, external: true },
     phone && { label: "Call", href: telHref(phone) },
@@ -115,12 +128,27 @@ const PartnerCard = forwardRef<HTMLElement, Props>(function PartnerCard({ partne
               key={x.label}
               href={x.href}
               {...(x.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+              onClick={x.label === "Email" ? onMail : undefined}
               className={cn(btn, active && i === 0 ? primary : secondary)}
             >
               {x.label}
               {x.external && <span aria-hidden>↗</span>}
             </a>
           ))}
+        </div>
+      )}
+
+      {mailFallback && email && (
+        <div role="status" className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] text-[#A3A7AC]" style={sans} onClick={(e) => e.stopPropagation()}>
+          <span>No email app opened. Send with:</span>
+          <a className="text-[#F2F2F0] underline underline-offset-2 hover:text-[#78BE20] cursor-none" target="_blank" rel="noopener noreferrer"
+            href={`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}`}>Gmail</a>
+          <a className="text-[#F2F2F0] underline underline-offset-2 hover:text-[#78BE20] cursor-none" target="_blank" rel="noopener noreferrer"
+            href={`https://outlook.office.com/mail/deeplink/compose?to=${encodeURIComponent(email)}`}>Outlook</a>
+          <button type="button" className="min-h-[28px] text-[#F2F2F0] underline underline-offset-2 hover:text-[#78BE20] cursor-none"
+            onClick={() => navigator.clipboard?.writeText(email).then(() => setCopied(true)).catch(() => {})}>
+            {copied ? "Copied" : "Copy address"}
+          </button>
         </div>
       )}
     </article>
