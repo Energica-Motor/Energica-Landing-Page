@@ -741,7 +741,8 @@ export default function EnergiccaConfigurator({
   const colourOption = chosen.find((o) => o.groupKey === "base_color");
   const colourName = colourOption ? cleanLayerName(colourOption, "base_color").title : "";
   const isRs = !!config?.layers.some((l) => /rs version/i.test(l.name) && visibleLayers.has(l.id));
-  const version = hasRsOption ? (isRs ? "RS" : "Standard") : null;
+  // Only RS is named; the standard version shows just the colour.
+  const version = hasRsOption && isRs ? "RS" : null;
   const stats = performanceFor(model, MODEL_INFO[model].name).grid;
 
   const isLast = step >= steps.length - 1;
@@ -845,7 +846,7 @@ export default function EnergiccaConfigurator({
   // so the space kept clear for it doesn't change with the colour picked
   const captionNames = useMemo(() => {
     const colours = sections.find((s) => s.key === "base_color")?.options.map((o) => o.title) ?? [];
-    return { colours, versions: hasRsOption ? ["RS", "Standard"] : [] };
+    return { colours, versions: hasRsOption ? ["RS"] : [] };
   }, [sections, hasRsOption]);
   const captionKey = `${captionNames.colours.join("|")}/${captionNames.versions.join("|")}`;
   useEffect(() => {

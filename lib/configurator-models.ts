@@ -1,5 +1,5 @@
 // Models available in the configurator (backend ids use underscores).
-export const CONFIGURATOR_MODELS = ["eva_ribelle", "essesse9", "ego", "experia"] as const;
+export const CONFIGURATOR_MODELS = ["experia", "ego", "eva_ribelle", "essesse9"] as const;
 
 export type ConfiguratorModel = (typeof CONFIGURATOR_MODELS)[number];
 
