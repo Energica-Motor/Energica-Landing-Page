@@ -13,7 +13,7 @@ import { hasServiceDot, pinKind, pinSvg } from "./pins";
 const KEY = process.env.NEXT_PUBLIC_MAP_KEY;
 const STYLE_URL =
   process.env.NEXT_PUBLIC_MAP_STYLE_URL ||
-  (KEY ? `https://api.maptiler.com/maps/dataviz/style.json?key=${KEY}` : "https://tiles.openfreemap.org/styles/positron");
+  (KEY ? `https://api.maptiler.com/maps/dataviz-dark/style.json?key=${KEY}` : "https://tiles.openfreemap.org/styles/dark");
 
 // Must match the installed maplibre-gl version (checked in tests/dealers/partners.test.ts).
 export const MAPLIBRE_VERSION = "5.6.2";
@@ -409,7 +409,7 @@ function LiveMap({ partners, activeId, hoverId, focus, fit = null, onSelect, pop
 
   // MapLibre sets position:relative on its container, so it needs a sized wrapper.
   return (
-    <div className="absolute inset-0 bg-[#E9E9E6]">
+    <div className="absolute inset-0 bg-[#0F1012]">
       <div ref={el} className="w-full h-full" aria-label="Map of Energica partners" role="region" />
     </div>
   );
@@ -461,7 +461,7 @@ function collapseAttribution(root: HTMLElement | null) {
   });
 }
 
-/** Light, muted look: light grey land, white roads, no POI or region labels. */
+/** Site-matched dark look: #0F1012 land, muted borders/roads, no POI or region labels. */
 function tuneStyle(m: MLMap) {
   const style = m.getStyle() as StyleSpecification;
   for (const layer of style.layers) {
@@ -469,26 +469,26 @@ function tuneStyle(m: MLMap) {
     const sl = ("source-layer" in layer ? layer["source-layer"] : "")?.toLowerCase() ?? "";
     const hide = () => m.setLayoutProperty(layer.id, "visibility", "none");
     try {
-      if (layer.type === "background") m.setPaintProperty(layer.id, "background-color", "#E9E9E6");
+      if (layer.type === "background") m.setPaintProperty(layer.id, "background-color", "#0F1012");
       else if (sl === "poi" || id.includes("poi") || sl === "aerodrome_label" || id.includes("housenumber")) hide();
       else if (sl === "building" || id.includes("building")) hide();
-      else if (layer.type === "fill" && (sl === "water" || id.includes("water"))) m.setPaintProperty(layer.id, "fill-color", "#D3D9DD");
+      else if (layer.type === "fill" && (sl === "water" || id.includes("water"))) m.setPaintProperty(layer.id, "fill-color", "#08090B");
       else if (layer.type === "fill" && (sl === "landcover" || sl === "landuse" || sl === "park")) {
-        m.setPaintProperty(layer.id, "fill-color", "#E9E9E6");
-        m.setPaintProperty(layer.id, "fill-pattern", undefined);
-      } else if (layer.type === "line" && sl === "transportation") m.setPaintProperty(layer.id, "line-color", "#FFFFFF");
-      else if (layer.type === "line" && sl === "boundary") m.setPaintProperty(layer.id, "line-color", "#BFC3C7");
-      else if (layer.type === "line" && sl === "waterway") m.setPaintProperty(layer.id, "line-color", "#D3D9DD");
+        m.setPaintProperty(layer.id, "fill-color", "#0F1012");
+        m.setPaintProperty(layer.id, "fill-pattern", undefined); // no sprite patterns (e.g. wood)
+      } else if (layer.type === "line" && sl === "transportation") m.setPaintProperty(layer.id, "line-color", "#22252B");
+      else if (layer.type === "line" && sl === "boundary") m.setPaintProperty(layer.id, "line-color", "#2E3238");
+      else if (layer.type === "line" && sl === "waterway") m.setPaintProperty(layer.id, "line-color", "#0B0C0E");
       else if (layer.type === "symbol" && (sl === "transportation_name" || sl === "mountain_peak" || sl === "water_name")) hide();
       // Region labels: continents, countries, states/provinces, and small places.
       else if (layer.type === "symbol" && sl === "place" && /continent|country|state|province|village|hamlet|suburb|neighbourhood|quarter|island|other/.test(id)) hide();
       else if (layer.type === "symbol") {
         if (sl === "place") {
           m.setLayoutProperty(layer.id, "text-field", ["coalesce", ["get", "name:en"], ["get", "name_en"], ["get", "name:latin"], ["get", "name"]]);
-          m.setLayoutProperty(layer.id, "icon-image", undefined);
+          m.setLayoutProperty(layer.id, "icon-image", undefined); // city dots need the sprite
         }
-        m.setPaintProperty(layer.id, "text-color", "#5E6266");
-        m.setPaintProperty(layer.id, "text-halo-color", "#FFFFFF");
+        m.setPaintProperty(layer.id, "text-color", "#6E747E");
+        m.setPaintProperty(layer.id, "text-halo-color", "#0F1012");
       }
     } catch {
       /* layer may not support this property — leave it */
@@ -505,7 +505,7 @@ function StaticMap({ partners, activeId, hoverId, onSelect }: Props) {
   const [x0, x1, y0, y1] = located.length ? [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)] : [0, 1, 0, 1];
   const norm = (v: number, a: number, b: number) => (b - a < 1e-9 ? 0.5 : (v - a) / (b - a));
   return (
-    <div className="absolute inset-0 bg-[#E9E9E6] overflow-hidden" role="region" aria-label="Partner locations">
+    <div className="absolute inset-0 bg-[#0F1012] overflow-hidden" role="region" aria-label="Partner locations">
       {located
         .slice()
         .sort((a, b) => Number(a.id === activeId || a.id === hoverId) - Number(b.id === activeId || b.id === hoverId))
