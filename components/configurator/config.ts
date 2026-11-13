@@ -11,7 +11,7 @@ export const MODEL_INFO: Record<Model, { name: string; category: string }> = {
   ego: { name: MODEL_NAMES.ego, category: "Supersport" },
   experia: { name: MODEL_NAMES.experia, category: "Grand tourer" },
 };
-export const MODEL_ORDER: Model[] = ["eva_ribelle", "essesse9", "ego", "experia"];
+export const MODEL_ORDER: Model[] = ["experia", "ego", "eva_ribelle", "essesse9"];
 
 export interface StepDef { label: string; groups: string[] }
 

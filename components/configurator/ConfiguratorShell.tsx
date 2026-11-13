@@ -4,6 +4,7 @@ import { useState } from "react";
 import EnergiccaConfigurator from "./EnergiccaConfigurator";
 import type { ConfiguratorModel } from "@/lib/configurator-models";
 import { COLOR } from "./theme";
+import { MODEL_ORDER } from "./config";
 
 type Model = ConfiguratorModel;
 
@@ -11,7 +12,7 @@ const API_URL =
   process.env.NEXT_PUBLIC_CONFIGURATOR_API_URL ?? "/api/backend";
 
 export default function ConfiguratorShell({ initialModel, initialLayers, buildNotFound }: { initialModel?: Model; initialLayers?: string[]; buildNotFound?: boolean }) {
-  const [activeModel, setActiveModel] = useState<Model>(initialModel ?? "eva_ribelle");
+  const [activeModel, setActiveModel] = useState<Model>(initialModel ?? MODEL_ORDER[0]);
 
   const switchModel = (m: Model) => {
     if (typeof window !== "undefined") {
@@ -39,7 +40,7 @@ export default function ConfiguratorShell({ initialModel, initialLayers, buildNo
         model={activeModel}
         apiUrl={API_URL}
         initialLayers={activeModel === initialModel ? initialLayers : undefined}
-        buildNotFound={buildNotFound && activeModel === (initialModel ?? "eva_ribelle")}
+        buildNotFound={buildNotFound && activeModel === (initialModel ?? MODEL_ORDER[0])}
         onModelChange={switchModel}
       />
     </div>
