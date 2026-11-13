@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { Photo } from "@/components/ui/Photo";
 import { Container } from "@/components/ui/Container";
 import ParticleCanvas from "@/components/ui/ParticleCanvas";
 
@@ -13,10 +13,9 @@ export default function RacingHero() {
     <section className="relative h-screen overflow-hidden">
       {/* Background image */}
       <div className="absolute inset-0">
-        <Image
+        <Photo
           src="/images/MotoAmerica/BJNB2669_3_P.jpg"
           alt="Energica MotoAmerica Racing"
-          fill
           priority
           className="object-cover"
           style={{ objectPosition: "60% center" }}

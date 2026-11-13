@@ -1,11 +1,12 @@
 "use client";
-// @ts-nocheck — types verified in energica-configurator repo (stricter tsconfig there)
 
 /**
  * EnergiccaConfigurator
  *
- * Main React component for the Energica Motorcycle Configurator.
- * Brand-compliant: Barlow Condensed + IBM Plex Sans, Energica official palette only.
+ * Main React component for the Energica Motorcycle Configurator: model bar,
+ * stage (live render and headline figures), stepped options panel and the
+ * bottom action bar. Selection rules live in ./rules, copy and step maps in
+ * ./config, design tokens in ./theme.
  */
 
 import React, {
@@ -18,35 +19,29 @@ import React, {
 import { createPortal } from "react-dom";
 import {
   ConfigSchema,
-  LayerMeta,
   clearConfigCache,
   decodeConfig,
   encodeConfig,
   getModelConfig,
   renderConfiguration,
 } from "@/lib/configurator-api";
-
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
-type Model = "eva_ribelle" | "essesse9" | "ego" | "experia";
+import { buildSheetContent } from "@/lib/build-sheet/catalog";
+import { performanceFor } from "@/lib/build-sheet/specs";
+import { MODEL_INFO, cleanLayerName, type Model } from "./config";
+import * as rules from "./rules";
+import { fitBike, measureBike, paddedRegion, sameBox, unionBox, type BikeBox, type Rect } from "./trim";
+import { ActionBar, ModelTabs, OptionSection, SpecStrip, StageHeading, StepTabs } from "./ui";
+import { BORDER, COLOR, FONT, SIZE, monoLabel } from "./theme";
 
 interface Props {
   model: Model;
   apiUrl?: string;
+  initialLayers?: string[]; // build restored from a short link (?build=<code>)
+  buildNotFound?: boolean; // ?build=<code> named a build that doesn't exist
+  onModelChange: (model: Model) => void;
 }
 
-interface GroupConfig {
-  label: string;
-  description: string;
-  exclusive: boolean; // true = radio, false = checkbox
-}
-
-// ---------------------------------------------------------------------------
-// Constants
-// ---------------------------------------------------------------------------
-
+// Model names as sent to sales (email subject and body)
 const MODEL_DISPLAY_NAMES: Record<Model, string> = {
   eva_ribelle: "EVA RIBELLE",
   essesse9: "ESSESSE9",
@@ -54,476 +49,142 @@ const MODEL_DISPLAY_NAMES: Record<Model, string> = {
   experia: "EXPERIA",
 };
 
-const GROUP_CONFIG: Record<string, GroupConfig> = {
-  base_color: {
-    label: "COLORS",
-    description: "Select the primary finish for your motorcycle.",
-    exclusive: true,
-  },
-  suspension: {
-    label: "SUSPENSION",
-    description: "Choose your suspension setup.",
-    exclusive: true,
-  },
-  wheels: {
-    label: "WHEELS",
-    description: "Select rim style and finish.",
-    exclusive: true,
-  },
-  front_fender: {
-    label: "FRONT FENDER",
-    description: "Standard injection or optional carbon fibre.",
-    exclusive: true,
-  },
-  windscreen: {
-    label: "WINDSCREEN",
-    description: "Standard or low smoky windscreen.",
-    exclusive: true,
-  },
-  passenger_seat: {
-    label: "SEAT",
-    description: "Choose your seat configuration.",
-    exclusive: true,
-  },
-  covers: {
-    label: "COVER CorsaClienti",
-    description: "Racing cover for the passenger seat.",
-    exclusive: true,
-  },
-  carbon_parts: {
-    label: "CARBON ACCESSORIES",
-    description: "Add individual carbon-fibre components.",
-    exclusive: false,
-  },
-  bellypan: {
-    label: "BELLYPAN",
-    description: "Add a coloured bellypan with stripe finish.",
-    exclusive: true,
-  },
-  ergal_screws: {
-    label: "ERGAL SCREWS",
-    description: "Optional anodised ergal screw kit.",
-    exclusive: true,
-  },
-  optional_upgrades: {
-    label: "OPTIONAL UPGRADES",
-    description: "Performance and touring additions.",
-    exclusive: false,
-  },
-  bags_plates: {
-    label: "BAG PLATE COLOUR",
-    description: "Choose a colour for the side bag plates. Requires Side Bags Kit.",
-    exclusive: true,
-  },
-  cnc_options: {
-    label: "CNC FINISH",
-    description: "Optional CNC Titanium Grey finish. Available on Bormio Ice only.",
-    exclusive: true,
-  },
-  rs_options: {
-    label: "RS OPTIONS",
-    description: "RS version badge and sticker kit.",
-    exclusive: false,
-  },
-  other: {
-    label: "ACCESSORIES",
-    description: "Additional components.",
-    exclusive: false,
-  },
-};
-
 // ---------------------------------------------------------------------------
-// Inline styles (CSS-variable-only; no hardcoded colour values)
+// Inline styles for the stage and the enquiry form
 // ---------------------------------------------------------------------------
 
 const S = {
-  root: {
-    fontFamily: "var(--font-secondary, 'IBM Plex Sans', sans-serif)",
-    // Reset CSS variables so the landing page's dark-theme globals don't bleed in
-    ["--text-primary" as string]: "#121212",
-    ["--text-secondary" as string]: "#757575",
-    ["--bg-primary" as string]: "#ffffff",
-    ["--bg-secondary" as string]: "#f9f9f9",
-    ["--bg-tertiary" as string]: "#f5f5f5",
-    ["--border-color" as string]: "#eeeeee",
-    backgroundColor: "#ffffff",
-    color: "#121212",
-    minHeight: "100vh",
-    display: "flex",
-    flexDirection: "column" as const,
-  },
-  header: {
-    borderBottom: "1px solid var(--border-color, #eee)",
-    padding: "0 var(--space-10, 40px)",
-    height: "64px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: "var(--bg-primary, #fff)",
-    position: "sticky" as const,
-    top: 0,
-    zIndex: 10,
-  },
-  headerBrand: {
-    fontFamily: "var(--font-primary, 'Barlow Condensed', sans-serif)",
-    fontWeight: 700,
-    fontSize: "var(--text-xl, 24px)",
-    letterSpacing: "0.08em",
-    textTransform: "uppercase" as const,
-    color: "var(--text-primary, #121212)",
-  },
-  headerModelTag: {
-    fontFamily: "var(--font-primary, 'Barlow Condensed', sans-serif)",
-    fontWeight: 500,
-    fontSize: "var(--text-sm, 12px)",
-    letterSpacing: "0.12em",
-    textTransform: "uppercase" as const,
-    color: "var(--accent, #78BE20)",
-  },
-  main: {
-    display: "flex",
-    width: "100%",
-    alignItems: "flex-start", // required for sticky left panel to work
-  },
-  previewPane: {
-    flex: "1 1 0",
-    minWidth: 0,
-    position: "sticky" as const,
-    top: "80px",
-    height: "calc(100vh - 80px)",
-    backgroundColor: "#ffffff",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    overflow: "hidden",
-  },
-  previewFrameWrapper: {
-    width: "100%",
-    height: "100%",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  previewFrame: {
-    width: "100%",
-    height: "100%",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    position: "relative" as const,
-    overflow: "hidden",
-  },
-  previewImage: {
-    maxWidth: "88%",
-    maxHeight: "88%",
-    objectFit: "contain" as const,
-    display: "block",
-  },
-  previewPlaceholder: {
-    display: "flex",
-    flexDirection: "column" as const,
-    alignItems: "center",
-    gap: "var(--space-3, 12px)",
-    color: "var(--text-muted, #bdbdbd)",
-    fontFamily: "var(--font-primary, 'Barlow Condensed', sans-serif)",
-    fontSize: "var(--text-sm, 12px)",
-    letterSpacing: "0.1em",
-    textTransform: "uppercase" as const,
-  },
-  loadingOverlay: {
-    position: "absolute" as const,
-    inset: 0,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(255,255,255,0.7)",
-  },
   spinner: {
     width: "32px",
     height: "32px",
-    border: "2px solid var(--border-color, #eee)",
-    borderTop: "2px solid var(--accent, #78BE20)",
+    border: `2px solid ${COLOR.rule}`,
+    borderTop: `2px solid ${COLOR.green}`,
     borderRadius: "50%",
     animation: "energica-spin 0.7s linear infinite",
-  },
-  errorBanner: {
-    backgroundColor: "var(--bg-secondary, #f9f9f9)",
-    border: "1px solid var(--error, #D32F2F)",
-    borderRadius: "var(--radius-md, 8px)",
-    padding: "var(--space-4, 16px) var(--space-6, 24px)",
-    color: "var(--error, #D32F2F)",
-    fontSize: "var(--text-base, 14px)",
-    fontFamily: "var(--font-secondary, 'IBM Plex Sans', sans-serif)",
-  },
-  configPane: {
-    width: "400px",
-    flexShrink: 0,
-    display: "flex",
-    flexDirection: "column" as const,
-    borderLeft: "1px solid #e8e8e8",
-    backgroundColor: "#ffffff",
-    minHeight: "calc(100vh - 80px)",
-  },
-  configPaneInner: {
-    display: "flex",
-    flexDirection: "column" as const,
-    gap: "0",
-    paddingTop: "20px",
-    paddingBottom: "60px",
-    flex: 1,
-  },
-  section: {
-    display: "flex",
-    flexDirection: "column" as const,
-    gap: "0",
-    borderBottom: "1px solid #f0f0f0",
-    padding: "20px 24px",
-  },
-  sectionTitle: {
-    fontFamily: "'Barlow Condensed', sans-serif",
-    fontWeight: 700,
-    fontSize: "11px",
-    letterSpacing: "0.15em",
-    textTransform: "uppercase" as const,
-    color: "#121212",
-    margin: "0 0 4px 0",
-  },
-  sectionDesc: {
-    fontFamily: "'IBM Plex Sans', sans-serif",
-    fontSize: "12px",
-    color: "#9e9e9e",
-    margin: "0 0 16px 0",
-    lineHeight: "1.5",
-  },
-  optionList: {
-    display: "flex",
-    flexDirection: "column" as const,
-    gap: "2px",
-  },
-  optionRow: (active: boolean, disabled: boolean) => ({
-    display: "flex",
-    alignItems: "center",
-    gap: "12px",
-    padding: "10px 12px",
-    borderRadius: "3px",
-    cursor: disabled ? "not-allowed" : "pointer",
-    opacity: disabled ? 0.35 : 1,
-    backgroundColor: active ? "#f7f7f7" : "transparent",
-    borderLeft: active ? "2px solid #78BE20" : "2px solid transparent",
-    transition: "background-color 80ms ease, border-color 80ms ease",
-  } as React.CSSProperties),
-  optionLabel: (active: boolean) => ({
-    fontFamily: "'Barlow Condensed', sans-serif",
-    fontWeight: active ? 700 : 500,
-    fontSize: "13px",
-    letterSpacing: "0.04em",
-    color: active ? "#121212" : "#888888",
-    cursor: "inherit",
-    userSelect: "none" as const,
-    flex: 1,
-    textTransform: "uppercase" as const,
-  }),
-  nativeControl: {
-    accentColor: "#78BE20",
-    width: "15px",
-    height: "15px",
-    cursor: "inherit",
-    flexShrink: 0,
   } as React.CSSProperties,
-  actions: {
-    display: "flex",
-    flexDirection: "column" as const,
-    gap: "10px",
-    padding: "20px 24px",
-    borderTop: "1px solid #f0f0f0",
-  },
+  errorBanner: {
+    border: `1px solid ${COLOR.error}`,
+    padding: "12px 16px",
+    color: COLOR.error,
+    fontSize: "14px",
+    fontFamily: FONT.body,
+    background: COLOR.white,
+  } as React.CSSProperties,
+  sectionTitle: {
+    ...monoLabel(11, 0.14, COLOR.text),
+    margin: "0 0 4px 0",
+  } as React.CSSProperties,
   btnPrimary: {
-    fontFamily: "'Barlow Condensed', sans-serif",
-    fontWeight: 700,
-    fontSize: "13px",
-    letterSpacing: "0.12em",
-    textTransform: "uppercase" as const,
-    backgroundColor: "#78BE20",
-    color: "#fff",
-    border: "none",
-    borderRadius: "2px",
-    padding: "14px 24px",
-    cursor: "pointer",
+    ...monoLabel(11, 0.14, COLOR.dark),
+    fontWeight: 500,
+    backgroundColor: COLOR.green,
+    border: `1px solid ${COLOR.green}`,
+    borderRadius: 0,
+    minHeight: SIZE.touch,
+    padding: "0 24px",
     width: "100%",
-    transition: "background-color 200ms ease",
   } as React.CSSProperties,
   btnSecondary: {
-    fontFamily: "'Barlow Condensed', sans-serif",
-    fontWeight: 600,
-    fontSize: "13px",
-    letterSpacing: "0.12em",
-    textTransform: "uppercase" as const,
+    ...monoLabel(11, 0.14, COLOR.text),
     backgroundColor: "transparent",
-    color: "#121212",
-    border: "1px solid #e0e0e0",
-    borderRadius: "2px",
-    padding: "14px 24px",
-    cursor: "pointer",
+    border: `1px solid ${COLOR.text}`,
+    borderRadius: 0,
+    minHeight: SIZE.touch,
+    padding: "0 24px",
     width: "100%",
-    transition: "background-color var(--transition-normal, 200ms ease)",
   } as React.CSSProperties,
-  shareRow: {
-    display: "flex",
-    gap: "8px",
-    alignItems: "center",
-  },
   shareInput: {
     flex: 1,
-    fontFamily: "'IBM Plex Sans', sans-serif",
-    fontSize: "11px",
+    fontFamily: FONT.body,
+    fontSize: "12px",
     padding: "10px 12px",
-    backgroundColor: "#f7f7f7",
-    border: "1px solid #e8e8e8",
-    borderRadius: "2px",
-    color: "#888",
-    outline: "none",
+    backgroundColor: COLOR.paper,
+    border: BORDER.idle,
+    borderRadius: 0,
+    color: COLOR.text,
+    minHeight: SIZE.touch,
+    boxSizing: "border-box",
   } as React.CSSProperties,
   copyBtn: {
-    fontFamily: "'Barlow Condensed', sans-serif",
-    fontWeight: 700,
-    fontSize: "11px",
-    letterSpacing: "0.1em",
-    textTransform: "uppercase" as const,
-    padding: "10px 14px",
+    ...monoLabel(11, 0.12, COLOR.text),
+    padding: "0 14px",
+    minHeight: SIZE.touch,
     backgroundColor: "transparent",
-    border: "1px solid #e0e0e0",
-    borderRadius: "2px",
-    cursor: "pointer",
-    color: "#444",
-    whiteSpace: "nowrap" as const,
+    border: `1px solid ${COLOR.text}`,
+    borderRadius: 0,
+    whiteSpace: "nowrap",
   } as React.CSSProperties,
-  footer: {
-    borderTop: "1px solid #f0f0f0",
-    padding: "20px 48px",
-    textAlign: "center" as const,
-  },
-  footerTagline: {
-    fontFamily: "'Barlow Condensed', sans-serif",
-    fontWeight: 500,
-    fontSize: "11px",
-    letterSpacing: "0.25em",
-    textTransform: "uppercase" as const,
-    color: "#cccccc",
-    margin: 0,
-  },
+  fieldLabel: {
+    display: "block",
+    ...monoLabel(10, 0.12, COLOR.text),
+    marginBottom: "6px",
+  } as React.CSSProperties,
+  field: {
+    width: "100%",
+    fontFamily: FONT.body,
+    fontSize: "14px",
+    padding: "10px 12px",
+    border: BORDER.idle,
+    borderRadius: 0,
+    color: COLOR.text,
+    backgroundColor: COLOR.white,
+    boxSizing: "border-box",
+    minHeight: SIZE.touch,
+    cursor: "text",
+  } as React.CSSProperties,
 };
 
 // ---------------------------------------------------------------------------
 // Custom hook — configuration state management
 // ---------------------------------------------------------------------------
 
-function useConfigurator(model: Model, apiUrl: string) {
+function useConfigurator(model: Model, apiUrl: string, restoredLayers?: string[]) {
   const [config, setConfig] = useState<ConfigSchema | null>(null);
   const [visibleLayers, setVisibleLayers] = useState<Set<string>>(new Set());
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  // Where the bike sits in the preview: the union of every render of this
+  // model, so changing colour or wheels never resizes it on screen
+  const [bikeBox, setBikeBox] = useState<BikeBox | null>(null);
+  const boxCache = useRef(new Map<string, BikeBox | null>());
+  // The selection the shown image (or error) belongs to; while it differs
+  // from the current one the stage shows "updating" from the first click.
+  const [renderedKey, setRenderedKey] = useState<string | null>(null);
+  const latestKey = useRef("");
   const [error, setError] = useState<string | null>(null);
   const [configLoading, setConfigLoading] = useState(true);
   const renderTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const prevObjectUrlRef = useRef<string | null>(null);
+  const isFirstRender = useRef(true);
 
-  // Load config and initialise layers from URL params or defaults
+  // Load config and initialise layers from a saved build, a legacy ?layers=
+  // link, or the defaults
   useEffect(() => {
     // Clear module-level cache so model switches always fetch fresh config
     // (prevents stale mutually_exclusive / always_visible data from prior loads)
+    // The component remounts per model (keyed in ConfiguratorShell), so state
+    // starts fresh here.
     clearConfigCache();
-    setConfigLoading(true);
-    setError(null);
-    // Reset preview when switching models so stale image doesn't linger
-    setPreviewUrl(null);
-    setVisibleLayers(new Set());
     isFirstRender.current = true;
 
     getModelConfig(model, apiUrl)
       .then((cfg) => {
         setConfig(cfg);
-
-        const validIds = new Set(cfg.layers.map((l) => l.id));
-        // always_visible layers must always be in the set
-        const alwaysVisibleIds = new Set(cfg.rules.always_visible);
-        const defaults = cfg.layers
-          .filter((l) => l.visible_by_default || alwaysVisibleIds.has(l.id))
-          .map((l) => l.id);
-
-        // Restore from URL only when ALL decoded IDs belong to this model.
-        // This prevents cross-model contamination when the user switches tabs
-        // while a share URL from a different model is still in the address bar.
-        let initial: string[] = defaults;
-        if (typeof window !== "undefined") {
-          const encoded = new URLSearchParams(window.location.search).get("layers");
-          if (encoded) {
-            const decoded = decodeConfig(encoded);
-            const allValid = decoded.length > 0 && decoded.every((id) => validIds.has(id));
-            if (allValid) initial = decoded;
-          }
-        }
-
-        // Enforce dependencies on restored layers (URL may encode an invalid state)
-        const initialSet = new Set(initial);
-        for (const id of [...initialSet]) {
-          const deps = cfg.rules.dependencies[id] ?? [];
-          deps.forEach((dep) => initialSet.add(dep));
-        }
-        // Enforce incompatibilities: remove any layer that conflicts with another active layer.
-        // Iterate until stable (removing one may reveal another conflict).
-        let changed = true;
-        while (changed) {
-          changed = false;
-          for (const [id, conflicts] of Object.entries(cfg.rules.incompatibilities ?? {})) {
-            if (initialSet.has(id) && (conflicts as string[]).some((c) => initialSet.has(c))) {
-              initialSet.delete(id);
-              changed = true;
-            }
-          }
-        }
-        // Ensure each mutually_exclusive group has at least its default member selected.
-        // URL state may omit a required layer (e.g. seat) if a previous session cleared it.
-        for (const group of cfg.rules.mutually_exclusive ?? []) {
-          const hasOne = group.some((id) => initialSet.has(id));
-          if (!hasOne) {
-            const defaultMember = group.find(
-              (id) => cfg.layers.find((l) => l.id === id)?.visible_by_default,
-            );
-            if (defaultMember) initialSet.add(defaultMember);
-          }
-        }
-        // Ensure always_visible layers are present
-        alwaysVisibleIds.forEach((id) => initialSet.add(id));
-
-        setVisibleLayers(initialSet);
+        const encoded = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("layers") : null;
+        const restored = restoredLayers?.length ? restoredLayers : encoded ? decodeConfig(encoded) : null;
+        setVisibleLayers(rules.initialLayers(cfg, restored));
       })
       .catch((err: Error) => {
         setError(`Could not load configuration: ${err.message}`);
       })
       .finally(() => setConfigLoading(false));
-  }, [model, apiUrl]);
+  }, [model, apiUrl]); // eslint-disable-line react-hooks/exhaustive-deps -- restoredLayers only seeds the first load
 
-  // Derive validator helpers from config
-  const alwaysVisible = useMemo(
-    () => new Set(config?.rules.always_visible ?? []),
-    [config],
-  );
-
-  const exclusiveGroupOf = useCallback(
-    (layerId: string): string[] | null => {
-      if (!config) return null;
-      for (const group of config.rules.mutually_exclusive) {
-        if (group.includes(layerId)) return group;
-      }
-      return null;
-    },
-    [config],
-  );
+  const layersKey = useMemo(() => [...visibleLayers].sort().join(","), [visibleLayers]);
 
   // Trigger debounced render whenever layer selection changes.
   // First render (no previewUrl yet) fires immediately; subsequent changes
-  // are debounced so rapid clicks don't flood the API.
-  const isFirstRender = useRef(true);
+  // are debounced so rapid clicks don't flood the API. Only the latest
+  // request's answer is shown, so a slow earlier render never overwrites it.
   useEffect(() => {
     if (!config || visibleLayers.size === 0) return;
 
@@ -533,36 +194,45 @@ function useConfigurator(model: Model, apiUrl: string) {
     isFirstRender.current = false;
 
     renderTimerRef.current = setTimeout(() => {
-      setLoading(true);
+      const key = layersKey;
+      latestKey.current = key;
       setError(null);
 
       renderConfiguration(model, [...visibleLayers], apiUrl)
-        .then((blob) => {
+        .then(async (blob) => {
+          if (latestKey.current !== key) return;
+          const url = URL.createObjectURL(blob);
+          // Measure the bike before showing the image, so image and crop change
+          // together; a selection's image is measured once (object URLs are
+          // new on every fetch, so the selection is the image's identity)
+          const box = boxCache.current.has(key) ? boxCache.current.get(key)! : await measureBike(blob);
+          boxCache.current.set(key, box);
+          if (latestKey.current !== key) { URL.revokeObjectURL(url); return; }
           // Revoke previous object URL to avoid memory leaks
           if (prevObjectUrlRef.current) {
             URL.revokeObjectURL(prevObjectUrlRef.current);
           }
-          const url = URL.createObjectURL(blob);
           prevObjectUrlRef.current = url;
+          setBikeBox((prev) => {
+            const next = unionBox(prev, box);
+            return sameBox(prev, next) ? prev : next;
+          });
           setPreviewUrl(url);
-
-          // Update URL bar for sharing (non-navigating)
-          if (typeof window !== "undefined") {
-            const encoded = encodeConfig([...visibleLayers]);
-            const newUrl = `${window.location.pathname}?model=${model}&layers=${encoded}`;
-            window.history.replaceState(null, "", newUrl);
-          }
         })
         .catch((err: Error) => {
-          setError(`Preview unavailable: ${err.message}`);
+          if (latestKey.current === key) setError(`Preview unavailable: ${err.message}`);
         })
-        .finally(() => setLoading(false));
+        .finally(() => {
+          if (latestKey.current === key) setRenderedKey(key);
+        });
     }, delay);
 
     return () => {
       if (renderTimerRef.current) clearTimeout(renderTimerRef.current);
     };
-  }, [visibleLayers, config, model, apiUrl]);
+  }, [visibleLayers, layersKey, config, model, apiUrl]);
+
+  const updating = !!config && visibleLayers.size > 0 && renderedKey !== layersKey;
 
   // Cleanup object URL on unmount
   useEffect(() => {
@@ -573,127 +243,14 @@ function useConfigurator(model: Model, apiUrl: string) {
 
   const toggleLayer = useCallback(
     (layerId: string, exclusive: boolean, groupPeers?: string[]) => {
-      setVisibleLayers((prev) => {
-        const next = new Set(prev);
-
-        if (exclusive) {
-          // Radio behaviour: clear all peers in the group before selecting the new one.
-          // Prefer the UI group's full sibling list (groupPeers) — it is always complete.
-          // The backend's mutually_exclusive rules may be a subset (e.g. es_02 is only in
-          // incompatibilities for essesse9, not mutually_exclusive), so using them alone
-          // can leave stale selections when the rules don't cover every sibling.
-          const peers = groupPeers ?? exclusiveGroupOf(layerId) ?? [];
-
-          // isRequired is scoped to the UI group only (groupPeers), not cross-group
-          // exclusive peers — so optional groups like covers can still be deselected
-          // even when they share a mutually_exclusive list with a required group (seats).
-          const isRequired = peers.some(
-            (id) => config?.layers.find((l) => l.id === id)?.visible_by_default,
-          );
-          const wasActive = next.has(layerId) && !alwaysVisible.has(layerId);
-
-          // Helper: delete a layer and cascade-remove anything that depended on it.
-          // cascadeOwnDeps=true: also clears auto-triggered deps of the cleared layer
-          // (used within same group, e.g. seat→seat so rider seat switches correctly).
-          // cascadeOwnDeps=false: only clears the layer itself
-          // (used cross-group, e.g. cover→seat so rider seat stays active).
-          const clearWithDeps = (id: string, cascadeOwnDeps = true) => {
-            if (alwaysVisible.has(id)) return;
-            next.delete(id);
-            if (config?.rules.dependencies) {
-              for (const [depId, depDeps] of Object.entries(config.rules.dependencies)) {
-                if (depDeps.includes(id) && next.has(depId)) next.delete(depId);
-              }
-              if (cascadeOwnDeps) {
-                for (const ownDep of config.rules.dependencies[id] ?? []) {
-                  if (!alwaysVisible.has(ownDep)) next.delete(ownDep);
-                }
-              }
-            }
-          };
-
-          // Clear UI-group peers (same group → cascade own deps so rider seat switches).
-          peers.forEach((id) => clearWithDeps(id, true));
-
-          // Clear cross-group peers (cover→seat or seat→cover) without cascading own deps
-          // so that auto-triggered rider seats stay active when a cover replaces the passenger seat.
-          const exclusivePeers = exclusiveGroupOf(layerId) ?? [];
-          exclusivePeers
-            .filter((id) => !peers.includes(id))
-            .forEach((id) => clearWithDeps(id, false));
-
-          if (wasActive && !isRequired) {
-            // Deselected an optional layer (e.g. a cover). Restore the default from
-            // any cross-group exclusive peers so the group is never left empty.
-            const exclusivePeers = exclusiveGroupOf(layerId) ?? [];
-            const crossGroupDefault = exclusivePeers
-              .filter((id) => !peers.includes(id))
-              .find((id) => config?.layers.find((l) => l.id === id)?.visible_by_default);
-            if (crossGroupDefault) {
-              next.add(crossGroupDefault);
-            }
-          } else {
-            next.add(layerId);
-            // Auto-enable dependencies (e.g. base layer required by an overlay)
-            const deps = config?.rules.dependencies[layerId] ?? [];
-            deps.forEach((dep) => next.add(dep));
-            // Remove any layers now incompatible with the newly added layer,
-            // and cascade-remove layers that depended on the removed layer.
-            for (const [id, conflicts] of Object.entries(config?.rules.incompatibilities ?? {})) {
-              if (next.has(id) && (conflicts as string[]).includes(layerId)) {
-                next.delete(id);
-                if (config?.rules.dependencies) {
-                  for (const [depId, depDeps] of Object.entries(config.rules.dependencies)) {
-                    if (depDeps.includes(id) && next.has(depId)) next.delete(depId);
-                  }
-                }
-              }
-            }
-          }
-        } else {
-          // Checkbox behaviour — never remove always-visible layers
-          if (alwaysVisible.has(layerId)) return prev;
-          if (next.has(layerId)) {
-            next.delete(layerId);
-            // Remove layers that depend on this one (reverse dependency cleanup)
-            if (config?.rules.dependencies) {
-              for (const [depId, deps] of Object.entries(config.rules.dependencies)) {
-                if (deps.includes(layerId) && next.has(depId)) {
-                  next.delete(depId);
-                }
-              }
-            }
-          } else {
-            next.add(layerId);
-            // Auto-enable dependencies
-            const deps = config?.rules.dependencies[layerId] ?? [];
-            deps.forEach((dep) => next.add(dep));
-            // Remove any layers now incompatible with the newly added layer,
-            // and cascade-remove layers that depended on the removed layer.
-            for (const [id, conflicts] of Object.entries(config?.rules.incompatibilities ?? {})) {
-              if (next.has(id) && (conflicts as string[]).includes(layerId)) {
-                next.delete(id);
-                if (config?.rules.dependencies) {
-                  for (const [depId, depDeps] of Object.entries(config.rules.dependencies)) {
-                    if (depDeps.includes(id) && next.has(depId)) next.delete(depId);
-                  }
-                }
-              }
-            }
-          }
-        }
-
-        return next;
-      });
+      if (!config) return;
+      setVisibleLayers((prev) => rules.toggleLayer(config, prev, layerId, exclusive, groupPeers));
     },
-    [alwaysVisible, exclusiveGroupOf, config],
+    [config],
   );
 
   const reset = useCallback(() => {
-    if (!config) return;
-    setVisibleLayers(
-      new Set(config.layers.filter((l) => l.visible_by_default).map((l) => l.id)),
-    );
+    if (config) setVisibleLayers(rules.defaultLayers(config));
   }, [config]);
 
   return {
@@ -701,9 +258,9 @@ function useConfigurator(model: Model, apiUrl: string) {
     configLoading,
     visibleLayers,
     previewUrl,
-    loading,
+    bikeBox,
+    updating,
     error,
-    alwaysVisible,
     toggleLayer,
     reset,
   };
@@ -713,64 +270,158 @@ function useConfigurator(model: Model, apiUrl: string) {
 // Sub-components
 // ---------------------------------------------------------------------------
 
-interface OptionRowProps {
-  layer: LayerMeta;
-  active: boolean;
-  disabled: boolean;
-  exclusive: boolean;
-  onToggle: () => void;
-}
+// Public Blob root holding each part's layer PNG (its size positions the detail crops)
+const LAYER_IMAGE_BASE = (
+  process.env.NEXT_PUBLIC_BLOB_BASE_URL || "https://cumxnjuhzezfht2i.public.blob.vercel-storage.com"
+).replace(/\/$/, "");
 
-/** Strip PSD prefixes like "#ER-01 BASE-", "*ES-45-", "EG-80-" to get a clean label. */
-function cleanLayerName(raw: string): string {
-  return raw
-    .replace(/^[#*\s]+/, "")               // leading # * space
-    .replace(/^[A-Z]{2}-\d{2,3}[-\s]+/i, "") // code like ER-01- or EX-108-
-    .replace(/^BASE[-\s]+/i, "")            // leftover "BASE-" prefix
-    .trim();
-}
+// Shared build links always point at the live site, wherever they're created
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://energicamotor.com").replace(/\/$/, "");
 
-function OptionRow({ layer, active, disabled, exclusive, onToggle }: OptionRowProps) {
-  const inputType = exclusive ? "radio" : "checkbox";
-  const inputId = `layer-${layer.id}`;
-  const displayName = cleanLayerName(layer.name);
+const MODAL_COPY = {
+  contact: {
+    title: "Contact Dealer",
+    intro: "Send us your build and we'll connect you with your nearest Energica dealer for a quotation.",
+    submit: "Send Enquiry",
+  },
+  link: {
+    title: "Get your build link",
+    intro: "Tell us where you are and we'll create your link — and have your nearest Energica dealer get in touch.",
+    submit: "Send & get link",
+  },
+  pdf: {
+    title: "Download your build",
+    intro: "Tell us where you are and we'll prepare your PDF — and have your nearest Energica dealer get in touch.",
+    submit: "Send & download PDF",
+  },
+  whatsapp: {
+    title: "Share your build",
+    intro: "Tell us where you are and we'll create your link — and have your nearest Energica dealer get in touch.",
+    submit: "Send & share",
+  },
+};
 
+function BuildLinkBox({ url, copied, onCopy, whatsappUrl }: { url: string; copied: boolean; onCopy: () => void; whatsappUrl: string }) {
   return (
-    <div
-      style={S.optionRow(active, disabled)}
-      onClick={disabled ? undefined : onToggle}
-      role={exclusive ? "radio" : "checkbox"}
-      aria-checked={active}
-      aria-disabled={disabled}
-      tabIndex={disabled ? -1 : 0}
-      onKeyDown={(e) => {
-        if (!disabled && (e.key === "Enter" || e.key === " ")) {
-          e.preventDefault();
-          onToggle();
-        }
-      }}
-    >
-      <input
-        type={inputType}
-        id={inputId}
-        checked={active}
-        disabled={disabled}
-        onChange={() => {}}
-        onClick={(e) => { e.stopPropagation(); onToggle(); }}
-        style={S.nativeControl}
-        aria-label={displayName}
-        tabIndex={-1}
-      />
-      <label
-        htmlFor={inputId}
-        style={S.optionLabel(active)}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {displayName}
-      </label>
+    <div>
+      <p style={S.sectionTitle}>Your build link</p>
+      <div style={{ display: "flex", gap: "6px" }}>
+        <input
+          readOnly
+          value={url}
+          onFocus={(e) => e.currentTarget.select()}
+          style={{ ...S.shareInput, minWidth: 0, cursor: "text" }}
+          aria-label="Your build link"
+        />
+        <button type="button" onClick={onCopy} style={S.copyBtn}>
+          {copied ? "✓ Copied" : "Copy"}
+        </button>
+        <a
+          href={whatsappUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ ...S.copyBtn, textDecoration: "none", display: "inline-flex", alignItems: "center" }}
+          aria-label="Share on WhatsApp"
+        >
+          WhatsApp
+        </a>
+      </div>
     </div>
   );
 }
+
+// Phones: height of the sticky preview strip, and the phone layout breakpoint
+const PREVIEW_STRIP_H = 120;
+const PHONE_MAX = 640;
+
+// Responsive layout, focus ring and button cursors (inline styles can't do these)
+const LAYOUT_CSS = `
+  @keyframes energica-spin { to { transform: rotate(360deg); } }
+  .cfg-root button { cursor: pointer; font: inherit; }
+  .cfg-root button:disabled { cursor: not-allowed; }
+  .cfg-root button:focus-visible, .cfg-root a:focus-visible, .cfg-root input:focus-visible, .cfg-root textarea:focus-visible,
+  .cfg-modal button:focus-visible, .cfg-modal a:focus-visible, .cfg-modal input:focus-visible, .cfg-modal textarea:focus-visible {
+    outline: 2px solid ${COLOR.greenText}; outline-offset: 2px;
+  }
+  .cfg-bar-status { display: none; }
+  /* "More" is 32px tall; its hit area extends to 44px */
+  .cfg-more > button { position: relative; }
+  .cfg-more > button::after { content: ""; position: absolute; inset: -6px 0; }
+  .cfg-progress { position: relative; width: 48px; height: 2px; background: ${COLOR.rule}; overflow: hidden; }
+  .cfg-progress > span { position: absolute; top: 0; bottom: 0; width: 40%; background: ${COLOR.green}; animation: cfg-progress 900ms ease-in-out infinite; }
+  @keyframes cfg-progress { from { left: -40%; } to { left: 100%; } }
+  @media (prefers-reduced-motion: reduce) { .cfg-progress > span { animation: none; left: 0; width: 100%; } }
+  .cfg-scroll { overflow-x: auto; scrollbar-width: none; }
+  .cfg-scroll::-webkit-scrollbar { display: none; }
+  /* Bar heights are measured on mount; these are the first-paint values */
+  .cfg-root { --cfg-modelbar-h: 65px; --cfg-bar-h: 73px; }
+  .cfg-main { display: flex; flex-wrap: wrap; align-items: stretch; flex-grow: 1; }
+  .cfg-stage { flex: 999 1 560px; min-width: 0; padding: 36px 48px 28px; display: flex; flex-direction: column; box-sizing: border-box; }
+  .cfg-render { min-height: 220px; position: relative; }
+  /* The bike box is the bike's own region of the preview (white margins
+     trimmed), so the floor shadow sits under the wheels. Stacked layouts:
+     full width at the region's ratio. */
+  .cfg-bike { position: relative; width: 100%; aspect-ratio: var(--cfg-bike-ratio); }
+  .cfg-panel { flex: 1 1 400px; max-width: ${SIZE.panelW}px; background: ${COLOR.white}; border-left: ${BORDER.idle}; display: flex; flex-direction: column; box-sizing: border-box; min-width: 0; }
+  .cfg-tab { flex: 1 0 auto; }
+  .cfg-flash { animation: cfg-flash 1.6s ease-out; }
+  @keyframes cfg-flash { 0%, 35% { box-shadow: 0 0 0 2px ${COLOR.green}; background: rgba(0,0,0,0.25); } 100% { box-shadow: 0 0 0 2px transparent; } }
+  @media (prefers-reduced-motion: reduce) { .cfg-flash { animation: none; outline: 2px solid ${COLOR.green}; } }
+  .cfg-preview-strip { display: none; }
+  .cfg-dialog { max-height: calc(100vh - 48px); max-height: calc(100dvh - 48px); }
+  /* Desktop: the stage is exactly the space between the bars and never moves;
+     the options scroll inside the panel. */
+  @media (min-width: ${SIZE.stackBelow}px) {
+    .cfg-main { flex: none; flex-wrap: nowrap; min-height: 460px;
+      height: calc(100vh - var(--cfg-header, 80px) - var(--cfg-modelbar-h) - var(--cfg-bar-h));
+      height: calc(100dvh - var(--cfg-header, 80px) - var(--cfg-modelbar-h) - var(--cfg-bar-h)); }
+    /* The title overlays the stage's top-left, so the bike gets the full
+       height between the model bar and the spec strip; the bike is sized and
+       placed in JS (fitBike) to fit and keep clear of the title. */
+    .cfg-stage { min-height: 0; overflow: hidden; position: relative; padding-top: 6px; }
+    .cfg-stage-title { position: absolute; top: 36px; left: 48px; z-index: 2; }
+    /* The image area reaches 16px from the stage edges, past its side padding */
+    .cfg-render { flex: 1 1 0; min-height: 0; margin: 0 -32px; }
+    .cfg-bike { position: absolute; aspect-ratio: auto; }
+    .cfg-panel { height: 100%; overflow: hidden; }
+    .cfg-panel-body { flex: 1 1 0 !important; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+  }
+  @media (min-width: ${SIZE.stackBelow}px) and (max-height: 820px) {
+    .cfg-stage { padding: 6px 40px 20px; }
+    .cfg-stage-title { top: 24px; left: 40px; }
+    .cfg-render { margin: 0 -24px; }
+    .cfg-title { font-size: 56px !important; }
+  }
+  @media (max-width: ${SIZE.stackBelow - 1}px) {
+    .cfg-main { flex-direction: column; }
+    .cfg-stage { flex: none; padding: 28px 24px 20px; }
+    .cfg-panel { flex: none; max-width: none; width: 100%; border-left: none; border-top: ${BORDER.idle}; }
+    .cfg-modelbar { padding: 0 8px !important; }
+  }
+  @media (max-width: ${PHONE_MAX}px) {
+    .cfg-title { font-size: 52px !important; }
+    .cfg-stage { padding: 20px 16px 16px; }
+    .cfg-panel-body { padding: 20px 16px 8px !important; }
+    .cfg-panel-nav { padding: 12px 16px 20px !important; }
+    .cfg-panel-extras { padding: 8px 16px 0 !important; }
+    .cfg-stepcount { display: none !important; }
+    /* Bottom bar, about 104px: count + More menu, then PDF and Contact Dealer */
+    .cfg-actionbar { padding: 10px 16px calc(10px + env(safe-area-inset-bottom)) !important; gap: 8px !important; }
+    .cfg-bar-info { flex: 1 1 100% !important; flex-direction: row !important; align-items: center; justify-content: space-between; }
+    .cfg-bar-prefix, .cfg-bar-summary, .cfg-wide-only { display: none !important; }
+    .cfg-bar-status { display: inline !important; }
+    .cfg-more { display: block !important; }
+    .cfg-actions { width: 100%; flex-wrap: nowrap !important; gap: 8px !important; }
+    .cfg-actions > .cfg-pdf, .cfg-actions > .cfg-contact { flex: 1 1 0; padding: 0 8px !important; letter-spacing: 0.1em !important; }
+    .cfg-options { grid-template-columns: minmax(0, 1fr) !important; }
+    /* Compact preview under the site header once the stage is out of view */
+    .cfg-preview-strip { display: flex; position: fixed; left: 0; right: 0; top: var(--cfg-header, 80px); z-index: 30; height: ${PREVIEW_STRIP_H}px;
+      box-sizing: border-box; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 16px;
+      background: ${COLOR.white}; border-bottom: ${BORDER.idle}; box-shadow: 0 6px 16px rgba(15,16,18,0.08);
+      transform: translateY(-8px); opacity: 0; visibility: hidden; transition: opacity 160ms ease, transform 160ms ease, visibility 0s 160ms; }
+    .cfg-preview-strip[data-shown="true"] { transform: none; opacity: 1; visibility: visible; transition: opacity 160ms ease, transform 160ms ease; }
+  }
+`;
 
 // ---------------------------------------------------------------------------
 // Main component
@@ -779,76 +430,174 @@ function OptionRow({ layer, active, disabled, exclusive, onToggle }: OptionRowPr
 export default function EnergiccaConfigurator({
   model,
   apiUrl = "http://localhost:8000",
+  initialLayers,
+  buildNotFound = false,
+  onModelChange,
 }: Props) {
   const {
     config,
     configLoading,
     visibleLayers,
     previewUrl,
-    loading,
+    bikeBox,
+    updating,
     error,
-    alwaysVisible,
     toggleLayer,
     reset,
-  } = useConfigurator(model, apiUrl);
+  } = useConfigurator(model, apiUrl, initialLayers);
+  const rootRef = useRef<HTMLDivElement>(null);
 
-  const [copied, setCopied] = useState(false);
-  const shareUrl = useMemo(() => {
+  // ── Sharing, PDF and enquiries ────────────────────────────────────────────
+  // Copying the build link, downloading the PDF and "Contact Dealer" all go
+  // through one short form first; the build (PDF attached) is emailed to
+  // Energica sales, who forward it to the right dealer. Once the form is sent,
+  // the link and PDF are unlocked for the session, and any later change to the
+  // build is sent to sales again as an update.
+  const longShareUrl = useMemo(() => {
     if (typeof window === "undefined" || visibleLayers.size === 0) return "";
     const encoded = encodeConfig([...visibleLayers]);
-    return `${window.location.origin}${window.location.pathname}?model=${model}&layers=${encoded}`;
+    return `${SITE_URL}/configurator?model=${model}&layers=${encoded}`;
   }, [visibleLayers, model]);
 
-  const handleCopy = useCallback(() => {
-    if (!shareUrl) return;
-    navigator.clipboard.writeText(shareUrl).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
-  }, [shareUrl]);
+  // Short link for the current build (/b/<code>), created on demand
+  const shortLinks = useRef(new Map<string, { code: string; url: string }>());
+  const [shortLink, setShortLink] = useState<{ code: string; url: string } | null>(null);
+  useEffect(() => {
+    setShortLink(shortLinks.current.get(encodeConfig([...visibleLayers])) ?? null);
+  }, [visibleLayers]);
 
-  // PDF summary: bike image + selected options grouped as in the UI (no prices)
-  const [pdfBusy, setPdfBusy] = useState(false);
-  const handleDownloadPdf = useCallback(async () => {
-    if (!config || pdfBusy) return;
-    setPdfBusy(true);
+  const ensureShortLink = useCallback(async () => {
+    const key = encodeConfig([...visibleLayers]);
+    const cached = shortLinks.current.get(key);
+    if (cached) return cached;
     try {
-      const byId = new Map(config.layers.map((l) => [l.id, l]));
-      const grouped = new Set<string>();
-      const groups = Object.entries(config.groups)
-        .map(([key, ids]) => {
-          ids.forEach((id) => grouped.add(id));
-          // Same rule as the option list: an always-on base layer (e.g. the
-          // base colour) only counts as chosen if nothing else in its group is.
-          const chosen = ids.filter((id) => visibleLayers.has(id) && byId.has(id));
-          const picked = chosen.filter((id) => !alwaysVisible.has(id));
-          const options = (picked.length ? picked : chosen).map((id) => cleanLayerName(byId.get(id)!.name));
-          const label = GROUP_CONFIG[key]?.label ?? key.replace(/_/g, " ");
-          return { label, options };
-        })
-        .filter((g) => g.options.length > 0);
-      const other = [...visibleLayers]
-        .filter((id) => !grouped.has(id) && byId.has(id))
-        .map((id) => cleanLayerName(byId.get(id)!.name));
-      if (other.length) groups.push({ label: "Other", options: other });
-
-      const { downloadConfiguratorPdf } = await import("@/lib/configurator-pdf");
-      await downloadConfiguratorPdf({
-        modelName: MODEL_DISPLAY_NAMES[model] ?? model,
-        imageUrl: previewUrl,
-        groups,
-        buildUrl: shareUrl || window.location.href,
+      const res = await fetch("/api/builds", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ model, layers: [...visibleLayers] }),
       });
+      if (!res.ok) throw new Error(String(res.status));
+      const { code } = await res.json();
+      const link = { code, url: `${SITE_URL}/b/${code}` };
+      shortLinks.current.set(key, link);
+      setShortLink(link);
+      return link;
     } catch (err) {
-      console.error("[configurator] PDF export failed", err);
-    } finally {
-      setPdfBusy(false);
+      console.error("[configurator] short link failed", err);
+      return { code: "", url: longShareUrl };
     }
-  }, [config, visibleLayers, alwaysVisible, previewUrl, model, shareUrl, pdfBusy]);
+  }, [visibleLayers, model, longShareUrl]);
 
-  // Contact Dealer modal state
+  // Address bar: once the build settles, show its permanent short code
+  // (/configurator?build=<code>) instead of the full layer list.
+  useEffect(() => {
+    if (!config || visibleLayers.size === 0) return;
+    const t = setTimeout(async () => {
+      const { code } = await ensureShortLink();
+      if (code && window.location.pathname === "/configurator") {
+        window.history.replaceState(null, "", `/configurator?build=${code}`);
+      }
+    }, 1500);
+    return () => clearTimeout(t);
+  }, [config, visibleLayers, ensureShortLink]);
+
+  // Selected options for the summary, the build sheet and the sales email
+  const chosen = useMemo(() => (config ? rules.selectedOptions(config, visibleLayers) : []), [config, visibleLayers]);
+  const selectedOptions = useCallback(() => chosen, [chosen]);
+
+  const hasRsOption = useMemo(() => !!config?.layers.some((l) => /rs version/i.test(l.name)), [config]);
+  const emailOptions = useCallback(() => {
+    const sheet = buildSheetContent(model, selectedOptions(), hasRsOption);
+    return [...sheet.base, ...sheet.upgrades].map((r) => ({ group: r.label, name: r.title }));
+  }, [model, selectedOptions, hasRsOption]);
+
+  const makePdf = useCallback(async (link: { code: string; url: string }, customerName?: string) => {
+    const { createConfiguratorPdf } = await import("@/lib/build-sheet");
+    return createConfiguratorPdf({
+      model,
+      hasRsOption,
+      imageUrl: previewUrl,
+      canvas: config?.canvas ?? { width: 1, height: 1 },
+      layerBaseUrl: LAYER_IMAGE_BASE,
+      options: selectedOptions(),
+      buildUrl: link.url,
+      buildCode: link.code,
+      customerName,
+    });
+  }, [model, hasRsOption, previewUrl, config, selectedOptions]);
+
+  type Intent = "contact" | "link" | "pdf" | "whatsapp";
+  type Lead = { name: string; email: string; phone: string; country: string; dealer: string; message: string };
+  const EMPTY_LEAD: Lead = { name: "", email: "", phone: "", country: "", dealer: "", message: "" };
+
+  // The visitor's details, remembered for this browser session
+  const [lead, setLead] = useState<Lead | null>(null);
+  const sentCodes = useRef(new Set<string>());
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem("energica-cfg-lead") ?? "null");
+      if (saved?.lead?.email) setLead(saved.lead);
+      (saved?.sent ?? []).forEach((c: string) => sentCodes.current.add(c));
+    } catch { /* storage unavailable */ }
+  }, []);
+  const rememberLead = (l: Lead) => {
+    setLead(l);
+    try {
+      sessionStorage.setItem("energica-cfg-lead", JSON.stringify({ lead: l, sent: [...sentCodes.current] }));
+    } catch { /* storage unavailable */ }
+  };
+
+  const sendToSales = useCallback(async (
+    l: Lead,
+    intent: Intent | "update",
+    link: { code: string; url: string },
+    pdf: { base64: string; fileName: string } | null,
+  ) => {
+    const res = await fetch("/api/configurator-contact", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...l,
+        intent,
+        model: MODEL_DISPLAY_NAMES[model] ?? model,
+        options: emailOptions(),
+        buildUrl: link.url,
+        buildCode: link.code,
+        // The attachment carries the build ref, so only send it with a saved build
+        pdf: link.code ? pdf?.base64 : undefined,
+        pdfName: link.code ? pdf?.fileName : undefined,
+      }),
+    });
+    if (!res.ok) throw new Error("Submit failed");
+    if (link.code) sentCodes.current.add(link.code);
+  }, [model, emailOptions]);
+
+  const [copied, setCopied] = useState(false);
+  const [busy, setBusy] = useState<Intent | null>(null);
+  const copyLink = useCallback(async (url: string) => {
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+      return true;
+    } catch {
+      return false; // the link stays visible in the build-link box to copy by hand
+    }
+  }, []);
+  const whatsappUrl = (url: string) =>
+    `https://wa.me/?text=${encodeURIComponent(`My Energica ${MODEL_DISPLAY_NAMES[model] ?? model} build: ${url}`)}`;
+
+  // Form modal
   const [modalOpen, setModalOpen] = useState(false);
-  const [dealerForm, setDealerForm] = useState({ name: "", email: "", phone: "", location: "", message: "", sendConfig: true });
+  const [modalIntent, setModalIntent] = useState<Intent>("contact");
+  const [dealerForm, setDealerForm] = useState<Lead>(EMPTY_LEAD);
+  const [dealerSubmitting, setDealerSubmitting] = useState(false);
+  const [dealerSuccess, setDealerSuccess] = useState(false);
+  const [dealerError, setDealerError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof Lead, string>>>({});
+  const lastPdf = useRef<{ save: () => void } | null>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const openerRef = useRef<HTMLElement | null>(null);
 
   // Lock body scroll while modal is open
   useEffect(() => {
@@ -859,455 +608,564 @@ export default function EnergiccaConfigurator({
     }
     return () => { document.body.style.overflow = ""; };
   }, [modalOpen]);
-  const [dealerSubmitting, setDealerSubmitting] = useState(false);
-  const [dealerSuccess, setDealerSuccess] = useState(false);
-  const [dealerError, setDealerError] = useState<string | null>(null);
+
+  const openForm = (intent: Intent) => {
+    openerRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    setModalIntent(intent);
+    setDealerForm(lead ?? EMPTY_LEAD);
+    setDealerSuccess(false);
+    setDealerError(null);
+    setFieldErrors({});
+    setModalOpen(true);
+  };
+
+  // Focus goes back to the button that opened the form; one picked from the
+  // phone "More" menu is gone by then, so the menu button gets it instead.
+  const closeForm = useCallback(() => {
+    setModalOpen(false);
+    const opener = openerRef.current;
+    const target = opener?.isConnected ? opener : rootRef.current?.querySelector<HTMLElement>(".cfg-more > button");
+    requestAnimationFrame(() => target?.focus({ preventScroll: true }));
+  }, []);
+
+  // While open: first field focused, Escape closes, Tab stays inside
+  useEffect(() => {
+    if (!modalOpen) return;
+    const dialog = dialogRef.current;
+    (dialog?.querySelector<HTMLElement>("input") ?? dialog)?.focus({ preventScroll: true });
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") { e.preventDefault(); closeForm(); return; }
+      if (e.key !== "Tab" || !dialog) return;
+      const items = [...dialog.querySelectorAll<HTMLElement>("a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled])")];
+      if (!items.length) return;
+      const first = items[0], last = items[items.length - 1];
+      const inside = dialog.contains(document.activeElement);
+      if (e.shiftKey && (document.activeElement === first || !inside)) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && (document.activeElement === last || !inside)) { e.preventDefault(); first.focus(); }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [modalOpen, closeForm]);
+
+  // The success view replaces the focused submit button; keep focus inside
+  useEffect(() => {
+    if (dealerSuccess) dialogRef.current?.focus({ preventScroll: true });
+  }, [dealerSuccess]);
+
+  // Copy link / Download PDF: form first; afterwards they act directly and
+  // a changed build is sent to sales as an update.
+  const handleAction = useCallback(async (intent: "link" | "pdf") => {
+    if (!config || busy) return;
+    if (!lead) { openForm(intent); return; }
+    setBusy(intent);
+    try {
+      const link = await ensureShortLink();
+      const isNew = !!link.code && !sentCodes.current.has(link.code);
+      if (intent === "link") await copyLink(link.url);
+      const pdf = intent === "pdf" || isNew ? await makePdf(link, lead.name) : null;
+      if (intent === "pdf") pdf?.save();
+      if (isNew) {
+        sendToSales(lead, "update", link, pdf)
+          .then(() => rememberLead(lead))
+          .catch((err) => console.error("[configurator] update not sent", err));
+      }
+    } catch (err) {
+      console.error("[configurator] action failed", err);
+    } finally {
+      setBusy(null);
+    }
+  }, [config, busy, lead, ensureShortLink, copyLink, makePdf, sendToSales]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleDealerSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
+    const f = {
+      ...dealerForm,
+      name: dealerForm.name.trim(),
+      email: dealerForm.email.trim(),
+      phone: dealerForm.phone.trim(),
+      country: dealerForm.country.trim(),
+    };
+    // Same checks and messages as before; each failing field is also marked
+    // and the first one focused.
+    const flag = (errors: Partial<Record<keyof Lead, string>>, message: string) => {
+      setFieldErrors(errors);
+      setDealerError(message);
+      const firstKey = (["name", "email", "phone", "country"] as const).find((k) => errors[k]);
+      const input = firstKey && document.getElementById(`dc-${firstKey}`);
+      if (!input) return;
+      input.focus({ preventScroll: true });
+      // Bring the whole field, label included, into the scrolling area
+      const field = input.parentElement!, box = field.closest(".cfg-dialog-fields");
+      if (box) box.scrollTop += field.getBoundingClientRect().top - box.getBoundingClientRect().top - 16;
+    };
+    const missing = (["name", "email", "phone", "country"] as const).filter((k) => !f[k]);
+    if (missing.length) {
+      flag(Object.fromEntries(missing.map((k) => [k, "Required"])), "Please fill in your name, email, phone and country.");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email)) {
+      flag({ email: "Enter a valid email address" }, "Please enter a valid email address.");
+      return;
+    }
+    setFieldErrors({});
     setDealerSubmitting(true);
     setDealerError(null);
     try {
-      const layerNames = config?.layers
-        .filter((l) => visibleLayers.has(l.id))
-        .map((l) => l.name) ?? [];
-      const res = await fetch("/api/configurator-contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: dealerForm.name,
-          email: dealerForm.email,
-          phone: dealerForm.phone,
-          location: dealerForm.location,
-          message: dealerForm.message,
-          sendConfig: dealerForm.sendConfig,
-          model: MODEL_DISPLAY_NAMES[model] ?? model,
-          layers: layerNames,
-          configUrl: shareUrl,
-        }),
-      });
-      if (!res.ok) throw new Error("Submit failed");
+      const link = await ensureShortLink();
+      const pdf = await makePdf(link, f.name);
+      await sendToSales(f, modalIntent, link, pdf);
+      rememberLead(f);
+      lastPdf.current = pdf;
       setDealerSuccess(true);
+      if (modalIntent === "pdf") pdf.save();
+      if (modalIntent === "link") copyLink(link.url);
     } catch {
       setDealerError("Something went wrong. Please try again.");
     } finally {
       setDealerSubmitting(false);
     }
-  }, [dealerForm, config, visibleLayers, model, shareUrl]);
+  }, [dealerForm, modalIntent, ensureShortLink, makePdf, sendToSales, copyLink]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // An always-visible layer explicitly placed in an exclusive UI group is a
-  // selectable option (e.g. Stealth Grey base whose "selection" means no overlay),
-  // not a hidden structural layer — keep it visible and clickable.
-  const isSelectableAlwaysVisible = useCallback(
-    (id: string) => {
-      if (!config) return false;
-      for (const [groupKey, layerIds] of Object.entries(config.groups)) {
-        if (layerIds.includes(id)) {
-          const grpCfg = GROUP_CONFIG[groupKey];
-          if (grpCfg?.exclusive) return true;
-        }
-      }
-      return false;
-    },
-    [config],
+  // ── Panel, stage and summary ──────────────────────────────────────────────
+  const sections = useMemo(() => (config ? rules.sectionsFor(config, visibleLayers) : []), [config, visibleLayers]);
+  const steps = useMemo(
+    () => (config ? rules.buildSteps(model, Object.keys(config.groups).concat(sections.some((s) => s.key === "other") ? ["other"] : [])) : []),
+    [config, model, sections],
   );
+  const [step, setStep] = useState(0);
+  const current = steps[Math.min(step, Math.max(0, steps.length - 1))];
+  const stepSections = current ? sections.filter((s) => current.groups.includes(s.key)) : [];
+  const counts = rules.stepCounts(chosen, steps);
+  const summary = rules.summarise(chosen, steps);
 
-  // Group layers for rendering
-  const groupedLayers = useMemo<[string, LayerMeta[]][]>(() => {
-    if (!config) return [];
-    const result: [string, LayerMeta[]][] = [];
-    const rendered = new Set<string>();
+  const colourOption = chosen.find((o) => o.groupKey === "base_color");
+  const colourName = colourOption ? cleanLayerName(colourOption, "base_color").title : "";
+  const isRs = !!config?.layers.some((l) => /rs version/i.test(l.name) && visibleLayers.has(l.id));
+  // Only RS is named; the standard version shows just the colour.
+  const version = hasRsOption && isRs ? "RS" : null;
+  const stats = performanceFor(model, MODEL_INFO[model].name).grid;
 
-    for (const [groupKey, layerIds] of Object.entries(config.groups)) {
-      const layers = layerIds
-        .map((id) => config.layers.find((l) => l.id === id))
-        .filter((l): l is LayerMeta => !!l)
-        // hide structural always-visible layers, but keep selectable color choices
-        .filter((l) => !alwaysVisible.has(l.id) || isSelectableAlwaysVisible(l.id));
+  const isLast = step >= steps.length - 1;
+  const copyLabel = copied ? "LINK COPIED" : busy === "link" ? "CREATING LINK…" : "COPY LINK";
+  const pdfLabel = busy === "pdf" ? "PREPARING PDF…" : "DOWNLOAD PDF";
 
-      if (layers.length === 0) continue;
-      layers.forEach((l) => rendered.add(l.id));
-      result.push([groupKey, layers]);
+  const panelRef = useRef<HTMLElement>(null);
+  const panelBodyRef = useRef<HTMLDivElement>(null);
+  const renderRef = useRef<HTMLDivElement>(null);
+  const headerOffset = () => parseFloat(rootRef.current ? getComputedStyle(rootRef.current).getPropertyValue("--cfg-header") : "") || 80;
+
+  // Bar heights feed the desktop stage height (they grow when their content wraps)
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root || typeof ResizeObserver === "undefined") return;
+    const bars = [[".cfg-modelbar", "--cfg-modelbar-h"], [".cfg-actionbar", "--cfg-bar-h"]] as const;
+    const measure = () => bars.forEach(([sel, v]) => {
+      const el = root.querySelector<HTMLElement>(sel);
+      if (el) root.style.setProperty(v, `${el.offsetHeight}px`);
+    });
+    const ro = new ResizeObserver(measure);
+    bars.forEach(([sel]) => { const el = root.querySelector(sel); if (el) ro.observe(el); });
+    measure();
+    return () => ro.disconnect();
+  }, []);
+
+  // A new step starts at the top of the options. Desktop scrolls only the
+  // panel; stacked layouts bring the panel top under the sticky header (and
+  // the phone preview strip).
+  const stepShown = useRef(false);
+  useEffect(() => {
+    if (!stepShown.current) { stepShown.current = true; return; }
+    if (panelBodyRef.current) panelBodyRef.current.scrollTop = 0;
+    const media = (q: string) => !!window.matchMedia?.(q).matches;
+    if (media(`(min-width: ${SIZE.stackBelow}px)`)) return;
+    const panel = panelRef.current;
+    if (!panel) return;
+    const offset = headerOffset() + (media(`(max-width: ${PHONE_MAX}px)`) ? PREVIEW_STRIP_H : 0);
+    window.scrollTo({
+      top: panel.getBoundingClientRect().top + window.scrollY - offset,
+      behavior: media("(prefers-reduced-motion: reduce)") ? "auto" : "smooth",
+    });
+  }, [step]);
+
+  // Last step: point at the build summary in the bottom bar
+  const [reviewFlash, setReviewFlash] = useState(0);
+
+  // A colour change that drops options needing another colour says so
+  const [panelNotice, setPanelNotice] = useState<string | null>(null);
+  useEffect(() => {
+    if (!panelNotice) return;
+    const t = setTimeout(() => setPanelNotice(null), 4000);
+    return () => clearTimeout(t);
+  }, [panelNotice]);
+  const onToggle = (section: rules.SectionView, o: rules.OptionView) => {
+    if (config && section.key === "base_color") {
+      const next = rules.toggleLayer(config, visibleLayers, o.layer.id, section.exclusive, section.peers);
+      const notice = rules.colourRemovalNotice(config, visibleLayers, next);
+      if (notice) setPanelNotice(notice);
     }
+    toggleLayer(o.layer.id, section.exclusive, section.peers);
+  };
 
-    // Collect all layer IDs that are auto-triggered via dependencies (not directly user-selectable).
-    // These should not appear in any UI section even if ungrouped.
-    const autoTriggered = new Set(
-      Object.values(config.rules.dependencies).flat(),
-    );
+  const [notFound, setNotFound] = useState(buildNotFound);
 
-    // Catch any ungrouped, non-structural, non-auto-triggered layers
-    const ungrouped = config.layers.filter(
-      (l) => !rendered.has(l.id) && !alwaysVisible.has(l.id) && !autoTriggered.has(l.id),
-    );
-    if (ungrouped.length > 0) result.push(["other", ungrouped]);
+  // Phones: compact preview under the header once the stage is out of view
+  const [stripShown, setStripShown] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia?.(`(max-width: ${PHONE_MAX}px)`);
+    if (!mq) return;
+    const update = () => {
+      const render = renderRef.current, panel = panelRef.current;
+      if (!mq.matches || !render || !panel) { setStripShown(false); return; }
+      const top = headerOffset();
+      setStripShown(render.getBoundingClientRect().bottom < top && panel.getBoundingClientRect().bottom > top + PREVIEW_STRIP_H * 2);
+    };
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    return () => {
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+    };
+  }, []);
 
-    return result;
-  }, [config, alwaysVisible, isSelectableAlwaysVisible]);
+  // The bike's region of the preview; until it's measured (or if it can't
+  // be), the whole image, treated as solid so it still keeps clear of the title
+  const canvas = config?.canvas;
+  const box = useMemo<BikeBox | null>(
+    () => bikeBox ?? (canvas ? { x0: 0, y0: 0, x1: 1, y1: 1, sky: new Array(120).fill(0), aspect: canvas.width / canvas.height } : null),
+    [bikeBox, canvas],
+  );
+  const region = box ? paddedRegion(box) : null;
 
-  const displayName = MODEL_DISPLAY_NAMES[model] ?? model.toUpperCase();
+  // Desktop: size the bike to the space between the model bar and the spec
+  // strip, centred and nudged right, shrinking it (never the title) if its
+  // outline would run into the title
+  const titleRef = useRef<HTMLDivElement>(null);
+  const [fit, setFit] = useState<ReturnType<typeof fitBike> | null>(null);
+  // Every caption the title can show for this model ("Colour · Version"),
+  // so the space kept clear for it doesn't change with the colour picked
+  const captionNames = useMemo(() => {
+    const colours = sections.find((s) => s.key === "base_color")?.options.map((o) => o.title) ?? [];
+    return { colours, versions: hasRsOption ? ["RS"] : [] };
+  }, [sections, hasRsOption]);
+  const captionKey = `${captionNames.colours.join("|")}/${captionNames.versions.join("|")}`;
+  useEffect(() => {
+    const area = renderRef.current, title = titleRef.current;
+    if (!area || !title || !box || typeof ResizeObserver === "undefined" || !window.matchMedia) return;
+    const desktop = window.matchMedia(`(min-width: ${SIZE.stackBelow}px)`);
+    const update = () => {
+      if (!desktop.matches) { setFit(null); return; }
+      const a = area.getBoundingClientRect(), t = title.getBoundingClientRect();
+      const avoid: Rect = { left: t.left - a.left, top: t.top - a.top, right: t.right - a.left, bottom: t.bottom - a.top };
+      // Widest possible caption, measured in the caption's own fonts
+      const caption = title.querySelector<HTMLElement>("[data-stage-caption]");
+      const [colourEl, , versionEl] = caption ? Array.from(caption.children) as HTMLElement[] : [];
+      const ctx = document.createElement("canvas").getContext("2d");
+      if (caption && colourEl && ctx) {
+        const width = (el: HTMLElement, text: string) => { ctx.font = getComputedStyle(el).font; return ctx.measureText(text).width; };
+        const colourW = Math.max(0, ...captionNames.colours.map((n) => width(colourEl, n)));
+        const versionW = versionEl ? Math.max(0, ...captionNames.versions.map((v) => width(versionEl, v))) + 4 + 2 * 12 : 0;
+        avoid.right = Math.max(avoid.right, caption.getBoundingClientRect().left - a.left + colourW + versionW);
+      }
+      setFit(fitBike(box, { width: a.width, height: a.height }, avoid, { floorPad: 8 }));
+    };
+    const ro = new ResizeObserver(update);
+    ro.observe(area);
+    ro.observe(title);
+    desktop.addEventListener("change", update);
+    update();
+    return () => { ro.disconnect(); desktop.removeEventListener("change", update); };
+  }, [box, captionKey]); // eslint-disable-line react-hooks/exhaustive-deps -- captionKey stands for captionNames
+  const modalFooter: React.CSSProperties = { flex: "none", padding: "14px 24px 20px", borderTop: BORDER.idle, background: COLOR.white };
 
   return (
     <>
-      {/* Keyframe for spinner */}
-      <style>{`
-        @keyframes energica-spin {
-          to { transform: rotate(360deg); }
-        }
-        @media (max-width: 768px) {
-          .energica-main {
-            flex-direction: column !important;
-          }
-          .energica-preview-pane {
-            width: 100% !important;
-            /* flex-basis 0 collapsed the pane to 0px in the column layout */
-            flex: 0 0 320px !important;
-            height: 320px !important;
-            min-height: 0 !important;
-            position: static !important;
-            flex-shrink: 0 !important;
-          }
-          .energica-config-pane {
-            width: 100% !important;
-            min-height: 0 !important;
-            position: static !important;
-          }
-          .energica-modal-box {
-            width: 92vw !important;
-            max-height: 90vh !important;
-            overflow-y: auto !important;
-          }
-        }
-      `}</style>
+      <style>{LAYOUT_CSS}</style>
 
-      <div style={S.root}>
-        {/* Header */}
-        <header style={{ ...S.header, display: "none" }}>
-          <span style={S.headerBrand}>ENERGICA</span>
-          <span style={S.headerModelTag}>{displayName} — Configure</span>
-        </header>
+      <div ref={rootRef} className="cfg-root" style={{ fontFamily: FONT.body, color: COLOR.text, background: COLOR.paper, minHeight: "calc(100vh - var(--cfg-header, 80px))", display: "flex", flexDirection: "column" }}>
+        <ModelTabs active={model} onPick={onModelChange} step={Math.min(step, Math.max(0, steps.length - 1))} steps={steps.length} />
 
-        {/* Body */}
-        <main style={S.main} className="energica-main">
-          {/* Preview pane */}
-          <section style={S.previewPane} className="energica-preview-pane">
-            <div style={S.previewFrameWrapper}>
-            <div style={S.previewFrame}>
-              {previewUrl ? (
-                <img
-                  src={previewUrl}
-                  alt={`${displayName} motorcycle preview`}
-                  style={S.previewImage}
-                />
+        <main className="cfg-main">
+          {/* Stage: model, live render and headline figures */}
+          <section aria-label="Preview" className="cfg-stage">
+            <div ref={titleRef} className="cfg-stage-title">
+              {notFound && (
+                <div role="status" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 16, padding: "8px 8px 8px 14px", border: BORDER.idle, background: COLOR.white, fontSize: 13, color: COLOR.secondary }}>
+                  <span>That build link could not be found. Showing the standard {MODEL_INFO[model].name}.</span>
+                  <button type="button" onClick={() => setNotFound(false)} aria-label="Dismiss" style={{ background: "none", border: "none", color: COLOR.label, fontSize: 16, lineHeight: 1, minWidth: 32, minHeight: 32, flexShrink: 0 }}>✕</button>
+                </div>
+              )}
+
+              <StageHeading model={model} colour={colourName} version={version} />
+            </div>
+
+            <div ref={renderRef} className="cfg-render" style={{ flexGrow: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: fit ? 0 : "20px 0" }}>
+              {previewUrl && region ? (
+                <div
+                  className="cfg-bike"
+                  style={fit
+                    ? { left: fit.left, top: fit.top, width: fit.width, height: fit.height }
+                    : { ["--cfg-bike-ratio" as string]: String(region.ratio) }}
+                >
+                  {/* Floor shadow, centred on the bike's bottom edge */}
+                  <div aria-hidden style={{ position: "absolute", left: "12%", right: "12%", height: "12%", bottom: `calc(${(region.floor * 100).toFixed(2)}% - 6%)`, borderRadius: "50%", background: "radial-gradient(closest-side, rgba(15,16,18,0.18), rgba(15,16,18,0))" }} />
+                  <div style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element -- object URL from the compositor */}
+                    <img
+                      src={previewUrl}
+                      alt={`${MODEL_INFO[model].name} configured preview`}
+                      className="cfg-render-img"
+                      style={{
+                        position: "absolute",
+                        maxWidth: "none",
+                        width: `${100 / (region.x1 - region.x0)}%`,
+                        height: `${100 / (region.y1 - region.y0)}%`,
+                        left: `${(-region.x0 / (region.x1 - region.x0)) * 100}%`,
+                        top: `${(-region.y0 / (region.y1 - region.y0)) * 100}%`,
+                        mixBlendMode: "multiply",
+                        opacity: updating ? 0.72 : 1,
+                        transition: "opacity 120ms ease",
+                      }}
+                    />
+                  </div>
+                </div>
               ) : (
-                <div style={S.previewPlaceholder}>
-                  {configLoading || loading ? (
-                    <div style={S.spinner} aria-label="Loading preview" />
-                  ) : (
-                    <span>Select options to preview</span>
-                  )}
+                <div style={{ ...monoLabel(11), position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12 }}>
+                  {configLoading || updating ? <div style={S.spinner} aria-label="Loading preview" /> : <span>Select options to preview</span>}
                 </div>
               )}
-
-              {/* Compositing spinner overlay */}
-              {loading && previewUrl && (
-                <div style={S.loadingOverlay} aria-live="polite" aria-label="Rendering preview">
-                  <div style={S.spinner} />
+              {/* Redrawing after a change: the old image stays (dimmed) with a
+                  thin progress line; the panel stays usable throughout. */}
+              {previewUrl && (
+                <div role="status" aria-live="polite" style={{ position: "absolute", top: 4, right: 0, display: "flex", alignItems: "center", gap: 10, pointerEvents: "none", opacity: updating ? 1 : 0, transition: "opacity 120ms ease" }}>
+                  <span className="cfg-progress" aria-hidden><span /></span>
+                  <span style={monoLabel(10)}>{updating ? "Updating preview" : ""}</span>
                 </div>
               )}
             </div>
-            </div>
 
-            {/* Error banner */}
-            {error && (
-              <div style={S.errorBanner} role="alert">
-                {error}
-              </div>
-            )}
+            {error && <div style={{ ...S.errorBanner, marginBottom: 16 }} role="alert">{error}</div>}
+
+            <SpecStrip stats={stats} />
           </section>
 
-          {/* Configuration pane */}
-          <aside style={S.configPane} className="energica-config-pane">
+          {/* Options panel */}
+          <aside ref={panelRef} aria-label="Build options" className="cfg-panel">
+            {/* Portal: the page-transition wrapper's filter would pin a fixed child to it */}
+            {previewUrl && createPortal(
+              <div className="cfg-preview-strip" data-shown={stripShown} aria-hidden>
+                <div style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0 }}>
+                  <span style={{ fontFamily: FONT.display, fontWeight: 600, fontSize: 20, lineHeight: 1, textTransform: "uppercase", color: COLOR.text }}>{MODEL_INFO[model].name}</span>
+                  <span style={{ ...monoLabel(10, 0.12), whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{[colourName, version].filter(Boolean).join(" · ")}</span>
+                </div>
+                {/* eslint-disable-next-line @next/next/no-img-element -- same object URL as the stage */}
+                <img src={previewUrl} alt="" style={{ height: "100%", maxWidth: "62%", objectFit: "contain", mixBlendMode: "multiply", opacity: updating ? 0.72 : 1 }} />
+              </div>,
+              document.body,
+            )}
             {configLoading ? (
-              <div style={{ ...S.previewPlaceholder, paddingTop: "40px" }}>
+              <div style={{ display: "flex", justifyContent: "center", padding: "48px 0" }}>
                 <div style={S.spinner} aria-label="Loading configuration" />
               </div>
             ) : (
-              <div style={S.configPaneInner}>
-                {groupedLayers.map(([groupKey, layers]) => {
-                  // "bags_plates" (and any future child groups) are rendered inline
-                  // inside their parent group, not as standalone sections.
-                  if (groupKey === "bags_plates") return null;
-
-                  const grpCfg = GROUP_CONFIG[groupKey] ?? {
-                    label: groupKey.replace(/_/g, " ").toUpperCase(),
-                    description: "",
-                    exclusive: false,
-                  };
-
-                  // Determine if exclusive from both GROUP_CONFIG and mutually_exclusive rules
-                  const isExclusive = grpCfg.exclusive ||
-                    (config?.rules.mutually_exclusive.some((g) =>
-                      g.includes(layers[0]?.id ?? ""),
-                    ) ?? false);
-
-                  // Inline child groups: those whose first layer depends on a layer in this group,
-                  // OR whose layers are incompatible with non-Bormio-Ice colors (cnc_options).
-                  const childGroups = groupedLayers.filter(([ck, cl]) =>
-                    ck !== groupKey &&
-                    cl.length > 0 &&
-                    (
-                      (config?.rules.dependencies[cl[0].id] ?? []).some((dep) =>
-                        layers.some((l) => l.id === dep),
-                      ) ||
-                      // cnc_options appears under base_color (Bormio Ice = always-visible base)
-                      (ck === "cnc_options" && groupKey === "base_color")
-                    ),
-                  );
-
-                  // Set of all layer IDs that appear in at least one UI group (user-selectable).
-                  // Deps pointing to non-group layers are auto-triggered (e.g. rider seat) and
-                  // should not cause the parent option to be hidden when they're inactive.
-                  const groupLayerIds = new Set(
-                    Object.values(config?.groups ?? {}).flat(),
-                  );
-
-                  const renderOptionRow = (layer: LayerMeta, excl: boolean, peers: LayerMeta[]) => {
-                    const isActive = alwaysVisible.has(layer.id) && excl
-                      ? !peers.some((l) => l.id !== layer.id && visibleLayers.has(l.id))
-                      : visibleLayers.has(layer.id);
-                    const deps = config?.rules.dependencies[layer.id] ?? [];
-                    // Only treat a dep as "unmet" if it's a user-selectable layer (in a UI group).
-                    // Auto-triggered layers (e.g. rider seats activated by a seat option) are not
-                    // in any group and must not cause the parent option to be hidden.
-                    const depsUnmet = deps.some(
-                      (dep) => groupLayerIds.has(dep) && !visibleLayers.has(dep),
-                    );
-                    // Hide (not just grey) options that are incompatible with current selection
-                    const incompatConflict = Object.entries(config?.rules.incompatibilities ?? {})
-                      .some(([id, conflicts]) =>
-                        id === layer.id && (conflicts as string[]).some((c) => visibleLayers.has(c)),
-                      );
-                    // Hide options that conflict with current selection OR have unmet deps
-                    // (e.g. Sunrise Red bellypan is hidden when Sunrise Red isn't selected)
-                    if (incompatConflict || depsUnmet) return null;
-                    return (
-                      <OptionRow
-                        key={layer.id}
-                        layer={layer}
-                        active={isActive}
-                        disabled={
-                          (alwaysVisible.has(layer.id) && !isSelectableAlwaysVisible(layer.id))
-                        }
-                        exclusive={excl}
-                        onToggle={() => toggleLayer(layer.id, excl, peers.map((l) => l.id))}
+              <>
+                <StepTabs steps={steps} counts={counts} active={Math.min(step, Math.max(0, steps.length - 1))} onPick={setStep} />
+                <div role="status" aria-live="polite" style={{ flex: "none" }}>
+                  {panelNotice && (
+                    <p data-testid="panel-notice" style={{ margin: 0, padding: "10px 28px", background: COLOR.paper, borderBottom: BORDER.idle, fontSize: 13, color: COLOR.text }}>{panelNotice}</p>
+                  )}
+                </div>
+                <div ref={panelBodyRef} className="cfg-panel-body" style={{ padding: "24px 28px 8px", flexGrow: 1, display: "flex", flexDirection: "column", gap: 26 }}>
+                  {stepSections.map((section) => (
+                    <OptionSection
+                      key={section.key}
+                      section={section}
+                      onToggle={(o) => onToggle(section, o)}
+                    />
+                  ))}
+                </div>
+                {/* Same content and order as the old side-panel actions: the
+                    short build link once the visitor has sent their details,
+                    otherwise the note about where the build goes. */}
+                {(lead && shortLink) || !lead ? (
+                  <div className="cfg-panel-extras" style={{ padding: "8px 28px 0", display: "flex", flexDirection: "column", gap: 12 }}>
+                    {lead && shortLink && (
+                      <BuildLinkBox
+                        url={shortLink.url}
+                        copied={copied}
+                        onCopy={() => copyLink(shortLink.url)}
+                        whatsappUrl={whatsappUrl(shortLink.url)}
                       />
-                    );
-                  };
-
-                  // Hide the whole section if every option would be filtered out
-                  const visibleLayerCount = layers.filter((layer) => {
-                    const layerDeps = config?.rules.dependencies[layer.id] ?? [];
-                    const layerDepsUnmet = layerDeps.some(
-                      (dep) => groupLayerIds.has(dep) && !visibleLayers.has(dep),
-                    );
-                    const layerIncompat = Object.entries(config?.rules.incompatibilities ?? {})
-                      .some(([id, conflicts]) =>
-                        id === layer.id && (conflicts as string[]).some((c) => visibleLayers.has(c)),
-                      );
-                    return !layerDepsUnmet && !layerIncompat;
-                  }).length;
-                  if (visibleLayerCount === 0) return null;
-
-                  return (
-                    <section key={groupKey} style={S.section}>
-                      <h2 style={S.sectionTitle}>{grpCfg.label}</h2>
-                      {grpCfg.description && (
-                        <p style={S.sectionDesc}>{grpCfg.description}</p>
-                      )}
-                      <div
-                        style={S.optionList}
-                        role={isExclusive ? "radiogroup" : "group"}
-                        aria-label={grpCfg.label}
-                      >
-                        {layers.map((layer) => {
-                          const row = renderOptionRow(layer, isExclusive, layers);
-                          // After this layer, inject any child group whose dep is this layer
-                          const children = childGroups.filter(([, cl]) =>
-                            (config?.rules.dependencies[cl[0].id] ?? []).includes(layer.id),
-                          );
-                          if (children.length === 0) return row;
-                          return (
-                            <React.Fragment key={layer.id}>
-                              {row}
-                              {children.map(([ck, cl]) => {
-                                const childExcl = GROUP_CONFIG[ck]?.exclusive ??
-                                  (config?.rules.mutually_exclusive.some((g) => g.includes(cl[0].id)) ?? false);
-                                // For cnc_options: show under Bormio Ice (always-visible base),
-                                // which is "active" when no overlay color is selected.
-                                const isBormioIceActive = alwaysVisible.has(layer.id) && isExclusive
-                                  ? !layers.some((l) => l.id !== layer.id && visibleLayers.has(l.id))
-                                  : visibleLayers.has(layer.id);
-                                const parentSelected = isBormioIceActive;
-                                if (!parentSelected) return null;
-                                return (
-                                  <div key={ck} style={{ paddingLeft: "var(--space-6, 24px)", marginTop: "var(--space-1, 4px)" }}>
-                                    {cl.map((cl_layer) => renderOptionRow(cl_layer, childExcl, cl))}
-                                  </div>
-                                );
-                              })}
-                            </React.Fragment>
-                          );
-                        })}
-                      </div>
-                    </section>
-                  );
-
-                })}
-
-                {/* Action buttons */}
-                <div style={S.actions}>
-                  {/* Row 1: secondary actions side by side */}
-                  <div style={{ display: "flex", gap: "8px" }}>
-                    <button
-                      type="button"
-                      onClick={handleCopy}
-                      style={{ ...S.btnSecondary, flex: 1, padding: "12px 8px" }}
-                      aria-label="Copy link to your build"
-                    >
-                      {copied ? "✓ Link copied" : "Copy link to your build"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={reset}
-                      style={{ ...S.btnSecondary, flex: 1, padding: "12px 8px" }}
-                      aria-label="Reset to default configuration"
-                    >
-                      Reset
-                    </button>
+                    )}
+                    {!lead && (
+                      <p style={{ margin: 0, fontFamily: FONT.body, fontSize: "12px", color: COLOR.label, lineHeight: 1.5 }}>
+                        Your build goes to Energica, who will connect you with your nearest dealer.
+                      </p>
+                    )}
                   </div>
-
-                  {/* PDF summary of the build */}
+                ) : null}
+                <div className="cfg-panel-nav" style={{ padding: "16px 28px 24px", display: "flex", gap: 10 }}>
                   <button
                     type="button"
-                    onClick={handleDownloadPdf}
-                    disabled={pdfBusy || !previewUrl}
-                    style={{ ...S.btnSecondary, padding: "12px 8px", opacity: pdfBusy || !previewUrl ? 0.6 : 1 }}
-                    aria-label="Download a PDF of your build"
+                    onClick={() => setStep((s) => Math.max(0, s - 1))}
+                    disabled={step === 0}
+                    style={{ ...S.btnSecondary, width: "auto", padding: "0 18px", background: COLOR.white, opacity: step === 0 ? 0.35 : 1 }}
                   >
-                    {pdfBusy ? "Preparing PDF…" : "Download PDF"}
+                    BACK
                   </button>
-
-                  {/* Row 2: primary CTA */}
                   <button
                     type="button"
-                    onClick={() => { setModalOpen(true); setDealerSuccess(false); setDealerError(null); }}
-                    style={{ ...S.btnPrimary, fontSize: "14px", padding: "16px 24px", letterSpacing: "0.15em" }}
+                    onClick={() => (isLast ? setReviewFlash((n) => n + 1) : setStep((s) => Math.min(steps.length - 1, s + 1)))}
+                    style={{ ...S.btnSecondary, flexGrow: 1, background: COLOR.dark, borderColor: COLOR.dark, color: COLOR.white }}
                   >
-                    Contact Dealer
+                    {isLast ? "REVIEW BUILD" : `NEXT: ${steps[step + 1]?.label.toUpperCase()}`}
                   </button>
                 </div>
-              </div>
+              </>
             )}
           </aside>
         </main>
 
-        {/* Footer */}
-        <footer style={S.footer}>
-          <p style={S.footerTagline}>Progress, Ridden.</p>
+        <footer style={{ borderTop: BORDER.idle, padding: "20px 48px", textAlign: "center", background: COLOR.paper }}>
+          <p style={{ ...monoLabel(11, 0.25), margin: 0 }}>Progress, Ridden.</p>
         </footer>
+
+        <ActionBar
+          countLabel={summary.countLabel}
+          summary={summary.text}
+          copyLabel={copyLabel}
+          copyIdle={!copied && busy !== "link"}
+          pdfLabel={pdfLabel}
+          linkDisabled={busy === "link" || !config}
+          pdfDisabled={busy === "pdf" || !previewUrl}
+          flash={reviewFlash}
+          onReset={reset}
+          onCopy={() => handleAction("link")}
+          onPdf={() => handleAction("pdf")}
+          onContact={() => openForm("contact")}
+        />
       </div>
 
-      {/* Contact Dealer Modal — portal so no parent clips it; cursor reset overrides body { cursor:none } */}
+      {/* Build enquiry modal — portal so no parent clips it; cursor reset overrides body { cursor:none }.
+          Header and buttons stay put; only the fields scroll. */}
       {modalOpen && createPortal(
         <div
-          style={{ position: "fixed", inset: 0, zIndex: 9999, backgroundColor: "rgba(0,0,0,0.55)", display: "flex", alignItems: "center", justifyContent: "center", padding: "16px", cursor: "auto" }}
-          onClick={(e) => { if (e.target === e.currentTarget) setModalOpen(false); }}
+          className="cfg-modal"
+          style={{ position: "fixed", inset: 0, zIndex: 9999, backgroundColor: "rgba(15,16,18,0.6)", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px 16px", cursor: "auto" }}
+          onClick={(e) => { if (e.target === e.currentTarget) closeForm(); }}
         >
           <div
-            className="energica-modal-box"
-            style={{ backgroundColor: "#fff", color: "#121212", width: "480px", maxWidth: "100%", borderRadius: "2px", overflow: "hidden", boxShadow: "0 20px 60px rgba(0,0,0,0.3)", cursor: "auto" }}
+            ref={dialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="cfg-modal-title"
+            tabIndex={-1}
+            className="cfg-dialog"
+            style={{ backgroundColor: COLOR.white, color: COLOR.text, width: "480px", maxWidth: "100%", display: "flex", flexDirection: "column", overflow: "hidden", borderRadius: 0, cursor: "auto", outline: "none" }}
           >
             {/* Modal header */}
-            <div style={{ backgroundColor: "#0a0a0a", padding: "20px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "3px solid #78BE20" }}>
+            <div style={{ flex: "none", backgroundColor: COLOR.dark, padding: "20px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: `3px solid ${COLOR.green}` }}>
               <div>
-                <p style={{ margin: 0, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: "18px", letterSpacing: "0.12em", textTransform: "uppercase", color: "#fff" }}>Contact Dealer</p>
-                <p style={{ margin: "2px 0 0", fontFamily: "'Barlow Condensed', sans-serif", fontSize: "11px", letterSpacing: "0.1em", color: "#78BE20", textTransform: "uppercase" }}>{MODEL_DISPLAY_NAMES[model] ?? model}</p>
+                <p id="cfg-modal-title" style={{ margin: 0, fontFamily: FONT.display, fontWeight: 600, fontSize: "22px", letterSpacing: "0.04em", textTransform: "uppercase", color: COLOR.white }}>{MODAL_COPY[modalIntent].title}</p>
+                <p style={{ margin: "2px 0 0", ...monoLabel(10, 0.14, COLOR.green) }}>{MODEL_INFO[model].name}</p>
               </div>
-              <button type="button" onClick={() => setModalOpen(false)} style={{ background: "none", border: "none", color: "#aaa", fontSize: "22px", cursor: "pointer", lineHeight: 1, padding: "6px 8px" }} aria-label="Close">✕</button>
+              <button type="button" onClick={closeForm} style={{ background: "none", border: "none", color: COLOR.onDark, fontSize: "22px", lineHeight: 1, minWidth: SIZE.touch, minHeight: SIZE.touch, cursor: "pointer" }} aria-label="Close">✕</button>
             </div>
 
-            <div style={{ padding: "24px" }}>
-              {dealerSuccess ? (
-                <div style={{ textAlign: "center", padding: "24px 0 16px" }}>
-                  <div style={{ width: 56, height: 56, borderRadius: "50%", backgroundColor: "#78BE20", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px", fontSize: "26px", color: "#fff" }}>✓</div>
-                  <p style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: "22px", letterSpacing: "0.08em", textTransform: "uppercase", margin: "0 0 8px", color: "#121212" }}>Thank You!</p>
-                  <p style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: "14px", color: "#666", margin: "0 0 28px", lineHeight: 1.5 }}>We&apos;ll connect you with your nearest dealer within 24 hours.</p>
-                  <button
-                    type="button"
-                    onClick={() => setModalOpen(false)}
-                    style={{ ...S.btnSecondary, width: "auto", padding: "12px 32px", cursor: "pointer" }}
-                  >
-                    Close
+            {dealerSuccess ? (
+              <>
+                <div style={{ flex: "1 1 auto", minHeight: 0, overflowY: "auto", padding: "40px 24px 12px", textAlign: "center" }}>
+                  <div aria-hidden style={{ width: 56, height: 56, borderRadius: "50%", backgroundColor: COLOR.green, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px", fontSize: "26px", color: COLOR.dark }}>✓</div>
+                  <p style={{ fontFamily: FONT.display, fontWeight: 600, fontSize: "26px", textTransform: "uppercase", margin: "0 0 8px", color: COLOR.text }}>Thank You!</p>
+                  <p style={{ fontFamily: FONT.body, fontSize: "14px", color: COLOR.secondary, margin: "0 0 20px", lineHeight: 1.5 }}>
+                    Your build has been sent to Energica. We&apos;ll connect you with your nearest dealer within 24 hours — a copy is on its way to your inbox.
+                  </p>
+                  {shortLink && (
+                    <div style={{ textAlign: "left" }}>
+                      <BuildLinkBox
+                        url={shortLink.url}
+                        copied={copied}
+                        onCopy={() => copyLink(shortLink.url)}
+                        whatsappUrl={whatsappUrl(shortLink.url)}
+                      />
+                    </div>
+                  )}
+                </div>
+                <div style={{ ...modalFooter, display: "flex", gap: "8px" }}>
+                  <button type="button" onClick={() => lastPdf.current?.save()} style={{ ...S.btnSecondary, flex: 1, cursor: "pointer" }}>
+                    Download PDF
+                  </button>
+                  <button type="button" onClick={closeForm} style={{ ...S.btnPrimary, flex: 1, cursor: "pointer" }}>
+                    Done
                   </button>
                 </div>
-              ) : (
-                <form onSubmit={handleDealerSubmit} noValidate>
-                  {[
-                    { id: "dc-name", label: "Full Name", key: "name", type: "text", placeholder: "Jane Smith" },
-                    { id: "dc-email", label: "Email", key: "email", type: "email", placeholder: "jane@example.com" },
-                    { id: "dc-phone", label: "Phone", key: "phone", type: "tel", placeholder: "+1 555 000 0000" },
-                    { id: "dc-location", label: "Location / Country", key: "location", type: "text", placeholder: "Milan, Italy" },
-                  ].map(({ id, label, key, type, placeholder }) => (
-                    <div key={key} style={{ marginBottom: "16px" }}>
-                      <label htmlFor={id} style={{ display: "block", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: "11px", letterSpacing: "0.12em", textTransform: "uppercase", color: "#121212", marginBottom: "6px" }}>{label} *</label>
+              </>
+            ) : (
+              <form onSubmit={handleDealerSubmit} noValidate style={{ flex: "1 1 auto", minHeight: 0, display: "flex", flexDirection: "column" }}>
+                <div className="cfg-dialog-fields" style={{ flex: "1 1 auto", minHeight: 0, overflowY: "auto", padding: "24px 24px 4px" }}>
+                  <p style={{ fontFamily: FONT.body, fontSize: "13px", color: COLOR.secondary, margin: "0 0 18px", lineHeight: 1.5 }}>
+                    {MODAL_COPY[modalIntent].intro}
+                  </p>
+                  {([
+                    { id: "dc-name", label: "Full Name", key: "name", type: "text", placeholder: "Jane Smith", required: true },
+                    { id: "dc-email", label: "Email", key: "email", type: "email", placeholder: "jane@example.com", required: true },
+                    { id: "dc-phone", label: "Phone", key: "phone", type: "tel", placeholder: "+27 82 000 0000", required: true },
+                    { id: "dc-country", label: "Country / City", key: "country", type: "text", placeholder: "Cape Town, South Africa", required: true },
+                    { id: "dc-dealer", label: "Preferred dealer (optional)", key: "dealer", type: "text", placeholder: "If you already have one in mind", required: false },
+                  ] as const).map(({ id, label, key, type, placeholder, required }) => (
+                    <div key={key} style={{ marginBottom: "14px" }}>
+                      <label htmlFor={id} style={S.fieldLabel}>{label}{required ? " *" : ""}</label>
                       <input
                         id={id}
                         type={type}
-                        required
+                        required={required}
                         placeholder={placeholder}
-                        value={(dealerForm as unknown as Record<string, string>)[key]}
-                        onChange={(e) => setDealerForm((f) => ({ ...f, [key]: e.target.value }))}
-                        style={{ width: "100%", fontFamily: "'IBM Plex Sans', sans-serif", fontSize: "14px", padding: "10px 12px", border: "1px solid #e0e0e0", borderRadius: "2px", outline: "none", color: "#121212", backgroundColor: "#fafafa", boxSizing: "border-box", cursor: "text" }}
+                        value={dealerForm[key]}
+                        aria-invalid={fieldErrors[key] ? true : undefined}
+                        aria-describedby={fieldErrors[key] ? `${id}-error` : undefined}
+                        onChange={(e) => {
+                          setDealerForm((f) => ({ ...f, [key]: e.target.value }));
+                          if (fieldErrors[key]) setFieldErrors((errs) => ({ ...errs, [key]: undefined }));
+                        }}
+                        style={{ ...S.field, ...(fieldErrors[key] ? { border: `1px solid ${COLOR.error}` } : null) }}
                       />
+                      {fieldErrors[key] && (
+                        <p id={`${id}-error`} style={{ margin: "6px 0 0", fontFamily: FONT.body, fontSize: "12px", color: COLOR.error }}>{fieldErrors[key]}</p>
+                      )}
                     </div>
                   ))}
 
-                  <div style={{ marginBottom: "16px" }}>
-                    <label htmlFor="dc-message" style={{ display: "block", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: "11px", letterSpacing: "0.12em", textTransform: "uppercase", color: "#121212", marginBottom: "6px" }}>Message</label>
+                  <div style={{ marginBottom: "14px" }}>
+                    <label htmlFor="dc-message" style={S.fieldLabel}>Message</label>
                     <textarea
                       id="dc-message"
                       rows={3}
                       placeholder="Any questions or specific requirements…"
                       value={dealerForm.message}
                       onChange={(e) => setDealerForm((f) => ({ ...f, message: e.target.value }))}
-                      style={{ width: "100%", fontFamily: "'IBM Plex Sans', sans-serif", fontSize: "14px", padding: "10px 12px", border: "1px solid #e0e0e0", borderRadius: "2px", outline: "none", color: "#121212", backgroundColor: "#fafafa", boxSizing: "border-box", cursor: "text", resize: "vertical", lineHeight: 1.5 }}
+                      style={{ ...S.field, resize: "vertical", lineHeight: 1.5 }}
                     />
                   </div>
 
-                  <label style={{ display: "flex", alignItems: "flex-start", gap: "10px", marginBottom: "20px", cursor: "pointer" }}>
-                    <input
-                      type="checkbox"
-                      checked={dealerForm.sendConfig}
-                      onChange={(e) => setDealerForm((f) => ({ ...f, sendConfig: e.target.checked }))}
-                      style={{ marginTop: "2px", accentColor: "#78BE20", width: "15px", height: "15px", flexShrink: 0, cursor: "pointer" }}
-                    />
-                    <span style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: "13px", color: "#555", lineHeight: "1.4" }}>Send my configuration details to the dealer</span>
-                  </label>
+                  <p style={{ fontFamily: FONT.body, fontSize: "12px", color: COLOR.label, margin: "0 0 16px", lineHeight: 1.5 }}>
+                    Your details and build are sent to Energica and shared with your nearest dealer so they can contact you. See our{" "}
+                    <a href="/privacy" target="_blank" rel="noopener" style={{ color: COLOR.greenText }}>Privacy Policy</a>.
+                  </p>
+                </div>
 
+                <div style={modalFooter}>
                   {dealerError && (
-                    <p style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: "13px", color: "#c0392b", margin: "0 0 16px" }}>{dealerError}</p>
+                    <p role="alert" style={{ fontFamily: FONT.body, fontSize: "13px", color: COLOR.error, margin: "0 0 12px" }}>{dealerError}</p>
                   )}
-
                   <div style={{ display: "flex", gap: "8px" }}>
-                    <button type="button" onClick={() => setModalOpen(false)} style={{ ...S.btnSecondary, flex: 1, cursor: "pointer" }}>Cancel</button>
+                    <button type="button" onClick={closeForm} style={{ ...S.btnSecondary, flex: 1, cursor: "pointer" }}>Cancel</button>
                     <button type="submit" disabled={dealerSubmitting} style={{ ...S.btnPrimary, flex: 2, opacity: dealerSubmitting ? 0.7 : 1, cursor: "pointer" }}>
-                      {dealerSubmitting ? "Sending…" : "Send Enquiry"}
+                      {dealerSubmitting ? "Sending…" : MODAL_COPY[modalIntent].submit}
                     </button>
                   </div>
-                </form>
-              )}
-            </div>
+                </div>
+              </form>
+            )}
           </div>
         </div>,
         document.body

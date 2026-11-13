@@ -1,8 +1,9 @@
 "use client";
 
 import { useRef } from "react";
-import Image from "next/image";
+import { Photo } from "@/components/ui/Photo";
 import { gsap, useGSAP } from "@/lib/gsap";
+import { prefersReducedMotion, reveal } from "@/lib/motion";
 import { type BikeModel } from "@/data/models";
 import { PrimaryButton, SecondaryButton, Button } from "@/components/ui/Button";
 import { configuratorModelFor } from "@/lib/configurator-models";
@@ -18,34 +19,13 @@ export default function ModelHero({ model }: ModelHeroProps) {
   useGSAP(
     () => {
       /* Bike slides in from right, scales up */
-      gsap.from(".mh-bike", {
-        x: "12vw",
-        scale: 0.92,
-        opacity: 0,
-        duration: 1.3,
-        ease: "power3.out",
-        delay: 0.15,
-        immediateRender: false,
-      });
+      reveal(".mh-bike", { x: "4vw", scale: 0.97, scroll: false });
 
       /* Text cascade */
-      const tl = gsap.timeline({ delay: 0.1 });
-      tl.from(".mh-eyebrow", { y: 24, opacity: 0, duration: 0.6, ease: "power3.out", immediateRender: false })
-        .from(".mh-title", { y: 80, opacity: 0, duration: 1, ease: "power3.out", immediateRender: false }, "-=0.3")
-        .from(".mh-tagline", { y: 30, opacity: 0, duration: 0.6, ease: "power3.out", immediateRender: false }, "-=0.4")
-        .from(
-          ".mh-inline-spec",
-          { y: 20, opacity: 0, stagger: 0.08, duration: 0.5, ease: "power3.out", immediateRender: false },
-          "-=0.35"
-        )
-        .from(
-          ".mh-cta",
-          { y: 20, opacity: 0, stagger: 0.07, duration: 0.45, ease: "power3.out", immediateRender: false },
-          "-=0.2"
-        )
-        .from(".mh-scroll", { opacity: 0, duration: 0.5, ease: "power2.out", immediateRender: false }, "-=0.1");
+      reveal([".mh-eyebrow", ".mh-title", ".mh-tagline", ".mh-inline-spec", ".mh-cta", ".mh-scroll"], { y: 20, stagger: 0.06, scroll: false });
 
       /* Subtle parallax drift on the bike as page scrolls */
+      if (prefersReducedMotion()) return;
       gsap.to(".mh-bike", {
         y: "-10%",
         ease: "none",
@@ -90,10 +70,9 @@ export default function ModelHero({ model }: ModelHeroProps) {
 
       {/* ── Bike image ──────────────────────────────────────── */}
       <div className="mh-bike absolute right-0 top-1/2 -translate-y-1/2 w-[80vw] sm:w-[65vw] md:w-[55vw] max-w-[860px] h-[60vh] md:h-[72vh] pointer-events-none will-change-transform">
-        <Image
+        <Photo
           src={model.heroImage}
           alt={`${model.name} motorcycle`}
-          fill
           priority
           className="object-contain object-right"
           sizes="(max-width: 640px) 80vw, (max-width: 1024px) 65vw, 55vw"
@@ -119,7 +98,7 @@ export default function ModelHero({ model }: ModelHeroProps) {
       />
 
       {/* ── Text panel ──────────────────────────────────────── */}
-      <div className="relative z-10 px-[clamp(24px,4vw,64px)] w-full max-w-2xl">
+      <div className="relative z-10 ds-container *:max-w-xl">
         {/* Eyebrow */}
         <p className="mh-eyebrow inline-flex items-center gap-3 mb-4">
           <span className="w-8 h-px bg-[#CE2B37]" />

@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import Link from "next/link";
 import { gsap, useGSAP } from "@/lib/gsap";
+import { reveal } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 interface FormData {
@@ -54,9 +55,7 @@ export default function ContactForm() {
 
   useGSAP(() => {
     if (!formRef.current) return;
-    gsap.from(formRef.current.querySelectorAll(".field-row"), {
-      y: 20, opacity: 0, duration: 0.5, stagger: 0.07, ease: "power2.out",
-    });
+    reveal(formRef.current.querySelectorAll(".field-row"), { y: 20, stagger: 0.07, scroll: false });
   }, []);
 
   const update = (key: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -160,7 +159,7 @@ export default function ContactForm() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#78BE20] text-black text-[11px] tracking-[0.3em] uppercase font-medium py-4 hover:bg-white transition-colors duration-200 disabled:opacity-50"
+            className="btn-primary w-full text-[11px] tracking-[0.3em] uppercase font-medium py-4"
           >
             {loading ? "Sending..." : "Send Enquiry"}
           </button>

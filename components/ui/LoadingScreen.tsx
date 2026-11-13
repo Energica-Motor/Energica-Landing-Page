@@ -63,7 +63,8 @@ export default function LoadingScreen() {
   return (
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#0a0a0a]"
+      // Only JS removes this overlay, so without JS (no .js on <html>) it never shows
+      className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#0a0a0a] [html:not(.js)_&]:hidden"
       aria-hidden="true"
     >
       {/* Logo */}

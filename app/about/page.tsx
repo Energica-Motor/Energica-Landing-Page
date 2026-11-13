@@ -27,18 +27,22 @@ const CULTURAL: CulturalItem[] = [
 
 export default function AboutPage() {
   return (
-    <main className="bg-[#0a0a0a] text-white min-h-screen overflow-x-hidden">
+    <main className="bg-[#0a0a0a] text-white min-h-screen overflow-x-clip">
 
       {/* ── HERO ──────────────────────────────────────────────── */}
       <AboutHero />
 
       {/* ── STORY + STATS ─────────────────────────────────────── */}
-      <section className="w-full py-[120px]">
+      <section className="w-full ds-section">
         <Container>
-          <div className="grid lg:grid-cols-[3fr_2fr] gap-16 lg:gap-24 items-start">
+          {/* Desktop: the story and stats wrappers dissolve (lg:contents) so each
+              paragraph and its stat sit in the same grid row and line up at the
+              top. Mobile keeps the stacked order: story, then stats. */}
+          <div className="grid lg:grid-cols-[3fr_2fr] gap-16 lg:gap-x-24 lg:gap-y-0 items-start">
 
             {/* Story text */}
-            <div>
+            <div className="lg:contents">
+              <div className="lg:col-start-1 lg:row-start-1">
               <p className="inline-flex items-center gap-3 mb-6">
                 <span className="w-6 h-px bg-[#CE2B37]" />
                 <span className="text-[10px] uppercase tracking-[0.35em] text-white/60">
@@ -51,19 +55,20 @@ export default function AboutPage() {
               >
                 Pioneers Since 2009.
               </h2>
-              <p className="text-white/65 text-base leading-[1.9] mb-5">
+              </div>
+              <p className="text-white/65 text-base leading-[1.9] mb-5 lg:col-start-1 lg:row-start-2">
                 Energica Motor Company was founded in Modena, Italy — the same city
                 that gave the world Ferrari, Lamborghini, and Maserati. From the
                 very beginning, our mission was singular: build the world&apos;s most
                 advanced electric motorcycles.
               </p>
-              <p className="text-white/65 text-base leading-[1.9] mb-5">
+              <p className="text-white/65 text-base leading-[1.9] mb-5 lg:col-start-1 lg:row-start-3">
                 In 2019, we were named the exclusive motorcycle supplier to the FIM
                 Enel MotoE World Cup — a role we held for four seasons,
                 proving our technology against the most demanding conditions in
                 professional motorsport.
               </p>
-              <p className="text-white/65 text-base leading-[1.9]">
+              <p className="text-white/65 text-base leading-[1.9] lg:col-start-1 lg:row-start-4">
                 Every lesson learned on the grid feeds directly into our road bikes.
                 The result is a lineup of four motorcycles that no other manufacturer
                 on earth can match for performance, refinement, or pedigree.
@@ -71,9 +76,11 @@ export default function AboutPage() {
             </div>
 
             {/* Stats */}
-            <div className="flex flex-col gap-8 lg:pt-14">
-              {STATS.map((item) => (
-                <div key={item.label} className="border-l-2 border-[#78BE20] pl-6 py-1">
+            <div className="flex flex-col gap-8 lg:contents">
+              {STATS.map((item, i) => (
+                // -mt-1 cancels py-1 so the figure's top meets the paragraph's top;
+                // the green line keeps its height
+                <div key={item.label} className={`border-l-2 border-[#78BE20] pl-6 py-1 lg:col-start-2 lg:-mt-1 ${["lg:row-start-2", "lg:row-start-3"][i]}`}>
                   <p
                     className="font-display text-white leading-none"
                     style={{ fontSize: "clamp(40px, 5vw, 64px)" }}
@@ -92,13 +99,15 @@ export default function AboutPage() {
       </section>
 
       {/* ── CULTURAL VALIDATION ───────────────────────────────── */}
-      <section className="w-full py-[120px]">
+      <section className="w-full ds-section">
         <Container>
           <div className="grid lg:grid-cols-[1fr_2fr] gap-16 items-start">
 
-            {/* Left — heading */}
-            <div>
-              <p className="inline-flex items-center gap-3 mb-6">
+            {/* Left — heading (sticky beside the cards on desktop: header 96px + 32px) */}
+            <div className="lg:sticky lg:top-32">
+              {/* Block-level (flex w-fit, not inline-flex) so the eyebrow starts at the
+                  column's top edge, level with the first row of cards */}
+              <p className="flex w-fit items-center gap-3 mb-6">
                 <span className="w-6 h-px bg-[#CE2B37]" />
                 <span className="text-[10px] uppercase tracking-[0.35em] text-white/60">
                   Beyond the Road
@@ -126,7 +135,7 @@ export default function AboutPage() {
       </section>
 
       {/* ── CTA ───────────────────────────────────────────────── */}
-      <section className="w-full bg-[#0d0d0d] py-[120px] border-t border-white/[0.04]">
+      <section className="w-full bg-[#0d0d0d] ds-section border-t border-white/[0.04]">
         <Container className="text-center">
           <p className="inline-flex items-center gap-3 mb-6 justify-center">
             <span className="w-6 h-px bg-[#CE2B37]" />

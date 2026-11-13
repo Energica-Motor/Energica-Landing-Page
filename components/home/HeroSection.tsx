@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import Image from "next/image";
+import { Photo } from "@/components/ui/Photo";
 import Link from "next/link";
 import { useScramble } from "@/lib/use-scramble";
 import gsap from "gsap";
+import { prefersReducedMotion } from "@/lib/motion";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -28,6 +29,9 @@ export default function HeroSection() {
   useEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
+
+    // The scroll zoom and fade are motion; reduced motion keeps the hero still
+    if (prefersReducedMotion()) return;
 
     // Defer GSAP init to after first paint — avoids forced reflow on load
     const raf = requestAnimationFrame(() => {
@@ -77,10 +81,9 @@ export default function HeroSection() {
       {/* Background — starts zoomed in, zooms out on scroll */}
       <div ref={mediaRef} className="absolute inset-0 will-change-transform">
         {/* Static image shown until video is ready */}
-        <Image
+        <Photo
           src="/images/new/home-slide-1.jpg"
           alt="Energica — Progress, Ridden."
-          fill
           priority
           className={`object-cover object-center transition-opacity duration-700 ${videoLoaded ? "opacity-0" : "opacity-70"}`}
           sizes="100vw"
@@ -106,7 +109,7 @@ export default function HeroSection() {
       <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/85 z-10 pointer-events-none" />
 
       <div ref={contentRef} className="absolute bottom-0 left-0 right-0 z-20 will-change-transform pb-[max(4rem,env(safe-area-inset-bottom,0px)+2rem)] md:pb-20">
-        <div className="max-w-[1600px] mx-auto px-[clamp(24px,4vw,64px)]">
+        <div className="ds-container">
           <span className="mono-tag mb-5 block">Modena, Italy · Est. 2009</span>
           {/* Real H1 — stable text for LCP, never mutated */}
           <div className="relative mb-3">

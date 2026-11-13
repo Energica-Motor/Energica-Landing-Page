@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { usePathname } from "next/navigation";
 
 /**
@@ -18,6 +18,7 @@ export default function PageTransition({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const reduceMotion = useReducedMotion();
 
   // Track direction: forward (+1) or back (-1)
   let direction = 1;
@@ -48,8 +49,11 @@ export default function PageTransition({
     },
   };
 
+  // initial={false}: the first page renders in its final state, so the
+  // server HTML is visible without JS (and before hydration); only later
+  // navigations animate. Reduced motion switches pages instantly.
   return (
-    <AnimatePresence mode="wait" custom={direction}>
+    <AnimatePresence mode="wait" custom={direction} initial={false}>
       <motion.div
         key={pathname}
         custom={direction}
@@ -57,7 +61,7 @@ export default function PageTransition({
         initial="initial"
         animate="animate"
         exit="exit"
-        transition={{ duration: 0.42, ease: [0.16, 1, 0.3, 1] }}
+        transition={reduceMotion ? { duration: 0 } : { duration: 0.42, ease: [0.16, 1, 0.3, 1] }}
         style={{ transformOrigin: "center top" }}
       >
         {children}

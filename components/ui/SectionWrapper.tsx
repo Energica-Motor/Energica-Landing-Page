@@ -16,7 +16,7 @@ interface SectionWrapperProps {
 export function SectionWrapper({ children, className, as = "section" }: SectionWrapperProps) {
   const Tag = as as React.ElementType;
   return (
-    <Tag className={cn("py-[120px]", className)}>
+    <Tag className={cn("ds-section", className)}>
       {children}
     </Tag>
   );

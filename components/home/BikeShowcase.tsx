@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
+import { Photo } from "@/components/ui/Photo";
 import Link from "next/link";
 import { gsap } from "@/lib/gsap";
 
@@ -384,7 +384,48 @@ export default function BikeShowcase() {
 
   /* ── Render ──────────────────────────────────────────────────── */
   return (
-    <section ref={sectionRef} className="relative h-screen overflow-hidden bg-[#0A0A0A]">
+    <>
+    {/* Without JavaScript the pinned showcase can't switch models, so the
+        same lineup content is listed one model after another instead.
+        Hidden whenever JS runs (html.js), so the showcase is unchanged. */}
+    <section aria-label="The lineup" className="hidden [html:not(.js)_&]:block bg-[#0A0A0A] ds-section">
+      <div className="ds-container">
+        <div className="flex items-center justify-between border-b border-white/[0.06] pb-4 mb-12">
+          <p className="text-[10px] tracking-[0.45em] text-white/50 uppercase">The Lineup</p>
+          <Link href="/models" className="text-[10px] tracking-[0.3em] text-white/50 uppercase">View all →</Link>
+        </div>
+        <ul className="flex flex-col gap-16">
+          {bikes.map((bike) => (
+            <li key={bike.id} className="grid md:grid-cols-2 gap-8 items-center">
+              <div>
+                <div className="flex items-center gap-3 mb-5">
+                  <span style={{ fontFamily:"var(--font-ibm-mono)", fontSize:"11px", letterSpacing:"0.45em", color:"rgba(255,255,255,0.55)" }}>{bike.index}</span>
+                  <div className="w-5 h-px bg-[#CE2B37]/70" />
+                  <span className="mono-tag">{bike.category}</span>
+                </div>
+                <h2 className="font-display text-[clamp(38px,6vw,88px)] text-white leading-[0.88] uppercase tracking-tight mb-3">{bike.name}</h2>
+                <p className="text-sm md:text-base text-white/65 mb-5 font-light leading-relaxed tracking-wide" style={{ fontFamily:"var(--font-ibm-sans)" }}>{bike.tagline}</p>
+                <div className="mb-7">
+                  <div className="flex items-baseline gap-2 mb-1">
+                    <span className="font-display text-[clamp(42px,5vw,72px)] leading-none" style={{ color:bike.accent }}>{bike.stat.value}</span>
+                    <span className="text-xl text-white/60 font-light">{bike.stat.unit}</span>
+                  </div>
+                  <p className="text-[11px] tracking-[0.4em] text-white/50 uppercase" style={{ fontFamily:"var(--font-ibm-mono)" }}>{bike.stat.label}</p>
+                </div>
+                <Link href={bike.href} className="inline-flex items-center gap-3">
+                  <span className="h-px w-8 bg-[#CE2B37]" />
+                  <span className="text-[11px] tracking-[0.3em] text-white uppercase">Discover {bike.name}</span>
+                </Link>
+              </div>
+              <div className="relative aspect-[16/10]">
+                <Photo src={bike.image} alt={bike.name} sizes="(max-width: 768px) 100vw, 50vw" style={{ objectFit: "contain" }} />
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+    <section ref={sectionRef} className="relative h-screen overflow-hidden bg-[#0A0A0A] [html:not(.js)_&]:hidden">
 
       {/* ── Lock status ──────────────────────────────────────────── */}
       <span
@@ -423,11 +464,9 @@ export default function BikeShowcase() {
             }}
             data-cursor-view
           >
-            <Image
+            <Photo
               src={bike.image} alt={bike.name}
-              fill
               sizes="(max-width: 768px) 0vw, 62vw"
-              priority={i === 0}
               style={{ objectFit:"contain", objectPosition:"center bottom", filter:"brightness(0.9) contrast(1.05)", userSelect:"none", pointerEvents:"none" }}
             />
 
@@ -463,11 +502,9 @@ export default function BikeShowcase() {
               zIndex: i === activeIndex ? 2 : 0,
             }}
           >
-            <Image
+            <Photo
                 src={bike.image} alt={bike.name}
-                fill
                 sizes="100vw"
-                priority={i === 0}
                 style={{ objectFit:"contain", objectPosition:"center 50%" }}
               />
           </div>
@@ -481,7 +518,7 @@ export default function BikeShowcase() {
       <div className="absolute inset-0 md:hidden pointer-events-none z-[3]" style={{ background:"linear-gradient(to right, #0A0A0A 30%, rgba(10,10,10,0.5) 55%, transparent 100%)" }} />
 
       {/* Top label */}
-      <div className="absolute top-0 left-0 right-0 z-20 max-w-[1440px] mx-auto px-6 md:px-12 lg:px-20 pt-14">
+      <div className="absolute top-0 left-0 right-0 z-20 ds-container pt-14">
         <div className="flex items-center justify-between border-b border-white/[0.06] pb-4">
           <p className="text-[10px] tracking-[0.45em] text-white/50 uppercase">The Lineup</p>
           <Link href="/models" className="text-[10px] tracking-[0.3em] text-white/50 uppercase hover:text-white transition-colors duration-200">View all →</Link>
@@ -490,7 +527,7 @@ export default function BikeShowcase() {
 
       {/* Text blocks */}
       <div className="absolute inset-0 z-10 flex md:items-center items-end pb-24 md:pb-0">
-        <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-20 w-full">
+        <div className="ds-container w-full">
           <div className="relative md:max-w-[44%]" style={{ height:"clamp(280px,45vh,490px)" }}>
             {bikes.map((bike, i) => (
               <div
@@ -567,5 +604,6 @@ export default function BikeShowcase() {
         style={{ background:"linear-gradient(to bottom, transparent, rgba(120,190,32,0.18), transparent)" }} />
 
     </section>
+    </>
   );
 }

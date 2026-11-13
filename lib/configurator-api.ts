@@ -14,6 +14,8 @@ export interface LayerMeta {
   name: string;
   filename: string;
   z_index: number;
+  offset_x?: number; // position on the model canvas (px)
+  offset_y?: number;
   visible_by_default: boolean;
   always_visible: boolean;
   group: string;

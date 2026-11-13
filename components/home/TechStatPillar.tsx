@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { useOdometer } from "@/lib/use-odometer";
+import { Counter } from "@/components/ui/Counter";
 
 interface TechStatPillarProps {
   targetValue: number;
@@ -12,8 +11,8 @@ interface TechStatPillarProps {
 }
 
 /**
- * Client component for an animated odometer stat pillar.
- * Uses IntersectionObserver to trigger on viewport enter.
+ * Stat pillar whose number renders its real value and counts up once fully
+ * in view (components/ui/Counter).
  */
 export default function TechStatPillar({
   targetValue,
@@ -22,25 +21,10 @@ export default function TechStatPillar({
   detail,
   decimals = 0,
 }: TechStatPillarProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [inView, setInView] = useState(false);
-  const numRef = useOdometer(targetValue, inView, 1600, decimals);
-
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setInView(true); obs.disconnect(); } },
-      { threshold: 0.4 }
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, []);
-
   return (
-    <div ref={containerRef} className="bg-[#0A0A0A] p-8 md:p-10">
+    <div className="bg-[#0A0A0A] p-8 md:p-10">
       <div className="font-display text-[clamp(40px,5vw,64px)] text-white leading-none mb-3">
-        <span ref={numRef as React.RefObject<HTMLSpanElement>}>{targetValue}</span>
+        <Counter value={targetValue} decimals={decimals} />
         {suffix}
       </div>
       <div className="mono-tag mb-4 inline-block">{label}</div>

@@ -1,8 +1,9 @@
 "use client";
 
 import { useRef } from "react";
-import Image from "next/image";
+import { Photo } from "@/components/ui/Photo";
 import { gsap, useGSAP } from "@/lib/gsap";
+import { reveal } from "@/lib/motion";
 import { type BikeModel } from "@/data/models";
 import { Container } from "@/components/ui/Container";
 
@@ -15,33 +16,9 @@ export default function StorySection({ model }: StorySectionProps) {
 
   useGSAP(
     () => {
-      gsap.utils.toArray<HTMLElement>(".story-para").forEach((el) => {
-        gsap.from(el, {
-          y: 32,
-          opacity: 0,
-          duration: 0.8,
-          ease: "power3.out",
-          immediateRender: false,
-          scrollTrigger: { trigger: el, start: "top 87%" },
-        });
-      });
-      gsap.from(".story-img", {
-        scale: 1.04,
-        opacity: 0,
-        duration: 1,
-        ease: "power3.out",
-        immediateRender: false,
-        scrollTrigger: { trigger: ".story-img", start: "top 82%" },
-      });
-      gsap.from(".story-callout", {
-        y: 20,
-        opacity: 0,
-        duration: 0.7,
-        ease: "power3.out",
-        immediateRender: false,
-        scrollTrigger: { trigger: ".story-img", start: "top 75%" },
-        delay: 0.3,
-      });
+      gsap.utils.toArray<HTMLElement>(".story-para").forEach((el) => reveal(el, { y: 20 }));
+      reveal(".story-img", { scale: 1.02 });
+      reveal(".story-callout", { y: 20, delay: 0.15, trigger: ".story-img" });
     },
     { scope: sectionRef }
   );
@@ -52,7 +29,7 @@ export default function StorySection({ model }: StorySectionProps) {
 
   return (
     <section ref={sectionRef} className="relative bg-[#080808] border-t border-white/[0.04]">
-      <Container className="py-20">
+      <Container className="ds-section">
         <div className="grid lg:grid-cols-[1fr_1fr] gap-10 lg:gap-16 items-center">
 
           {/* ── LEFT: Image with overlaid callout ─────────────── */}
@@ -61,12 +38,11 @@ export default function StorySection({ model }: StorySectionProps) {
               className="story-img relative overflow-hidden bg-[#111]"
               style={{ aspectRatio: "4/3" }}
             >
-              <Image
+              <Photo
                 src={storyImage}
                 alt={`${model.name} lifestyle`}
-                fill
                 className="object-cover"
-                sizes="(max-width: 1024px) 100vw, 50vw"
+                sizes="(max-width: 1024px) 100vw, (max-width: 1343px) 50vw, 640px"
               />
 
               {/* Corner accents */}

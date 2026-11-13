@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import Image from "next/image";
+import { Photo } from "@/components/ui/Photo";
 import { gsap } from "@/lib/gsap";
 
 interface GalleryDragProps {
@@ -119,10 +119,9 @@ export default function GalleryDrag({ images, modelName }: GalleryDragProps) {
             }}
             data-cursor-view
           >
-            <Image
+            <Photo
               src={src}
               alt={`${modelName} gallery ${i + 1}`}
-              fill
               className="object-cover"
               sizes="(max-width: 768px) 80vw, 35vw"
               draggable={false}

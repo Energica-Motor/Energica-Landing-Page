@@ -7,6 +7,7 @@ import GrainOverlay from "@/components/ui/GrainOverlay";
 import LoadingScreen from "@/components/ui/LoadingScreen";
 import SmoothScroll from "@/components/ui/SmoothScroll";
 import PageTransition from "@/components/ui/PageTransition";
+import { COMPANY_LEGAL_NAME } from "@/lib/company";
 
 const barlowCondensed = Barlow_Condensed({
   weight: ["300", "400", "500", "600", "700", "800", "900"],
@@ -63,8 +64,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${barlowCondensed.variable} ${ibmPlexSans.variable} ${ibmPlexMono.variable}`}>
+    // suppressHydrationWarning: the inline script below adds "js" to <html>
+    // before React hydrates
+    <html lang="en" className={`${barlowCondensed.variable} ${ibmPlexSans.variable} ${ibmPlexMono.variable}`} suppressHydrationWarning>
       <head>
+        {/* Marks that JS is running, so photo fade-ins only hide photos when
+            they can be shown again (see .photo-fade in globals.css) */}
+        <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -75,7 +81,7 @@ export default function RootLayout({
                   "@type": "Organization",
                   "@id": "https://energicamotor.com/#organization",
                   "name": "Energica Motor Company",
-                  "legalName": "ENERGICA PTE. LTD.",
+                  "legalName": COMPANY_LEGAL_NAME,
                   "url": "https://energicamotor.com",
                   "logo": {
                     "@type": "ImageObject",

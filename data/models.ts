@@ -1,6 +1,7 @@
 export interface ColorOption {
   name: string;
   hex: string;
+  stripes?: string[]; // multi-colour swatch (Tricolore), drawn as vertical stripes
   image: string;
 }
 
@@ -308,6 +309,7 @@ export const models: BikeModel[] = [
       {
         name: "Tricolore",
         hex: "#009246",
+        stripes: ["#009246", "#F1F2F1", "#CE2B37"],
         image: "/images/Pagina%20Eva/EVA%20Ribelle%20RS_Tricolore.webp",
       },
     ],
@@ -391,6 +393,7 @@ export const models: BikeModel[] = [
       {
         name: "Tricolore",
         hex: "#009246",
+        stripes: ["#009246", "#F1F2F1", "#CE2B37"],
         image: "/images/Pagina%20EGO/EGO%20RS_Tricolore.webp",
       },
     ],

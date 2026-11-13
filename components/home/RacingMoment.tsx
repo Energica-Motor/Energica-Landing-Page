@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { Photo } from "@/components/ui/Photo";
 import Link from "next/link";
 import Reveal from "@/components/ui/Reveal";
 
@@ -6,10 +6,9 @@ export default function RacingMoment() {
   return (
     <section className="relative w-full h-[70vh] md:h-screen overflow-hidden bg-[#0A0A0A]">
 
-      <Image
+      <Photo
         src="/images/MotoAmerica/BJNB2279_3_P.jpg"
         alt="Energica Racing"
-        fill
         className="object-cover opacity-90"
         sizes="100vw"
       />
@@ -17,7 +16,7 @@ export default function RacingMoment() {
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
 
       <div className="absolute bottom-8 md:bottom-12 lg:bottom-20 left-0 right-0 z-10">
-        <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-20">
+        <div className="ds-container">
           <Reveal>
             <span className="mono-tag mb-5 inline-block" style={{ backgroundColor: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)" }}>MotoE · MotoAmerica</span>
             <h2 className="font-display text-[clamp(36px,9vw,112px)] text-white leading-none uppercase mb-4">

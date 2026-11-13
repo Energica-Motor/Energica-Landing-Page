@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Image from "next/image";
+import { Photo } from "@/components/ui/Photo";
 import { Container } from "@/components/ui/Container";
 import { PrimaryButton, SecondaryButton } from "@/components/ui/Button";
 import RacingHero from "@/components/racing/RacingHero";
@@ -46,7 +46,7 @@ export default function RacingPage() {
       </section>
 
       {/* ── EGO CORSA STORY ───────────────────────────────────── */}
-      <section className="w-full py-[120px]">
+      <section className="w-full ds-section">
         <Container>
           <div className="grid lg:grid-cols-2 gap-16 items-center">
 
@@ -79,12 +79,11 @@ export default function RacingPage() {
 
             {/* Image */}
             <div className="relative aspect-[4/3] overflow-hidden bg-[#111]">
-              <Image
+              <Photo
                 src="/images/MotoE/Ferrari_MotoE_R11_Assen-19.jpg"
                 alt="Energica Ego Corsa on the MotoE grid at Assen"
-                fill
                 className="object-cover"
-                sizes="(max-width: 1024px) 100vw, 50vw"
+                sizes="(max-width: 1024px) 100vw, (max-width: 1343px) 50vw, 640px"
               />
               <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-[#78BE20]" />
               <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-[#78BE20]" />
@@ -97,7 +96,7 @@ export default function RacingPage() {
       <MotoAmericaSection />
 
       {/* ── TECHNOLOGY TRANSFER ───────────────────────────────── */}
-      <section className="w-full bg-[#0d0d0d] py-[120px] border-t border-white/[0.04]">
+      <section className="w-full bg-[#0d0d0d] ds-section border-t border-white/[0.04]">
         <Container>
           <div className="mb-14 text-center">
             <p className="inline-flex items-center gap-3 mb-4">
@@ -145,7 +144,7 @@ export default function RacingPage() {
       </section>
 
       {/* ── MOTOE WORLD CUP GALLERY ───────────────────────────── */}
-      <section className="w-full py-[120px] border-t border-white/[0.04]">
+      <section className="w-full ds-section border-t border-white/[0.04]">
         <Container>
 
           {/* Section header */}
@@ -170,34 +169,31 @@ export default function RacingPage() {
 
             {/* Large hero cell — col-span-2, row-span-2 */}
             <div className="relative col-span-2 row-span-2 overflow-hidden bg-[#111] group">
-              <Image
+              <Photo
                 src="/images/MotoE/5NG_0427.jpg"
                 alt="Ego Corsa — FIM Enel MotoE World Cup"
-                fill
                 className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
-                sizes="66vw"
+                sizes="(max-width: 1343px) 66vw, 850px"
               />
             </div>
 
             {/* Small cell 1 */}
             <div className="relative overflow-hidden bg-[#111] group">
-              <Image
+              <Photo
                 src="/images/MotoE/5NG_5156.jpg"
                 alt="Ego Corsa on track — MotoE"
-                fill
                 className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
-                sizes="33vw"
+                sizes="(max-width: 1343px) 33vw, 420px"
               />
             </div>
 
             {/* Small cell 2 */}
             <div className="relative overflow-hidden bg-[#111] group">
-              <Image
+              <Photo
                 src="/images/MotoE/5NG_5288.jpg"
                 alt="Ego Corsa racing — MotoE grid"
-                fill
                 className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
-                sizes="33vw"
+                sizes="(max-width: 1343px) 33vw, 420px"
               />
             </div>
 
@@ -207,22 +203,20 @@ export default function RacingPage() {
           <div className="grid grid-cols-2 gap-3 mt-3" style={{ height: "clamp(200px, 24vw, 340px)" }}>
 
             <div className="relative overflow-hidden bg-[#111] group">
-              <Image
+              <Photo
                 src="/images/MotoE/LG5_1964.jpg"
                 alt="Energica Ego Corsa — MotoE championship"
-                fill
                 className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
-                sizes="50vw"
+                sizes="(max-width: 1343px) 50vw, 640px"
               />
             </div>
 
             <div className="relative overflow-hidden bg-[#111] group">
-              <Image
+              <Photo
                 src="/images/MotoE/Ferrari_MotoE_R11_Assen-19.jpg"
                 alt="Ego Corsa — Assen MotoE round"
-                fill
                 className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
-                sizes="50vw"
+                sizes="(max-width: 1343px) 50vw, 640px"
               />
               {/* Caption overlay */}
               <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
@@ -238,7 +232,7 @@ export default function RacingPage() {
       </section>
 
       {/* ── CTA ───────────────────────────────────────────────── */}
-      <section className="w-full bg-[#0f0f0f] py-[120px] border-t border-white/[0.04]">
+      <section className="w-full bg-[#0f0f0f] ds-section border-t border-white/[0.04]">
         <Container className="text-center">
           <h2
             className="font-display text-white leading-none mb-[24px]"

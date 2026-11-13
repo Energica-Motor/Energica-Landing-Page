@@ -27,7 +27,7 @@ export default function SiteChrome({
   if (isConfigurator) {
     return (
       <>
-        <Navigation alwaysDark />
+        <Navigation alwaysDark fullWidth />
         {children}
         <Footer />
       </>

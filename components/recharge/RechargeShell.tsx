@@ -162,7 +162,11 @@ export default function RechargeShell() {
   const turnstileToken = useRef("");
   const cardRef = useRef<HTMLDivElement>(null);
 
+  // Bring the form card into view when the step changes — not on first
+  // load, which used to open the page scrolled past the hero
+  const stepShown = useRef(false);
   useEffect(() => {
+    if (!stepShown.current) { stepShown.current = true; return; }
     cardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [step]);
 
@@ -343,7 +347,7 @@ export default function RechargeShell() {
       <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" strategy="lazyOnload" />
 
       {/* HERO */}
-      <header className="max-w-[1200px] mx-auto px-5 sm:px-8 pt-16 sm:pt-24 pb-14 sm:pb-20 border-b border-white/[0.07]">
+      <header className="ds-container pt-16 sm:pt-24 pb-14 sm:pb-20 border-b border-white/[0.07]">
         <div className="inline-flex items-center gap-2 px-3 py-1.5 border border-white/[0.13] rounded-sm font-[var(--font-ibm-mono)] text-[11px] tracking-[0.14em] uppercase text-white/40 mb-10">
           <span className="w-1.5 h-1.5 rounded-full bg-[#78BE20]" />
           Energica ReCharge — Certified Pre-Owned Programme
@@ -359,31 +363,31 @@ export default function RechargeShell() {
         </p>
         <a
           href="#offer"
-          className="inline-flex items-center gap-2.5 bg-[#78BE20] hover:bg-[#88d424] text-black font-[var(--font-barlow)] font-semibold text-[13px] tracking-[0.08em] uppercase px-6 py-4 rounded-sm transition-colors"
+          className="btn-primary inline-flex items-center gap-2.5 font-[var(--font-barlow)] font-semibold text-[13px] tracking-[0.08em] uppercase px-6 py-4 rounded-sm"
         >
           Get your offer
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
         </a>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-0 max-w-[640px] mt-16 pt-10 border-t border-white/[0.07]">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-0 max-w-[740px] mt-16 pt-10 border-t border-white/[0.07]">
           <div className="sm:pr-8 sm:border-r border-white/[0.07] pb-6 sm:pb-0 border-b sm:border-b-0 border-white/[0.07]">
-            <div className="font-[var(--font-barlow)] font-semibold text-[32px] sm:text-[40px] leading-none">~<span className="text-[#78BE20]">90</span>s</div>
+            <div className="font-[var(--font-barlow)] font-semibold text-[32px] sm:text-[40px] leading-none whitespace-nowrap">~<span className="text-[#78BE20]">90</span>s</div>
             <div className="mt-2 font-[var(--font-ibm-mono)] text-[11px] uppercase tracking-[0.08em] text-white/40">To your indicative offer</div>
           </div>
           <div className="sm:px-8 sm:border-r border-white/[0.07] pb-6 sm:pb-0 border-b sm:border-b-0 border-white/[0.07]">
-            <div className="font-[var(--font-barlow)] font-semibold text-[32px] sm:text-[40px] leading-none"><span className="text-[#78BE20]">Same</span> day</div>
+            <div className="font-[var(--font-barlow)] font-semibold text-[32px] sm:text-[40px] leading-none whitespace-nowrap"><span className="text-[#78BE20]">Same</span> day</div>
             <div className="mt-2 font-[var(--font-ibm-mono)] text-[11px] uppercase tracking-[0.08em] text-white/40">Evaluation to payment</div>
           </div>
           <div className="sm:pl-8">
-            <div className="font-[var(--font-barlow)] font-semibold text-[32px] sm:text-[40px] leading-none"><span className="text-[#78BE20]">€0</span></div>
+            <div className="font-[var(--font-barlow)] font-semibold text-[32px] sm:text-[40px] leading-none whitespace-nowrap"><span className="text-[#78BE20]">€0</span></div>
             <div className="mt-2 font-[var(--font-ibm-mono)] text-[11px] uppercase tracking-[0.08em] text-white/40">Cost to you</div>
           </div>
         </div>
       </header>
 
       {/* PROCESS */}
-      <section className="bg-[#141414] border-b border-white/[0.07] py-14 sm:py-18 px-5 sm:px-8">
-        <div className="max-w-[1200px] mx-auto">
+      <section className="bg-[#141414] border-b border-white/[0.07] ds-section">
+        <div className="ds-container">
           <div className="font-[var(--font-ibm-mono)] text-[11px] tracking-[0.16em] uppercase text-[#78BE20] mb-3">— How it works</div>
           <h2 className="font-[var(--font-barlow)] font-bold uppercase text-[28px] sm:text-[44px] leading-none mb-12">Four steps.</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 border border-white/[0.07] rounded-lg overflow-hidden">
@@ -400,7 +404,7 @@ export default function RechargeShell() {
       </section>
 
       {/* FORM */}
-      <section id="offer" className="py-16 sm:py-24 px-5 sm:px-8">
+      <section id="offer" className="ds-section px-[var(--container-px)]">
         <div className="max-w-[680px] mx-auto">
           <div className="font-[var(--font-ibm-mono)] text-[11px] tracking-[0.16em] uppercase text-[#78BE20] mb-3">— Valuation</div>
           <h2 className="font-[var(--font-barlow)] font-bold uppercase text-[28px] sm:text-[44px] leading-none mb-10">Get your offer.</h2>
@@ -450,7 +454,7 @@ export default function RechargeShell() {
                 <div className="mt-8">
                   <button
                     type="button"
-                    className="w-full inline-flex items-center justify-center gap-2.5 bg-[#78BE20] hover:bg-[#88d424] text-black font-[var(--font-barlow)] font-semibold text-[13px] tracking-[0.08em] uppercase px-6 py-4 rounded-sm transition-colors"
+                    className="btn-primary w-full inline-flex items-center justify-center gap-2.5 font-[var(--font-barlow)] font-semibold text-[13px] tracking-[0.08em] uppercase px-6 py-4 rounded-sm"
                     onClick={() => validateStep1() && setStep(2)}
                   >
                     Continue
@@ -513,7 +517,7 @@ export default function RechargeShell() {
                   <button type="button" className="border border-white/[0.13] text-white/60 hover:text-white hover:border-white/30 font-[var(--font-barlow)] font-semibold text-[13px] tracking-[0.08em] uppercase px-5 py-4 rounded-sm transition-colors" onClick={() => setStep(1)}>Back</button>
                   <button
                     type="button"
-                    className="flex-1 inline-flex items-center justify-center gap-2.5 bg-[#78BE20] hover:bg-[#88d424] text-black font-[var(--font-barlow)] font-semibold text-[13px] tracking-[0.08em] uppercase px-6 py-4 rounded-sm transition-colors"
+                    className="btn-primary flex-1 inline-flex items-center justify-center gap-2.5 font-[var(--font-barlow)] font-semibold text-[13px] tracking-[0.08em] uppercase px-6 py-4 rounded-sm"
                     onClick={() => {
                       if (!validateStep2()) return;
                       if (accident === "yes" || modified === "yes") { setDqReason("answers"); setStep("dq"); return; }
@@ -559,7 +563,7 @@ export default function RechargeShell() {
                 </div>
 
                 <div className="flex flex-col gap-2.5">
-                  <button type="button" className="inline-flex items-center justify-center gap-2.5 bg-[#78BE20] hover:bg-[#88d424] text-black font-[var(--font-barlow)] font-semibold text-[13px] tracking-[0.08em] uppercase px-6 py-4 rounded-sm transition-colors" onClick={() => setStep(5)}>
+                  <button type="button" className="btn-primary inline-flex items-center justify-center gap-2.5 font-[var(--font-barlow)] font-semibold text-[13px] tracking-[0.08em] uppercase px-6 py-4 rounded-sm" onClick={() => setStep(5)}>
                     Accept &amp; continue
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M13 5l7 7-7 7" /></svg>
                   </button>
@@ -618,7 +622,7 @@ export default function RechargeShell() {
                   ) : (
                     <div className="flex items-center gap-2 flex-wrap">
                       <input type="text" inputMode="numeric" maxLength={6} placeholder="6-digit code" className="bg-white/[0.03] border border-white/[0.13] rounded px-3 py-2 text-sm w-32 font-[var(--font-ibm-mono)] tracking-widest" value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))} />
-                      <button type="button" className="font-[var(--font-barlow)] font-semibold text-[12px] uppercase tracking-[0.08em] bg-[#78BE20] text-black px-4 py-2 rounded-sm" onClick={confirmCode}>Verify</button>
+                      <button type="button" className="btn-primary font-[var(--font-barlow)] font-semibold text-[12px] uppercase tracking-[0.08em] px-4 py-2 rounded-sm" onClick={confirmCode}>Verify</button>
                       <button type="button" className="text-[12px] text-white/40 hover:text-white/70" onClick={sendCode} disabled={sendingCode}>Resend</button>
                       {codeError && <span className="text-[12px] text-[#78BE20] w-full">{codeError}</span>}
                     </div>
@@ -671,7 +675,7 @@ export default function RechargeShell() {
                   <button type="button" className="border border-white/[0.13] text-white/60 hover:text-white hover:border-white/30 font-[var(--font-barlow)] font-semibold text-[13px] tracking-[0.08em] uppercase px-5 py-4 rounded-sm transition-colors" onClick={() => setStep(4)}>Back</button>
                   <button
                     type="button"
-                    className="flex-1 inline-flex items-center justify-center gap-2.5 bg-[#78BE20] hover:bg-[#88d424] text-black font-[var(--font-barlow)] font-semibold text-[13px] tracking-[0.08em] uppercase px-6 py-4 rounded-sm transition-colors"
+                    className="btn-primary flex-1 inline-flex items-center justify-center gap-2.5 font-[var(--font-barlow)] font-semibold text-[13px] tracking-[0.08em] uppercase px-6 py-4 rounded-sm"
                     onClick={() => validateStep5() && setStep(6)}
                   >
                     Continue
@@ -722,7 +726,7 @@ export default function RechargeShell() {
                   <button
                     type="button"
                     disabled={submitting}
-                    className="flex-1 inline-flex items-center justify-center gap-2.5 bg-[#78BE20] hover:bg-[#88d424] disabled:opacity-50 text-black font-[var(--font-barlow)] font-semibold text-[13px] tracking-[0.08em] uppercase px-6 py-4 rounded-sm transition-colors"
+                    className="btn-primary flex-1 inline-flex items-center justify-center gap-2.5 font-[var(--font-barlow)] font-semibold text-[13px] tracking-[0.08em] uppercase px-6 py-4 rounded-sm"
                     onClick={() => {
                       if (!validateStep6()) return;
                       turnstileToken.current = (typeof window !== "undefined" && (window as unknown as { __rechargeTurnstileToken?: string }).__rechargeTurnstileToken) || "";
@@ -770,7 +774,7 @@ export default function RechargeShell() {
                     : "Frame damage, powertrain modifications, and certain salvage histories require human assessment — that doesn't always mean a hard no."}
                 </p>
                 <div className="flex flex-col gap-2.5 max-w-[260px] mx-auto">
-                  <button type="button" className="bg-[#78BE20] hover:bg-[#88d424] text-black font-[var(--font-barlow)] font-semibold text-[13px] tracking-[0.08em] uppercase px-6 py-4 rounded-sm transition-colors" onClick={() => setStep(5)}>Speak to a specialist</button>
+                  <button type="button" className="btn-primary font-[var(--font-barlow)] font-semibold text-[13px] tracking-[0.08em] uppercase px-6 py-4 rounded-sm" onClick={() => setStep(5)}>Speak to a specialist</button>
                   <button type="button" className="border border-white/[0.13] text-white/60 hover:text-white font-[var(--font-barlow)] font-semibold text-[13px] tracking-[0.08em] uppercase px-6 py-4 rounded-sm transition-colors" onClick={restart}>Start over</button>
                 </div>
               </div>
@@ -782,8 +786,8 @@ export default function RechargeShell() {
       </section>
 
       {/* FAQ */}
-      <section className="bg-[#141414] border-y border-white/[0.07] py-16 sm:py-24 px-5 sm:px-8">
-        <div className="max-w-[1200px] mx-auto grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-9 lg:gap-16">
+      <section className="bg-[#141414] border-y border-white/[0.07] ds-section">
+        <div className="ds-container grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-9 lg:gap-16">
           <div>
             <div className="font-[var(--font-ibm-mono)] text-[11px] tracking-[0.16em] uppercase text-[#78BE20] mb-3">— Questions</div>
             <h2 className="font-[var(--font-barlow)] font-bold uppercase text-[28px] sm:text-[44px] leading-none">FAQ.</h2>

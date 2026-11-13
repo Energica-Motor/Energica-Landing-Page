@@ -7,7 +7,7 @@ export default function OwnersPage() {
   const [submitted, setSubmitted] = useState(false);
 
   return (
-    <main className="bg-[#0a0a0a] text-white min-h-screen pt-32 pb-[120px]">
+    <main className="bg-[#0a0a0a] text-white min-h-screen pt-32 ds-section-bottom">
       <Container>
         <p className="inline-flex items-center gap-3 mb-6">
           <span className="w-6 h-px bg-[#CE2B37]" />
@@ -140,7 +140,7 @@ export default function OwnersPage() {
               <div className="pt-2">
                 <button
                   type="submit"
-                  className="bg-[#78BE20] text-black text-[11px] uppercase tracking-[0.2em] font-semibold px-8 py-4 hover:bg-[#8fd424] transition-colors duration-200"
+                  className="btn-primary text-[11px] uppercase tracking-[0.2em] font-semibold px-8 py-4"
                 >
                   Send Message
                 </button>

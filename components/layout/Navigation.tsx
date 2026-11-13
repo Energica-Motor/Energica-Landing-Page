@@ -3,7 +3,11 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { Photo } from "@/components/ui/Photo";
+import { usePathname } from "next/navigation";
 import { navItems, type MegaMenuItem } from "@/data/navigation";
+import { CurrentYear } from "@/components/ui/CurrentYear";
+import { COMPANY_LEGAL_NAME } from "@/lib/company";
 import { cn } from "@/lib/utils";
 
 /* ── Logo ─────────────────────────────────────────────────── */
@@ -69,7 +73,7 @@ function MegaMenu({
       )}
       style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}
     >
-      <div className="max-w-[1600px] mx-auto px-[clamp(24px,4vw,64px)] py-10">
+      <div className="ds-container py-10">
         <div className="grid grid-cols-4 gap-6">
           {items.map((item) => (
             <Link
@@ -99,10 +103,9 @@ function MegaMenu({
                   el.style.setProperty("--glint-opacity", "0");
                 }}
               >
-                <Image
+                <Photo
                   src={item.image}
                   alt={item.name}
-                  fill
                   className="object-contain p-3 transition-transform duration-500 group-hover:scale-105"
                   sizes="(max-width: 1024px) 50vw, 20vw"
                 />
@@ -157,25 +160,69 @@ function MegaMenu({
 }
 
 /* ── Mobile Overlay ───────────────────────────────────────── */
+// Built from the same navItems as the desktop header (plus its mobile-only
+// entries), so the two lists can't drift apart. While open it behaves as a
+// modal: Escape closes it and Tab stays between its links and the menu button.
 function MobileOverlay({
   open,
   onClose,
+  toggleRef,
 }: {
   open: boolean;
   onClose: () => void;
+  toggleRef: React.RefObject<HTMLButtonElement | null>;
 }) {
-  const mobileLinks = [
-    { label: "Models", href: "/models" },
-    { label: "Technology", href: "/technology" },
-    { label: "ReCharge", href: "/recharge" },
-    { label: "Racing", href: "/racing" },
-    { label: "Contact", href: "/contact" },
-  ];
+  const pathname = usePathname() ?? "";
+  const panelRef = useRef<HTMLDivElement>(null);
+  const [modelsOpen, setModelsOpen] = useState(false);
+  const isCurrent = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
+
+  useEffect(() => {
+    if (!open) return;
+    const focusables = () => [
+      ...(toggleRef.current ? [toggleRef.current] : []),
+      ...(panelRef.current?.querySelectorAll<HTMLElement>("a[href], button") ?? []),
+    ];
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        onClose();
+        toggleRef.current?.focus();
+        return;
+      }
+      if (e.key !== "Tab") return;
+      const items = focusables();
+      const i = items.indexOf(document.activeElement as HTMLElement);
+      const next = e.shiftKey ? (i <= 0 ? items.length - 1 : i - 1) : (i === items.length - 1 || i < 0 ? 0 : i + 1);
+      e.preventDefault();
+      items[next]?.focus();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open, onClose, toggleRef]);
+
+  const itemClass = (current: boolean) =>
+    cn(
+      "font-display text-5xl sm:text-6xl transition-all duration-300 text-left",
+      current ? "text-[#78BE20]" : "text-white hover:text-[#78BE20]",
+      "transform transition-all duration-500",
+      open ? "translate-x-0 opacity-100" : "translate-x-8 opacity-0"
+    );
+  const itemStyle = (i: number) => ({
+    transitionDelay: open ? `${i * 60}ms` : "0ms",
+    transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)",
+  });
 
   return (
     <div
+      id="mobile-menu"
+      ref={panelRef}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Menu"
+      inert={!open}
       className={cn(
-        "fixed inset-0 z-40 bg-[#0a0a0a] flex flex-col justify-center px-8",
+        "fixed inset-0 z-40 bg-[#0a0a0a] overflow-y-auto",
         "transition-all duration-500",
         open
           ? "opacity-100 pointer-events-auto"
@@ -183,79 +230,117 @@ function MobileOverlay({
       )}
       style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}
     >
-      <nav className="flex flex-col gap-1">
-        {mobileLinks.map((link, i) => (
-          <Link
-            key={link.href}
-            href={link.href}
-            onClick={onClose}
-            className={cn(
-              "font-display text-5xl sm:text-6xl text-white hover:text-[#78BE20] transition-all duration-300",
-              "border-b border-white/5 pb-3",
-              "transform transition-all duration-500",
-              open ? "translate-x-0 opacity-100" : "translate-x-8 opacity-0"
-            )}
-            style={{
-              transitionDelay: open ? `${i * 60}ms` : "0ms",
-              transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)",
-            }}
-          >
-            {link.label}
-          </Link>
-        ))}
-      </nav>
+      <div className="relative min-h-full flex flex-col justify-center px-8 pt-28 pb-20">
+        <nav aria-label="Main" className="flex flex-col gap-1">
+          {navItems.map((item, i) =>
+            item.hasMega && item.megaItems ? (
+              <div key={item.href} className="border-b border-white/5 pb-3">
+                <button
+                  type="button"
+                  aria-expanded={modelsOpen}
+                  aria-controls="mobile-menu-models"
+                  onClick={() => setModelsOpen((v) => !v)}
+                  className={cn(itemClass(isCurrent(item.href)), "flex w-full items-center justify-between")}
+                  style={itemStyle(i)}
+                >
+                  {item.label}
+                  <span aria-hidden="true" className={cn("text-2xl transition-transform duration-200", modelsOpen ? "rotate-180" : "rotate-0")}>▾</span>
+                </button>
+                {modelsOpen && (
+                  <ul id="mobile-menu-models" className="mt-3 flex flex-col gap-2 pl-1">
+                    {item.megaItems.map((m) => (
+                      <li key={m.href}>
+                        <Link
+                          href={m.href}
+                          onClick={onClose}
+                          aria-current={isCurrent(m.href) ? "page" : undefined}
+                          className={cn(
+                            "font-display text-2xl transition-colors duration-200",
+                            isCurrent(m.href) ? "text-[#78BE20]" : "text-white/70 hover:text-white"
+                          )}
+                        >
+                          {m.name}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            ) : (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={onClose}
+                aria-current={isCurrent(item.href) ? "page" : undefined}
+                className={cn(itemClass(isCurrent(item.href)), "border-b border-white/5 pb-3")}
+                style={itemStyle(i)}
+              >
+                {item.label}
+              </Link>
+            )
+          )}
+        </nav>
 
-      <div
-        className={cn(
-          "mt-12 flex flex-col gap-4 transition-all duration-500",
-          open ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-        )}
-        style={{
-          transitionDelay: open ? "300ms" : "0ms",
-          transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)",
-        }}
-      >
-        <Link
-          href="/contact"
-          onClick={onClose}
-          className="block text-center py-4 bg-[#78BE20] text-black font-display text-lg tracking-widest hover:bg-[#5a9018] transition-colors duration-200"
+        <div
+          className={cn(
+            "mt-12 flex flex-col gap-4 transition-all duration-500",
+            open ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+          )}
+          style={{
+            transitionDelay: open ? "300ms" : "0ms",
+            transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)",
+          }}
         >
-          CONTACT US
-        </Link>
-      </div>
+          <Link
+            href="/contact"
+            onClick={onClose}
+            className="btn-contact block text-center py-4 font-display text-lg tracking-widest"
+          >
+            CONTACT US
+          </Link>
+        </div>
 
-      <p className="absolute bottom-8 left-8 text-xs text-white/20 uppercase tracking-widest">
-        © {new Date().getFullYear()} ENERGICA PTE. LTD.
-      </p>
+        <p className="absolute bottom-8 left-8 text-xs text-white/20 uppercase tracking-widest">
+          © <CurrentYear /> {COMPANY_LEGAL_NAME} — Modena, Italy
+        </p>
+      </div>
     </div>
   );
 }
 
 /* ── Split nav link — per-character hover lift ───────────── */
+// The word is read once from a visually hidden copy; the animated letters
+// are hidden from assistive tech so it isn't spelt out.
 function SplitLabel({ label }: { label: string }) {
   return (
-    <span className="nav-split-link inline-flex" aria-label={label}>
-      {label.split("").map((char, i) => (
-        <span
-          key={i}
-          className="nav-char"
-          style={{ transitionDelay: `${i * 18}ms` }}
-          aria-hidden="true"
-        >
-          {char === " " ? "\u00A0" : char}
-        </span>
-      ))}
+    <span className="nav-split-link inline-flex">
+      <span className="sr-only">{label}</span>
+      <span className="inline-flex" aria-hidden="true">
+        {label.split("").map((char, i) => (
+          <span
+            key={i}
+            className="nav-char"
+            style={{ transitionDelay: `${i * 18}ms` }}
+          >
+            {char === " " ? "\u00A0" : char}
+          </span>
+        ))}
+      </span>
     </span>
   );
 }
 
 /* ── Main Navigation ──────────────────────────────────────── */
-export default function Navigation({ alwaysDark = false }: { alwaysDark?: boolean }) {
+// fullWidth: the configurator's app layout, where the header follows the
+// model bar's full-width gutter instead of the site container.
+export default function Navigation({ alwaysDark = false, fullWidth = false }: { alwaysDark?: boolean; fullWidth?: boolean }) {
   const [scrolled, setScrolled] = useState(false);
   const [megaOpen, setMegaOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const megaTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const navRef = useRef<HTMLElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const closeMobile = useCallback(() => setMobileOpen(false), []);
 
   /* Scroll detection */
   useEffect(() => {
@@ -308,7 +393,7 @@ export default function Navigation({ alwaysDark = false }: { alwaysDark?: boolea
         )}
         style={{ transitionTimingFunction: "cubic-bezier(0.25, 1, 0.5, 1)" }}
       >
-        <div className="max-w-[1600px] mx-auto px-[clamp(24px,4vw,64px)] h-20 md:h-24 flex items-center justify-between">
+        <div className={cn(fullWidth ? "px-[var(--container-px)] min-[1000px]:px-8" : "ds-container", "h-20 md:h-24 flex items-center justify-between")}>
           {/* Logo */}
           <Link href="/" className="relative z-50 flex-shrink-0">
             <EnergicaLogo className="h-auto w-[150px] md:w-[180px]" />
@@ -316,10 +401,11 @@ export default function Navigation({ alwaysDark = false }: { alwaysDark?: boolea
 
           {/* Desktop Nav */}
           <nav className="hidden lg:flex items-center gap-8">
-            {navItems.map((item) =>
+            {navItems.filter((item) => !item.mobileOnly).map((item) =>
               item.hasMega ? (
                 <button
                   key={item.label}
+                  aria-expanded={megaOpen}
                   onMouseEnter={handleModelsEnter}
                   onMouseLeave={handleModelsLeave}
                   onClick={() => setMegaOpen((v) => !v)}
@@ -331,6 +417,7 @@ export default function Navigation({ alwaysDark = false }: { alwaysDark?: boolea
                 >
                   <SplitLabel label={item.label} />
                   <span
+                    aria-hidden="true"
                     className={cn(
                       "text-xs transition-transform duration-200 ml-0.5",
                       megaOpen ? "rotate-180" : "rotate-0"
@@ -357,7 +444,7 @@ export default function Navigation({ alwaysDark = false }: { alwaysDark?: boolea
             <Link
               href="/contact"
               data-magnetic
-              className="px-5 py-2.5 text-sm uppercase tracking-[0.15em] bg-[#78BE20] text-black hover:bg-[#5a9018] transition-all duration-200 btn-electric"
+              className="btn-contact px-5 py-2.5 text-sm uppercase tracking-[0.15em]"
               style={{ fontFamily: "var(--font-ibm-mono)" }}
             >
               Contact Us
@@ -366,9 +453,12 @@ export default function Navigation({ alwaysDark = false }: { alwaysDark?: boolea
 
           {/* Mobile hamburger */}
           <button
+            ref={menuButtonRef}
             className="lg:hidden relative z-50 cursor-none"
             onClick={() => setMobileOpen((v) => !v)}
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileOpen}
+            aria-controls="mobile-menu"
           >
             <HamburgerIcon open={mobileOpen} />
           </button>
@@ -388,7 +478,8 @@ export default function Navigation({ alwaysDark = false }: { alwaysDark?: boolea
       {/* Mobile Overlay */}
       <MobileOverlay
         open={mobileOpen}
-        onClose={() => setMobileOpen(false)}
+        onClose={closeMobile}
+        toggleRef={menuButtonRef}
       />
     </>
   );

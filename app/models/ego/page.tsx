@@ -28,7 +28,7 @@ export default function EgoPage() {
       <ModelSchema
         name="Ego+"
         description="MotoE-derived electric superbike. Track tested, street legal. 147 HP, 0–100 km/h in under 3 seconds. Made in Modena, Italy."
-        image="/images/Pagina%20EGO/EGO.webp"
+        image={model.heroImage}
         url="/models/ego"
         specs={{ power: "Peak 107 kW / 145 HP", torque: "215 Nm at wheel", topSpeed: "200 km/h", range: "180 km city / 120 km combined" }}
       />
@@ -39,7 +39,7 @@ export default function EgoPage() {
         <ColorSelector colors={model.colors} />
       </section>
       <section className="bg-[#080808] border-t border-white/[0.04]">
-        <div className="max-w-[1600px] mx-auto px-[clamp(24px,4vw,64px)] py-[120px]">
+        <div className="ds-container ds-section">
           <div className="mb-10">
             <p className="inline-flex items-center gap-3 mb-3">
               <span className="w-6 h-px bg-[#CE2B37]" />
@@ -56,7 +56,7 @@ export default function EgoPage() {
         </div>
       </section>
       <section className="bg-[#0a0a0a] border-t border-white/[0.04]">
-        <div className="max-w-4xl mx-auto px-[clamp(24px,4vw,64px)] py-[120px]">
+        <div className="ds-container ds-section *:max-w-4xl">
           <div className="mb-12">
             <p className="inline-flex items-center gap-3 mb-3">
               <span className="w-6 h-px bg-[#CE2B37]" />
