@@ -175,3 +175,13 @@ describe("links", () => {
     expect(boundsOf([partners[0]])).toBeNull();
   });
 });
+
+describe("map worker", () => {
+  it("public worker file matches the installed maplibre-gl version", async () => {
+    const fs = await import("node:fs");
+    const { version } = JSON.parse(fs.readFileSync("node_modules/maplibre-gl/package.json", "utf8"));
+    const src = fs.readFileSync("components/partners/PartnerMap.tsx", "utf8");
+    expect(src).toContain(`MAPLIBRE_VERSION = "${version}"`);
+    expect(fs.existsSync(`public/vendor/maplibre-gl-${version}-csp-worker.js`)).toBe(true);
+  });
+});

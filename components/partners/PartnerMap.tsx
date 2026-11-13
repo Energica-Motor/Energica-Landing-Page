@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { Map as MLMap, Popup as MLPopup, GeoJSONSource, StyleSpecification } from "maplibre-gl";
+import type { Map as MLMap, Marker as MLMarker, Popup as MLPopup, StyleSpecification } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { Partner } from "@/data/partners";
 import { TYPE_LABELS } from "@/data/partners";
 import { boundsOf, directionsUrl, hasLocation } from "@/lib/partners";
-import { pinKind, pinSvg, type PinKind } from "./pins";
+import { pinKind, pinSvg } from "./pins";
 
 // Tiles: OpenFreeMap by default (no key, no cookies, loads immediately).
 // MapTiler when NEXT_PUBLIC_MAP_KEY is set; NEXT_PUBLIC_MAP_STYLE_URL overrides both.
@@ -15,9 +15,18 @@ const STYLE_URL =
   process.env.NEXT_PUBLIC_MAP_STYLE_URL ||
   (KEY ? `https://api.maptiler.com/maps/dataviz-dark/style.json?key=${KEY}` : "https://tiles.openfreemap.org/styles/dark");
 
+// Must match the installed maplibre-gl version (checked in tests/dealers/partners.test.ts).
+export const MAPLIBRE_VERSION = "5.6.2";
+const WORKER_URL = `/vendor/maplibre-gl-${MAPLIBRE_VERSION}-csp-worker.js`;
+
 // Selected pin: larger, with a soft green ring around its head.
 const ACTIVE_SIZE = 1.35;
-const HEAD_OFFSET = Math.round(22.7 * ACTIVE_SIZE); // px from pin tip to head centre
+// Pins and cluster bubbles are HTML markers (no sprite, glyph or custom GL layer).
+// If the map hasn't gone idle within IDLE_TIMEOUT, or errors first, the static map takes over.
+const IDLE_TIMEOUT = 8000;
+const CLUSTER_PX = 44;
+const FIT_PADDING = { top: 90, bottom: 50, left: 60, right: 60 };
+const log = (...a: unknown[]) => console.warn("[map]", ...a);
 
 export interface MapFocus {
   id: string;
@@ -61,7 +70,9 @@ function LiveMap({ partners, activeId, hoverId, focus, onSelect, popups = true, 
   const map = useRef<MLMap | null>(null);
   const popup = useRef<MLPopup | null>(null);
   const lib = useRef<typeof import("maplibre-gl") | null>(null);
+  const markers = useRef<MLMarker[]>([]);
   const [ready, setReady] = useState(false);
+  const [zoomTick, setZoomTick] = useState(0);
   const onSelectRef = useRef(onSelect);
   onSelectRef.current = onSelect;
   const onFailRef = useRef(onFail);
@@ -74,113 +85,97 @@ function LiveMap({ partners, activeId, hoverId, focus, onSelect, popups = true, 
   // Create once.
   useEffect(() => {
     let cancelled = false;
-    let loaded = false;
+    let idle = false;
     let m: MLMap | null = null;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let ro: ResizeObserver | undefined;
+    const fail = (why: string) => {
+      if (cancelled || idle) return;
+      cancelled = true;
+      log("showing static map:", why);
+      onFailRef.current();
+    };
     (async () => {
-      const ml = await import("maplibre-gl");
+      let ml: typeof import("maplibre-gl");
+      try {
+        // CSP build + prebuilt worker file: the default bundle's inline worker breaks
+        // under production minification ("b is not defined") and the map never loads.
+        const mod = (await import("maplibre-gl/dist/maplibre-gl-csp.js")) as unknown as typeof import("maplibre-gl") & { default?: typeof import("maplibre-gl") };
+        ml = mod.default ?? mod;
+        ml.setWorkerUrl(WORKER_URL);
+      } catch (err) {
+        return fail(`library failed to load (${(err as Error).message})`);
+      }
       if (cancelled || !el.current) return;
       lib.current = ml;
-      m = new ml.Map({
-        container: el.current,
-        style: STYLE_URL,
-        // Start on the partners (no second set of tiles for a default view).
-        ...(initialBounds.current
-          ? { bounds: initialBounds.current, fitBoundsOptions: { padding: { top: 90, bottom: 50, left: 60, right: 60 }, maxZoom: 11 } }
-          : { center: [10, 47] as [number, number], zoom: 3.4 }),
-        // Attribution is required by OpenStreetMap; kept collapsed behind the (i).
-        attributionControl: { compact: true },
-        maplibreLogo: false,
-        fadeDuration: 0, // no label fade frames
-        dragRotate: false,
-        pitchWithRotate: false,
-      });
-      m.touchZoomRotate.disableRotation();
-      m.addControl(new ml.NavigationControl({ showCompass: false }), "bottom-right");
-      map.current = m;
-      if (process.env.NODE_ENV !== "production") (window as unknown as { __partnerMap?: MLMap }).__partnerMap = m;
-      // Only a failed style (not a single tile or glyph) switches to the static fallback.
-      m.on("error", (e) => {
-        const ev = e as unknown as { sourceId?: string; tile?: unknown };
-        if (process.env.NODE_ENV !== "production") console.warn("[map]", (e as { error?: Error }).error?.message);
-        if (!loaded && !cancelled && !ev.sourceId && !ev.tile) onFailRef.current();
-      });
+      try {
+        m = new ml.Map({
+          container: el.current,
+          style: STYLE_URL,
+          // Start on the partners (no second set of tiles for a default view).
+          ...(initialBounds.current
+            ? { bounds: initialBounds.current, fitBoundsOptions: { padding: FIT_PADDING, maxZoom: 11 } }
+            : { center: [10, 47] as [number, number], zoom: 3.4 }),
+          // Attribution is required by OpenStreetMap; kept collapsed behind the (i).
+          attributionControl: { compact: true },
+          maplibreLogo: false,
+          fadeDuration: 0,
+          dragRotate: false,
+          pitchWithRotate: false,
+        });
+      } catch (err) {
+        return fail(`WebGL unavailable (${(err as Error).message})`);
+      }
+      const mm = m;
+      mm.touchZoomRotate.disableRotation();
+      mm.addControl(new ml.NavigationControl({ showCompass: false }), "bottom-right");
+      map.current = mm;
+      if (process.env.NODE_ENV !== "production") (window as unknown as { __partnerMap?: MLMap }).__partnerMap = mm;
 
-      m.on("load", async () => {
-        loaded = true;
+      timer = setTimeout(
+        () => fail(`not idle after ${IDLE_TIMEOUT / 1000}s (loaded: ${mm.loaded()}, style loaded: ${mm.isStyleLoaded()})`),
+        IDLE_TIMEOUT,
+      );
+      mm.on("error", (e) => {
+        const ev = e as unknown as { sourceId?: string; tile?: unknown; error?: Error };
+        log("error", ev.sourceId ?? "", ev.error?.message ?? "");
+        // A single tile may fail; anything else before the first idle means no usable map.
+        if (!ev.tile) fail(`error before idle: ${ev.error?.message ?? "unknown"}`);
+      });
+      mm.on("webglcontextlost", () => fail("WebGL context lost"));
+      mm.once("idle", () => {
+        idle = true;
+        clearTimeout(timer);
+      });
+      // The canvas may be sized before layout settles; keep it in step with its box.
+      ro = new ResizeObserver(() => mm.resize());
+      ro.observe(el.current);
+      mm.on("zoomend", () => setZoomTick((t) => t + 1));
+
+      mm.on("load", () => {
         try {
-        tuneStyle(m!);
-        collapseAttribution(el.current);
-        await Promise.all((["dealer", "importer", "service"] as PinKind[]).map((k) => addPinImage(m!, k)));
-        const font = firstTextFont(m!);
-        m!.addSource("partners", { type: "geojson", data: toGeoJSON([]), cluster: true, clusterRadius: 44, clusterMaxZoom: 9, promoteId: "pid" });
-        m!.addLayer({
-          id: "clusters", type: "circle", source: "partners", filter: ["has", "point_count"],
-          paint: {
-            "circle-color": "#0F1012",
-            "circle-stroke-color": "#78BE20",
-            "circle-stroke-width": 2,
-            "circle-radius": ["step", ["get", "point_count"], 16, 5, 20, 10, 24],
-          },
-        });
-        m!.addLayer({
-          id: "cluster-count", type: "symbol", source: "partners", filter: ["has", "point_count"],
-          layout: { "text-field": ["get", "point_count_abbreviated"], "text-size": 13, "text-font": font, "text-allow-overlap": true },
-          paint: { "text-color": "#FFFFFF" },
-        });
-        // Soft green ring behind the selected pin's head (above clusters, below pins).
-        m!.addLayer({
-          id: "active-ring", type: "circle", source: "partners", filter: ["==", ["get", "pid"], ""],
-          paint: {
-            "circle-radius": 22,
-            "circle-color": "rgba(120,190,32,0.18)",
-            "circle-stroke-color": "rgba(120,190,32,0.55)",
-            "circle-stroke-width": 1.5,
-            "circle-translate": [0, -HEAD_OFFSET],
-            "circle-blur": 0.15,
-          },
-        });
-        // Pins last: always drawn above cluster bubbles.
-        m!.addLayer({
-          id: "pins", type: "symbol", source: "partners", filter: ["!", ["has", "point_count"]],
-          layout: {
-            "icon-image": ["get", "icon"],
-            "icon-anchor": "bottom",
-            "icon-allow-overlap": true,
-            "icon-ignore-placement": true,
-            "icon-size": 1,
-            "symbol-sort-key": 0,
-          },
-        });
-        m!.on("click", "pins", (e) => {
-          const id = e.features?.[0]?.properties?.pid as string | undefined;
-          if (id) onSelectRef.current(id);
-        });
-        m!.on("click", "clusters", async (e) => {
-          const f = e.features?.[0];
-          if (!f) return;
-          const src = m!.getSource("partners") as GeoJSONSource;
-          const zoom = await src.getClusterExpansionZoom(f.properties!.cluster_id as number);
-          m!.easeTo({ center: (f.geometry as GeoJSON.Point).coordinates as [number, number], zoom: zoom + 0.5 });
-        });
-        for (const layer of ["pins", "clusters"]) {
-          m!.on("mouseenter", layer, () => (m!.getCanvas().style.cursor = "pointer"));
-          m!.on("mouseleave", layer, () => (m!.getCanvas().style.cursor = ""));
+          mm.resize();
+          tuneStyle(mm);
+          collapseAttribution(el.current);
+        } catch (err) {
+          log("style tuning skipped", err);
         }
         if (!cancelled) setReady(true);
-        } catch (err) {
-          console.error("[map] setup failed", err);
-        }
       });
     })();
     return () => {
       cancelled = true;
+      clearTimeout(timer);
+      ro?.disconnect();
       popup.current?.remove();
+      markers.current.forEach((mk) => mk.remove());
+      markers.current = [];
       m?.remove();
       map.current = null;
     };
   }, []);
 
-  // Data + refit when the visible partners change.
+  // Refit when the visible partners change.
   const located = useMemo(() => partners.filter(hasLocation), [partners]);
   const fitKey = located.map((p) => p.id).join("|");
   const firstFit = useRef(true);
@@ -188,27 +183,61 @@ function LiveMap({ partners, activeId, hoverId, focus, onSelect, popups = true, 
     const m = map.current;
     if (!ready || !m) return;
     popup.current?.remove(); // its partner may no longer be in the results
-    (m.getSource("partners") as GeoJSONSource).setData(toGeoJSON(located));
     const b = boundsOf(located);
     if (!b) return;
     // First fit jumps (no animation frames on load); later filter changes animate.
     const duration = firstFit.current ? 0 : 700;
     firstFit.current = false;
     if (located.length === 1) m.flyTo({ center: [located[0].lng!, located[0].lat!], zoom: 11, duration });
-    else m.fitBounds(b, { padding: { top: 90, bottom: 50, left: 60, right: 60 }, maxZoom: 11, duration });
+    else m.fitBounds(b, { padding: FIT_PADDING, maxZoom: 11, duration });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready, fitKey]);
 
-  // Highlight: selected pin larger with a ring; hovered pin larger.
+  // Markers: pins plus cluster bubbles, regrouped on every zoom change.
   useEffect(() => {
     const m = map.current;
-    if (!ready || !m) return;
-    const hot = [activeId, hoverId].filter(Boolean) as string[];
-    const isHot = ["in", ["get", "pid"], ["literal", hot]];
-    m.setLayoutProperty("pins", "icon-size", hot.length ? ["case", isHot, ACTIVE_SIZE, 1] : 1);
-    m.setLayoutProperty("pins", "symbol-sort-key", hot.length ? ["case", isHot, 1, 0] : 0);
-    m.setFilter("active-ring", ["all", ["!", ["has", "point_count"]], ["==", ["get", "pid"], activeId ?? ""]]);
-  }, [ready, activeId, hoverId]);
+    const ml = lib.current;
+    if (!ready || !m || !ml) return;
+    markers.current.forEach((mk) => mk.remove());
+    markers.current = [];
+    const hot = new Set([activeId, hoverId].filter(Boolean) as string[]);
+    for (const group of clusterByScreen(m, located, hot)) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      if (group.length === 1) {
+        const p = group[0];
+        const isActive = p.id === activeId;
+        btn.className = `pm-pin${hot.has(p.id) ? " is-hot" : ""}${isActive ? " is-active" : ""}`;
+        btn.setAttribute("aria-label", p.name);
+        btn.title = p.name;
+        btn.innerHTML = `<span class="pm-ring" aria-hidden="true"></span>${pinSvg(pinKind(p))}`;
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          onSelectRef.current(p.id);
+        });
+        const mk = new ml.Marker({ element: btn, anchor: "bottom" }).setLngLat([p.lng!, p.lat!]).addTo(m);
+        // Pins above clusters; the selected pin above all.
+        mk.getElement().style.zIndex = isActive ? "4" : hot.has(p.id) ? "3" : "2";
+        markers.current.push(mk);
+      } else {
+        const lng = group.reduce((s, p) => s + p.lng!, 0) / group.length;
+        const lat = group.reduce((s, p) => s + p.lat!, 0) / group.length;
+        const size = group.length >= 10 ? 48 : group.length >= 5 ? 40 : 32;
+        btn.className = "pm-cluster";
+        btn.textContent = String(group.length);
+        btn.setAttribute("aria-label", `${group.length} partners, zoom in`);
+        btn.style.width = btn.style.height = `${size}px`;
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const b = boundsOf(group);
+          if (b) m.fitBounds(b, { padding: FIT_PADDING, maxZoom: 13, duration: 600 });
+        });
+        const mk = new ml.Marker({ element: btn, anchor: "center" }).setLngLat([lng, lat]).addTo(m);
+        mk.getElement().style.zIndex = "1";
+        markers.current.push(mk);
+      }
+    }
+  }, [ready, located, activeId, hoverId, zoomTick]);
 
   // Fly to + popup on focus requests.
   useEffect(() => {
@@ -220,7 +249,15 @@ function LiveMap({ partners, activeId, hoverId, focus, onSelect, popups = true, 
     if (!p || !hasLocation(p)) return;
     if (focus.fly) m.flyTo({ center: [p.lng, p.lat], zoom: Math.max(m.getZoom(), 10), duration: 800 });
     if (popups) {
-      popup.current = new ml.Popup({ offset: [0, -(36 * ACTIVE_SIZE + 8)], closeButton: true, maxWidth: "300px", className: "partner-popup", focusAfterOpen: false })
+      const above: [number, number] = [0, -(36 * ACTIVE_SIZE + 6)];
+      const below: [number, number] = [0, 6];
+      popup.current = new ml.Popup({
+        offset: { bottom: above, "bottom-left": above, "bottom-right": above, top: below, "top-left": below, "top-right": below, left: [16, -24], right: [-16, -24], center: [0, 0] },
+        closeButton: true,
+        maxWidth: "300px",
+        className: "partner-popup",
+        focusAfterOpen: false,
+      })
         .setLngLat([p.lng, p.lat])
         .setHTML(popupHtml(p))
         .addTo(m);
@@ -235,30 +272,28 @@ function LiveMap({ partners, activeId, hoverId, focus, onSelect, popups = true, 
   );
 }
 
-function toGeoJSON(list: Partner[]): GeoJSON.FeatureCollection {
-  return {
-    type: "FeatureCollection",
-    features: list.filter(hasLocation).map((p) => ({
-      type: "Feature",
-      geometry: { type: "Point", coordinates: [p.lng, p.lat] },
-      properties: { pid: p.id, icon: `pin-${pinKind(p)}`, name: p.name },
-    })),
-  };
-}
-
-async function addPinImage(m: MLMap, kind: PinKind) {
-  const img = new Image(56, 72);
-  img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(pinSvg(kind, 2))}`;
-  await img.decode();
-  if (!m.hasImage(`pin-${kind}`)) m.addImage(`pin-${kind}`, img, { pixelRatio: 2 });
-}
-
-function firstTextFont(m: MLMap): string[] {
-  for (const l of m.getStyle().layers ?? []) {
-    const f = (l as { layout?: { "text-font"?: unknown } }).layout?.["text-font"];
-    if (Array.isArray(f) && f.every((x) => typeof x === "string")) return f as string[];
-  }
-  return ["Noto Sans Regular"];
+/** Greedy screen-space grouping; hot partners always stay as single pins. */
+function clusterByScreen(m: MLMap, list: Partner[], hot: Set<string>): Partner[][] {
+  const pts = list.map((p) => ({ p, xy: m.project([p.lng!, p.lat!]) }));
+  const used = new Set<number>();
+  const groups: Partner[][] = [];
+  const zoomedIn = m.getZoom() >= 10;
+  pts.forEach((a, i) => {
+    if (used.has(i)) return;
+    used.add(i);
+    const g = [a.p];
+    if (!zoomedIn && !hot.has(a.p.id)) {
+      pts.forEach((b, j) => {
+        if (used.has(j) || hot.has(b.p.id)) return;
+        if (Math.hypot(a.xy.x - b.xy.x, a.xy.y - b.xy.y) < CLUSTER_PX) {
+          used.add(j);
+          g.push(b.p);
+        }
+      });
+    }
+    groups.push(g);
+  });
+  return groups;
 }
 
 /** Collapse the attribution to its (i) button; it opens on click. */
@@ -281,15 +316,20 @@ function tuneStyle(m: MLMap) {
       else if (sl === "poi" || id.includes("poi") || sl === "aerodrome_label" || id.includes("housenumber")) hide();
       else if (sl === "building" || id.includes("building")) hide();
       else if (layer.type === "fill" && (sl === "water" || id.includes("water"))) m.setPaintProperty(layer.id, "fill-color", "#08090B");
-      else if (layer.type === "fill" && (sl === "landcover" || sl === "landuse" || sl === "park")) m.setPaintProperty(layer.id, "fill-color", "#0F1012");
-      else if (layer.type === "line" && sl === "transportation") m.setPaintProperty(layer.id, "line-color", "#22252B");
+      else if (layer.type === "fill" && (sl === "landcover" || sl === "landuse" || sl === "park")) {
+        m.setPaintProperty(layer.id, "fill-color", "#0F1012");
+        m.setPaintProperty(layer.id, "fill-pattern", undefined); // no sprite patterns (e.g. wood)
+      } else if (layer.type === "line" && sl === "transportation") m.setPaintProperty(layer.id, "line-color", "#22252B");
       else if (layer.type === "line" && sl === "boundary") m.setPaintProperty(layer.id, "line-color", "#2E3238");
       else if (layer.type === "line" && sl === "waterway") m.setPaintProperty(layer.id, "line-color", "#0B0C0E");
       else if (layer.type === "symbol" && (sl === "transportation_name" || sl === "mountain_peak" || sl === "water_name")) hide();
       // Region labels: continents, countries, states/provinces, and small places.
       else if (layer.type === "symbol" && sl === "place" && /continent|country|state|province|village|hamlet|suburb|neighbourhood|quarter|island|other/.test(id)) hide();
       else if (layer.type === "symbol") {
-        if (sl === "place") m.setLayoutProperty(layer.id, "text-field", ["coalesce", ["get", "name:en"], ["get", "name_en"], ["get", "name:latin"], ["get", "name"]]);
+        if (sl === "place") {
+          m.setLayoutProperty(layer.id, "text-field", ["coalesce", ["get", "name:en"], ["get", "name_en"], ["get", "name:latin"], ["get", "name"]]);
+          m.setLayoutProperty(layer.id, "icon-image", undefined); // city dots need the sprite
+        }
         m.setPaintProperty(layer.id, "text-color", "#6E747E");
         m.setPaintProperty(layer.id, "text-halo-color", "#0F1012");
       }
