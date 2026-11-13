@@ -232,7 +232,7 @@ describe("summary", () => {
     expect(rules.summarise(rules.selectedOptions(EVA, s), steps)).toEqual({
       count: 3,
       countLabel: "3 SELECTIONS",
-      text: "Stealth Grey · Standard suspension · Cast aluminium wheels",
+      text: "Stealth Grey · Factory suspension · Cast aluminium wheels",
     });
     s = click(EVA, s, "er_91_side_bags_kit");
     s = click(EVA, s, "er_93_bags_plates_gun_metal");
@@ -240,7 +240,7 @@ describe("summary", () => {
     const summary = rules.summarise(rules.selectedOptions(EVA, s), steps);
     expect(summary.countLabel).toBe("6 SELECTIONS");
     expect(summary.text).toBe(
-      "Stealth Grey · Standard suspension · Cast aluminium wheels · Carbon front mudguard · Side bag kit · Gun Metal bag plates",
+      "Stealth Grey · Factory suspension · Cast aluminium wheels · Carbon front mudguard · Side bag kit · Gun Metal bag plates",
     );
     expect(rules.stepCounts(rules.selectedOptions(EVA, s), steps)).toEqual([1, 1, 1, 1, 2]);
   });

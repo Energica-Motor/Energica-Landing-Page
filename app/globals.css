@@ -852,3 +852,4 @@ select option:disabled {
 .pm-km { background: #FFFFFF; border-color: #CE2B37; color: #141517; }
 .locator-select option { background: #FFFFFF; color: #141517; }
 .locator-select option:disabled { color: #8A8E92; }
+.partner-popup p.pp-country { margin: -4px 0 6px; }

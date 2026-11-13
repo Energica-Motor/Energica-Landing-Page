@@ -8,7 +8,7 @@ describe("display names", () => {
   it("maps raw option names to clean display names", () => {
     expect(title("ER-40-RS VERSION", "rs_options")).toBe("RS");
     expect(title("ER-93-BAGS PLATES GUN METAL", "bags_plates")).toBe("Gun Metal");
-    expect(title("*ER-52-STANDARD SUSPENSIONS", "suspension")).toBe("Standard suspension");
+    expect(title("*ER-52-STANDARD SUSPENSIONS", "suspension")).toBe("Factory suspension");
     expect(title("*EG-64-STANDARD CAST ALUMINIUM WHEELS", "wheels")).toBe("Cast aluminium wheels");
     expect(title("ER-24-FRAME BLACK ")).toBe("Black frame");
     expect(title("ER-91-SIDE BAGS KIT")).toBe("Side bag kit");

@@ -355,8 +355,7 @@ export const partners: Partner[] = [
       "service@leegal.co.il"
     ],
     "websites": [
-      "https://leegal.co.il",
-      "https://ducati.co.il"
+      "https://leegal.co.il"
     ]
   },
   {
@@ -459,7 +458,7 @@ export const partners: Partner[] = [
     "region": "Europe",
     "country": "Sweden",
     "city": "Marieholm",
-    "address": "Marieholm (near Malmö) – street not found",
+    "address": "Marieholm, Sweden",
     "directionsQuery": "E-MC Sweden, Marieholm, Sweden",
     "lat": 55.86414,
     "lng": 13.15153,

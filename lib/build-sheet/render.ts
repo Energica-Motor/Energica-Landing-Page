@@ -97,7 +97,7 @@ export function renderBuildSheet(input: SheetInput, assets: SheetAssets) {
     if (!assets.logo) return;
     doc.addImage(assets.logo.data, assets.logo.format, x, y, w, logoH(w), "logo", "FAST");
   };
-  const versionLabel = content.version === "RS" ? "RS" : content.version === "Standard" ? "STANDARD" : "";
+  const versionLabel = content.version === "RS" ? "RS" : ""; // the standard version is not named
   const darkHeader = () => {
     rect(0, 0, PAGE.w, HEADER.h, COLOR.ink);
     logo(PAGE.pad, (HEADER.h - logoH(HEADER.logoW)) / 2, HEADER.logoW);

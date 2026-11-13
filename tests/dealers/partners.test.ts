@@ -82,6 +82,7 @@ describe("generated partner data (from the signed-partners sheet)", () => {
   it("websites: notes stripped, two sites kept, 'None found' skipped", () => {
     expect(byId("nordic-motors").websites).toEqual(["https://nordicmotors.dk"]);
     expect(byId("electric-horses").websites).toEqual(["https://electric-horses.de", "https://richter-zech.de"]);
+    expect(byId("lee-gal-motorbikes").websites).toEqual(["https://leegal.co.il"]); // ducati.co.il dropped
     expect(byId("energica-hrvatska").websites).toBeUndefined();
   });
 
@@ -96,6 +97,8 @@ describe("generated partner data (from the signed-partners sheet)", () => {
     const p = byId("e-mc-sweden");
     expect(p.geocodePrecision).toBe("town");
     expect(decodeURIComponent(directionsUrl(p)!)).toContain("E-MC Sweden, Marieholm");
+    expect(p.address).toBe("Marieholm, Sweden"); // no raw sheet notes on the page
+    for (const x of partners) expect(x.address).not.toMatch(/not found|not legible|\(near /i);
     expect(byId("projekt31").geocodePrecision).toBe("address");
     expect(byId("projekt31").address).toBe("Hauptstraße 1a, 2231 Strasshof an der Nordbahn");
   });

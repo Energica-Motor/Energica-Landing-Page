@@ -77,21 +77,21 @@ const ENTRIES: Record<string, Entry> = {
   "rs version": { label: "VERSION", title: "RS", description: "RS version badge and sticker kit.", section: "base" },
   "stickers kit rs sport": { label: "GRAPHICS", title: "RS Sport sticker kit", description: "RS Sport graphics for the bodywork." },
   // Seat
-  "standard seat": { label: "SEAT", title: "Standard seat", description: "Standard fitment.", section: "base" },
+  "standard seat": { label: "SEAT", title: "Factory seat", description: "Factory fitment.", section: "base" },
   "tech red seat": { label: "SEAT", title: "Tech Red seat", description: "Seat finished in Tech Red.", section: "base", marker: { kind: "chip", colors: [SWATCH.red] } },
   "tech green seat": { label: "SEAT", title: "Tech Green seat", description: "Seat finished in Tech Green.", section: "base", marker: { kind: "chip", colors: [SWATCH["riviera green"]] } },
   "sportred seat kit": { label: "SEAT", title: "Sport Red seat kit", description: "Sport seat finished in red." },
   // Suspension
-  "standard suspensions": { label: "SUSPENSION", title: "Standard suspension", description: "Factory front fork and rear shock setup.", section: "base" },
+  "standard suspensions": { label: "SUSPENSION", title: "Factory suspension", description: "Factory front fork and rear shock setup.", section: "base" },
   "kit ohlins suspensions": { label: "SUSPENSION", title: "Öhlins suspension kit", description: "Öhlins front and rear suspension.", section: "base", marker: { kind: "plus" } },
   // Wheels
-  "standard cast aluminium wheels": { label: "WHEELS", title: "Cast aluminium wheels", description: "Standard fitment.", section: "base" },
+  "standard cast aluminium wheels": { label: "WHEELS", title: "Cast aluminium wheels", description: "Factory fitment.", section: "base" },
   "red stripe cast wheels": { label: "WHEELS", title: "Red stripe cast wheels", description: "Cast aluminium wheels with a red rim stripe.", section: "base", marker: { kind: "plus" } },
   "forged aluminium wheels": { label: "WHEELS", title: "Forged aluminium wheels", description: "Forged aluminium rims.", section: "base", marker: { kind: "plus" } },
   "carbon fiber wheels": { label: "WHEELS", title: "Carbon fibre wheels", description: "Carbon fibre rims.", section: "base", marker: { kind: "plus" } },
   // Experia fitments
-  "standard injection front fender": { label: "FRONT FENDER", title: "Standard front fender", description: "Standard fitment.", section: "base" },
-  "standard windscreen": { label: "WINDSCREEN", title: "Standard windscreen", description: "Standard fitment.", section: "base" },
+  "standard injection front fender": { label: "FRONT FENDER", title: "Factory front fender", description: "Factory fitment.", section: "base" },
+  "standard windscreen": { label: "WINDSCREEN", title: "Factory windscreen", description: "Factory fitment.", section: "base" },
   "low windscreen smoky": { label: "WINDSCREEN", title: "Low smoked windscreen", description: "Lower screen with a smoked tint.", section: "base", marker: { kind: "plus" } },
   // Carbon
   "front mudguard carbon": { label: "CARBON", title: "Carbon front mudguard", description: "Front mudguard in carbon fibre." },
@@ -206,8 +206,7 @@ const BASE_ORDER = ["COLOURWAY", "VERSION", "SEAT", "SUSPENSION", "WHEELS", "FRO
 
 /**
  * Builds the sheet content. `hasRsOption` tells whether the model offers an
- * RS version at all (Experia does not), so "Standard" is only shown where
- * the choice exists.
+ * RS version at all (Experia does not). Only RS is ever named.
  */
 export function buildSheetContent(model: ModelId, options: SelectedOption[], hasRsOption: boolean): BuildSheetContent {
   const rows = options.filter((o) => o.groupKey !== "other").map(rowFor).filter((r): r is NonNullable<typeof r> => !!r);
@@ -216,17 +215,7 @@ export function buildSheetContent(model: ModelId, options: SelectedOption[], has
 
   const isRs = base.some((r) => r.label === "VERSION");
   const version: Version = isRs ? "RS" : hasRsOption ? "Standard" : null;
-  if (version === "Standard") {
-    base.push({
-      optionId: "",
-      catalogKey: "version-standard",
-      label: "VERSION",
-      title: "Standard",
-      description: "Standard version.",
-      marker: null,
-      section: "base",
-    });
-  }
+  // Only RS is named; the standard version gets no row (nothing says "Standard").
   base.sort((a, b) => BASE_ORDER.indexOf(a.label) - BASE_ORDER.indexOf(b.label));
   const colourwayRow = base.find((r) => r.label === "COLOURWAY");
   const strip = (r: SheetRow): SheetRow => ({

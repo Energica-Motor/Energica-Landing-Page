@@ -60,9 +60,6 @@ const PartnerCard = forwardRef<HTMLElement, Props>(function PartnerCard({ partne
             {TYPE_LABELS[t].badge}
           </span>
         ))}
-        <span className="text-[10px] tracking-[0.2em] uppercase text-[#5E6266]" style={mono}>
-          {p.country}
-        </span>
         {p.distanceKm !== undefined && (
           <span className="ml-auto text-[11px] tracking-[0.1em] text-[#3F6B10] font-semibold" style={mono}>
             {formatKm(p.distanceKm)}
@@ -70,6 +67,10 @@ const PartnerCard = forwardRef<HTMLElement, Props>(function PartnerCard({ partne
         )}
       </div>
 
+      {/* Country on its own line under the badges */}
+      <p className="-mt-1 mb-2 text-[10px] tracking-[0.2em] uppercase text-[#5E6266]" style={mono}>
+        {p.country}
+      </p>
       <h3 className="font-display uppercase text-[#141517] mb-1.5" style={{ fontSize: 22, lineHeight: 1.15 }}>
         {p.name}
       </h3>

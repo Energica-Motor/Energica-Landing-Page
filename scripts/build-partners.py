@@ -22,6 +22,8 @@ def town_only(addr: str) -> bool:
     return not re.search(r"\d", addr)
 REGIONS = {"Europe", "North America", "Asia", "Africa", "Oceania"}
 ROLE_ORDER = ["country", "dealer", "service"]
+# Third-party listings, not the partner's own site (e.g. a Ducati dealer page).
+EXCLUDE_SITES = {"ducati.co.il"}
 
 problems: list[str] = []
 
@@ -38,6 +40,14 @@ def slug(s: str) -> str:
 def strip_notes(s: str) -> str:
     # Bracketed notes only, e.g. "(mobile/WhatsApp)"; keeps area codes like "(07)".
     return re.sub(r"\s*\([^)]*[A-Za-z][^)]*\)", "", s).strip()
+
+
+def clean_address(addr: str) -> str:
+    """Drop sheet comments: "(near Malmö)", "– street not found", "(house no. not legible)".
+    Keeps codes like "(MO)"."""
+    a = re.sub(r"\s*\((?=[^)]*[a-z])[^)]*\)", "", addr)
+    a = re.sub(r"\s*[–—-]\s*street not found.*$", "", a, flags=re.I)
+    return a.strip(" ,")
 
 
 def roles(ptype: str, agreements: str) -> list[str]:
@@ -84,7 +94,7 @@ def websites(raw: str) -> list[str]:
     out = []
     for part in raw.split(";"):
         d = strip_notes(part).strip().rstrip("/")
-        if d:
+        if d and d.lower() not in EXCLUDE_SITES:
             out.append(d if d.startswith("http") else f"https://{d}")
     return out
 
@@ -121,7 +131,10 @@ def main():
         if not r:
             problems.append(f"{name}: no role from {d['Partner Type']!r}")
         town = strip_notes(city)
-        p = {"id": slug(name.split("(")[0]), "name": name, "types": r, "region": region, "country": country, "city": city, "address": addr}
+        shown = clean_address(addr)
+        if town_only(shown):  # no street left: "Marieholm, Sweden"
+            shown = f"{town}, {country}"
+        p = {"id": slug(name.split("(")[0]), "name": name, "types": r, "region": region, "country": country, "city": city, "address": shown}
         if town_only(addr):
             loc, prec = geocode(f"{town}, {country}", cache, force), "town"
             p["directionsQuery"] = f"{name}, {town}, {country}"

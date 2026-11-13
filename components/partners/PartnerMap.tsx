@@ -65,7 +65,8 @@ function popupHtml(p: Partner) {
   const dir = directionsUrl(p);
   const badges = p.types.map((t) => `<span class="pp-badge pp-t-${t}">${esc(TYPE_LABELS[t].badge)}</span>`).join("");
   return `<div class="pp">
-    <div class="pp-top">${badges}<span class="pp-country">${esc(p.country)}</span></div>
+    <div class="pp-top">${badges}</div>
+    <p class="pp-country">${esc(p.country)}</p>
     <p class="pp-name">${esc(p.name)}</p>
     ${p.address ? `<p class="pp-addr">${esc(p.address)}</p>` : ""}
     ${dir ? `<a class="pp-btn" href="${esc(dir)}" target="_blank" rel="noopener noreferrer">Directions <span aria-hidden="true">↗</span></a>` : ""}

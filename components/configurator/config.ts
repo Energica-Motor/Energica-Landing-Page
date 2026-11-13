@@ -60,8 +60,8 @@ export const GROUP_CONFIG: Record<string, GroupConfig> = {
   base_color: { label: "COLORS", description: "Select the primary finish for your motorcycle.", exclusive: true },
   suspension: { label: "SUSPENSION", description: "Choose your suspension setup.", exclusive: true },
   wheels: { label: "WHEELS", description: "Select rim style and finish.", exclusive: true },
-  front_fender: { label: "FRONT FENDER", description: "Standard injection or optional carbon fibre.", exclusive: true },
-  windscreen: { label: "WINDSCREEN", description: "Standard or low smoky windscreen.", exclusive: true },
+  front_fender: { label: "FRONT FENDER", description: "Injection-moulded or optional carbon fibre.", exclusive: true },
+  windscreen: { label: "WINDSCREEN", description: "Factory or low smoky windscreen.", exclusive: true },
   passenger_seat: { label: "SEAT", description: "Choose your seat configuration.", exclusive: true },
   covers: { label: "COVER CorsaClienti", description: "Racing cover for the passenger seat.", exclusive: true },
   carbon_parts: { label: "CARBON ACCESSORIES", description: "Add individual carbon-fibre components.", exclusive: false },
@@ -100,7 +100,8 @@ export const SWATCHES: Record<string, string[]> = {
  */
 export function cleanLayerName(layer: { id: string; name: string }, groupKey: string): { title: string; description: string } {
   const row = rowFor({ id: layer.id, name: layer.name, groupKey });
-  if (!row) return { title: layer.name, description: "" };
+  // Unlisted layers: never show the word "Standard" (only RS is named).
+  if (!row) return { title: layer.name.replace(/^standard\s+/i, "Factory "), description: "" };
   if (row.label === "COLOURWAY") return { title: row.title.replace(/ livery$/, ""), description: "" };
   if (row.label === "VERSION") return { title: `${row.title} version`, description: row.description };
   // Bellypans share a title per colour in the catalog (PDF and email keep it);
