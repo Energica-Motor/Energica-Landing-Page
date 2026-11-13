@@ -71,11 +71,11 @@ describe("generated partner data (from the signed-partners sheet)", () => {
     for (const p of partners) for (const k of Object.keys(p)) expect(allowed.has(k)).toBe(true);
   });
 
-  it("phones: bracket notes stripped, area codes kept, 'Not found' skipped", () => {
-    expect(byId("electric-motorcycles-nederland").phones).toEqual(["+31 6 55 711 412", "+31 85 401 6222"]);
-    expect(byId("ramsperger-automobile").phones).toEqual(["+49 7021 50010"]);
-    expect(byId("ocd-custom-cycles").phones).toEqual(["(505) 428-0646"]);
-    expect(byId("nordic-motors").phones).toBeUndefined();
+  it("phones: notes and labels stripped, several kept, 'No company number found' skipped", () => {
+    expect(byId("rydu").phones).toEqual(["+852 3188 3029", "+852 6348 0048"]); // "WhatsApp hotline" label dropped
+    expect(byId("energica-of-new-england").phones).toEqual(["+1 978 895 1195", "+1 978 895 0441"]); // "(Rob's Dyno)" dropped
+    expect(byId("ocd-custom-cycles").phones).toEqual(["+1 505 428 0646"]);
+    expect(byId("ifyni").phones).toBeUndefined();
     expect(telHref("(07) 5645 6820")).toBe("tel:0756456820");
   });
 
@@ -85,19 +85,19 @@ describe("generated partner data (from the signed-partners sheet)", () => {
     expect(byId("energica-hrvatska").websites).toBeUndefined();
   });
 
-  it("emails: first is the main address, the rest follow", () => {
-    expect(byId("rydu").emails?.[0]).toBe("Gerald@rydu.com");
-    expect(byId("rydu").emails).toHaveLength(4);
+  it("emails: generic addresses only, notes stripped, 'No generic address' skipped", () => {
+    expect(byId("rydu").emails).toEqual(["info@rydu.com", "customer@rydu.com"]);
+    expect(byId("nordic-motors").emails).toEqual(["info@nordicmotors.dk"]);
+    expect(byId("pm-motor").emails).toEqual(["verksted@pmmotor.no", "salg@pmmotor.no"]);
+    expect(byId("calmoto").emails).toBeUndefined();
   });
 
-  it("town-only addresses pin at the town; Directions searches name + town", () => {
-    for (const id of ["projekt31", "e-mc-sweden"]) {
-      const p = byId(id);
-      expect(p.geocodePrecision).toBe("town");
-      expect(decodeURIComponent(directionsUrl(p)!)).toContain(p.name);
-    }
-    expect(decodeURIComponent(directionsUrl(byId("projekt31"))!)).toContain("Strasshof an der Nordbahn");
-    expect(byId("projekt31").address).toBe("Hauptstraße, A-2231 Strasshof (house no. not legible)");
+  it("an address without a house number pins at the town; Directions searches name + town", () => {
+    const p = byId("e-mc-sweden");
+    expect(p.geocodePrecision).toBe("town");
+    expect(decodeURIComponent(directionsUrl(p)!)).toContain("E-MC Sweden, Marieholm");
+    expect(byId("projekt31").geocodePrecision).toBe("address");
+    expect(byId("projekt31").address).toBe("Hauptstraße 1a, 2231 Strasshof an der Nordbahn");
   });
 });
 

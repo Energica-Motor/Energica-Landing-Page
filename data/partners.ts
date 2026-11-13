@@ -1,7 +1,7 @@
 // Official Energica partners shown on /dealers.
 //
 // The list itself is generated: data/partners.generated.ts is built by
-// scripts/build-partners.py from data/source/Energica_Signed_Partners_Nov2026.xlsx.
+// scripts/build-partners.py from data/source/Energica_Signed_Partners_Final.xlsx.
 // Update the sheet, rerun the script, commit both.
 //
 // A partner can have several roles (e.g. country partner + service): it appears

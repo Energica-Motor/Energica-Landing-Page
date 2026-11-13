@@ -65,6 +65,10 @@
     "lng": 34.78699
   },
   "Hangar 230, Roodia Aeros Estate, Vanderbijlpark 1911, South Africa": null,
+  "Hauptstraße 1a, 2231 Strasshof an der Nordbahn, Austria": {
+    "lat": 48.31199,
+    "lng": 16.60755
+  },
   "Industriestraße 22, 49716 Meppen, Germany": {
     "lat": 52.66205,
     "lng": 7.30159
@@ -108,9 +112,14 @@
     "lat": 1.28846,
     "lng": 103.8441
   },
+  "Unit 1, Church Road, Diss IP22 1RJ, United Kingdom": null,
   "Via Piave 30, 41121 Modena, Italy": {
     "lat": 44.65113,
     "lng": 10.93481
+  },
+  "Via Tevere 368, 41030 Bomporto (MO), Italy": {
+    "lat": 44.72985,
+    "lng": 11.03157
   },
   "Vukovarska 99, 21000 Split, Croatia": {
     "lat": 43.51317,
