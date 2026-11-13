@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { preconnect } from "react-dom";
 import PartnerFinder from "@/components/partners/PartnerFinder";
 import { visiblePartners } from "@/data/partners";
 import { countriesFor, parseState, summary } from "@/lib/partners";
@@ -15,6 +16,8 @@ export default async function DealersPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  // Map tiles: open the connection while the page is still loading.
+  preconnect("https://tiles.openfreemap.org", { crossOrigin: "anonymous" });
   const partners = visiblePartners();
   const initial = parseState(await searchParams, countriesFor(partners, "all"));
   const s = summary(partners);

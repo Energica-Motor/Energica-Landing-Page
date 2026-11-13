@@ -26,6 +26,10 @@ const PartnerMap = dynamic(() => import("./PartnerMap"), {
   loading: () => <div className="absolute inset-0 bg-[#0F1012]" />,
 });
 
+// Start downloading the map code as soon as the page hydrates (desktop shows the
+// map immediately), instead of waiting for the panel to render.
+const preloadMap = () => import("./PartnerMap").then((m) => m.preloadMapLibrary()).catch(() => {});
+
 const mono = { fontFamily: "var(--font-ibm-mono)" } as const;
 const sans = { fontFamily: "var(--font-ibm-sans)" } as const;
 const TYPE_ORDER: TypeFilter[] = ["all", "dealer", "importer", "service"];
@@ -50,6 +54,9 @@ export default function PartnerFinder({ partners, initial }: { partners: Partner
   const [headerH, setHeaderH] = useState(80);
   const cardRefs = useRef(new Map<string, HTMLElement>());
   const focusSeq = useRef(0);
+  useEffect(() => {
+    if (window.matchMedia("(min-width: 1024px)").matches) preloadMap();
+  }, []);
   const locatorRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
   const [barH, setBarH] = useState(0);

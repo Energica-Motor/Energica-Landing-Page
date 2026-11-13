@@ -734,7 +734,7 @@ select option:disabled {
   padding: 16px 40px 16px 18px;
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
 }
-.partner-popup.maplibregl-popup-anchor-bottom .maplibregl-popup-tip { border-top-color: #111410; }
+.partner-popup.maplibregl-popup-anchor-bottom .maplibregl-popup-tip { border-top-color: #78BE20; border-width: 9px 8px 0; }
 .partner-popup.maplibregl-popup-anchor-top .maplibregl-popup-tip { border-bottom-color: #111410; }
 .partner-popup .maplibregl-popup-close-button {
   color: rgba(255, 255, 255, 0.6);

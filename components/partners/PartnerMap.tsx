@@ -60,13 +60,47 @@ function popupHtml(p: Partner) {
   </div>`;
 }
 
+/** Starts the library download early (call when the panel mounts). */
+export const preloadMapLibrary = () => import("maplibre-gl/dist/maplibre-gl-csp.js");
+
+/**
+ * The live map always loads. If it isn't ready after IDLE_TIMEOUT (cold cache, slow
+ * network) the static map covers it, then fades out the moment the live map goes idle.
+ * Only a real MapLibre error keeps the static map.
+ */
 export default function PartnerMap(props: Props) {
-  const [failed, setFailed] = useState(false);
-  return failed ? <StaticMap {...props} /> : <LiveMap {...props} onFail={() => setFailed(true)} />;
+  const [phase, setPhase] = useState<"loading" | "slow" | "live" | "failed">("loading");
+  const [staticGone, setStaticGone] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setPhase((p) => (p === "loading" ? "slow" : p)), IDLE_TIMEOUT);
+    return () => clearTimeout(t);
+  }, []);
+  useEffect(() => {
+    if (phase === "slow") log(`not idle after ${IDLE_TIMEOUT / 1000}s: showing static map until the live map is ready`);
+    if (phase !== "live") return;
+    const t = setTimeout(() => setStaticGone(true), 220);
+    return () => clearTimeout(t);
+  }, [phase]);
+  if (phase === "failed") return <StaticMap {...props} />;
+  const showStatic = (phase === "slow" || phase === "live") && !staticGone;
+  return (
+    <>
+      <LiveMap
+        {...props}
+        onIdle={() => setPhase((p) => (p === "slow" ? "live" : p === "loading" ? "live" : p))}
+        onFail={() => setPhase("failed")}
+      />
+      {showStatic && (
+        <div className="absolute inset-0 z-[2] transition-opacity duration-200" style={{ opacity: phase === "live" ? 0 : 1, pointerEvents: phase === "live" ? "none" : undefined }}>
+          <StaticMap {...props} />
+        </div>
+      )}
+    </>
+  );
 }
 
 /* ── Interactive map (MapLibre) ─────────────────────────────── */
-function LiveMap({ partners, activeId, hoverId, focus, onSelect, popups = true, onFail }: Props & { onFail: () => void }) {
+function LiveMap({ partners, activeId, hoverId, focus, onSelect, popups = true, onFail, onIdle }: Props & { onFail: () => void; onIdle: () => void }) {
   const el = useRef<HTMLDivElement>(null);
   const map = useRef<MLMap | null>(null);
   const popup = useRef<MLPopup | null>(null);
@@ -78,6 +112,8 @@ function LiveMap({ partners, activeId, hoverId, focus, onSelect, popups = true, 
   onSelectRef.current = onSelect;
   const onFailRef = useRef(onFail);
   onFailRef.current = onFail;
+  const onIdleRef = useRef(onIdle);
+  onIdleRef.current = onIdle;
   const byId = useMemo(() => new Map(partners.map((p) => [p.id, p])), [partners]);
   const byIdRef = useRef(byId);
   byIdRef.current = byId;
@@ -88,7 +124,6 @@ function LiveMap({ partners, activeId, hoverId, focus, onSelect, popups = true, 
     let cancelled = false;
     let idle = false;
     let m: MLMap | null = null;
-    let timer: ReturnType<typeof setTimeout> | undefined;
     let ro: ResizeObserver | undefined;
     const fail = (why: string) => {
       if (cancelled || idle) return;
@@ -101,7 +136,7 @@ function LiveMap({ partners, activeId, hoverId, focus, onSelect, popups = true, 
       try {
         // CSP build + prebuilt worker file: the default bundle's inline worker breaks
         // under production minification ("b is not defined") and the map never loads.
-        const mod = (await import("maplibre-gl/dist/maplibre-gl-csp.js")) as unknown as typeof import("maplibre-gl") & { default?: typeof import("maplibre-gl") };
+        const mod = (await preloadMapLibrary()) as unknown as typeof import("maplibre-gl") & { default?: typeof import("maplibre-gl") };
         ml = mod.default ?? mod;
         ml.setWorkerUrl(WORKER_URL);
       } catch (err) {
@@ -133,10 +168,6 @@ function LiveMap({ partners, activeId, hoverId, focus, onSelect, popups = true, 
       map.current = mm;
       if (process.env.NODE_ENV !== "production") (window as unknown as { __partnerMap?: MLMap }).__partnerMap = mm;
 
-      timer = setTimeout(
-        () => fail(`not idle after ${IDLE_TIMEOUT / 1000}s (loaded: ${mm.loaded()}, style loaded: ${mm.isStyleLoaded()})`),
-        IDLE_TIMEOUT,
-      );
       mm.on("error", (e) => {
         const ev = e as unknown as { sourceId?: string; tile?: unknown; error?: Error };
         log("error", ev.sourceId ?? "", ev.error?.message ?? "");
@@ -146,7 +177,7 @@ function LiveMap({ partners, activeId, hoverId, focus, onSelect, popups = true, 
       mm.on("webglcontextlost", () => fail("WebGL context lost"));
       mm.once("idle", () => {
         idle = true;
-        clearTimeout(timer);
+        if (!cancelled) onIdleRef.current();
       });
       // The canvas may be sized before layout settles; keep it in step with its box.
       ro = new ResizeObserver(() => mm.resize());
@@ -166,7 +197,6 @@ function LiveMap({ partners, activeId, hoverId, focus, onSelect, popups = true, 
     })();
     return () => {
       cancelled = true;
-      clearTimeout(timer);
       ro?.disconnect();
       popup.current?.remove();
       markers.current.forEach((mk) => mk.remove());
@@ -253,10 +283,9 @@ function LiveMap({ partners, activeId, hoverId, focus, onSelect, popups = true, 
     const open = () => {
       if (!popups) return;
       popup.current?.remove();
-      const above: [number, number] = [0, -(36 * ACTIVE_SIZE + 6)];
-      const below: [number, number] = [0, 6];
       popup.current = new ml.Popup({
-        offset: { bottom: above, "bottom-left": above, "bottom-right": above, top: below, "top-left": below, "top-right": below, left: [16, -24], right: [-16, -24], center: [0, 0] },
+        anchor: "bottom", // always centred above the pin; the tip points at it
+        offset: [0, -Math.round(36 * ACTIVE_SIZE)],
         closeButton: true,
         maxWidth: "300px",
         className: "partner-popup",
