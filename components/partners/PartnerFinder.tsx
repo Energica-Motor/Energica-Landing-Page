@@ -48,14 +48,14 @@ export default function PartnerFinder({ initialType = "All" }: { initialType?: F
       {/* ── Partner types ─────────────────────────────────────── */}
       <div className="border-b border-white/[0.06]">
         <div className="max-w-[1400px] mx-auto px-[clamp(24px,4vw,64px)] py-12">
-          <div className="flex items-center justify-between mb-6">
-            <span className="text-[11px] tracking-[0.3em] text-white/45 uppercase" style={mono}>Choose a partner type</span>
+          <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 mb-6">
+            <span className="text-[11px] tracking-[0.3em] text-white/45 uppercase whitespace-nowrap" style={mono}>Partner type</span>
             <button
               type="button"
               onClick={() => chooseType("All")}
               aria-pressed={type === "All"}
               className={cn(
-                "text-[11px] tracking-[0.25em] uppercase transition-colors cursor-none",
+                "text-[11px] tracking-[0.25em] uppercase whitespace-nowrap transition-colors cursor-none",
                 type === "All" ? "text-[#78BE20]" : "text-white/55 hover:text-white",
               )}
               style={mono}
@@ -79,7 +79,7 @@ export default function PartnerFinder({ initialType = "All" }: { initialType?: F
                   )}
                 >
                   <span className={cn("absolute left-0 top-0 h-[3px] transition-all duration-300", on ? "w-full bg-[#78BE20]" : "w-0 bg-[#78BE20] group-hover:w-12")} />
-                  <div className="flex items-start justify-between mb-8">
+                  <div className="flex items-start justify-between h-[44px] md:h-[56px] mb-4 md:mb-8">
                     <span className="text-[11px] tracking-[0.3em] text-white/40" style={mono}>0{i + 1}</span>
                     <span className={cn("font-display leading-none", on ? "text-[#78BE20]" : "text-white")} style={{ fontSize: "clamp(40px,4vw,56px)" }}>
                       {count || "—"}
