@@ -828,3 +828,27 @@ select option:disabled {
 @keyframes pm-pulse { from { transform: scale(1); opacity: 0.8; } to { transform: scale(3.2); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .pm-you-ring { animation: none; transform: scale(1.8); opacity: 0.35; } }
 .pm-km { padding: 2px 6px; background: rgba(15,16,18,0.9); border: 1px solid rgba(206,43,55,0.6); color: #fff; font: 600 11px/1.2 var(--font-ibm-mono), monospace; letter-spacing: 0.04em; white-space: nowrap; pointer-events: none; }
+
+/* ── Dealer locator: light theme (overrides the dark map styles above) ── */
+.partner-popup .maplibregl-popup-content { background: #FFFFFF; color: #141517; border: 1px solid #D3D5D7; border-left: 3px solid #78BE20; box-shadow: 0 12px 32px rgba(20,21,23,0.18); }
+.partner-popup.maplibregl-popup-anchor-bottom .maplibregl-popup-tip { border-top-color: #141517; }
+.partner-popup .maplibregl-popup-close-button { color: #4A4E52; }
+.partner-popup .maplibregl-popup-close-button:hover { color: #141517; }
+.partner-popup .pp-t-dealer { border-color: #3F6B10; color: #3F6B10; }
+.partner-popup .pp-t-country { border-color: #141517; color: #141517; }
+.partner-popup .pp-t-service { border-color: #5E6266; color: #5E6266; }
+.partner-popup .pp-country { color: #5E6266; }
+.partner-popup .pp-name { color: #141517; }
+.partner-popup .pp-addr { color: #4A4E52; }
+.partner-popup .pp-btn { background: #78BE20; color: #0F1012; }
+.maplibregl-ctrl-group { background: #FFFFFF !important; border: 1px solid #D3D5D7; }
+.maplibregl-ctrl-group button + button { border-top-color: #D3D5D7 !important; }
+.maplibregl-ctrl-group button .maplibregl-ctrl-icon { filter: none; }
+.maplibregl-ctrl-attrib { background: rgba(255,255,255,0.9) !important; color: #4A4E52; }
+.maplibregl-ctrl-attrib a { color: #141517 !important; }
+.maplibregl-ctrl-attrib-button { filter: none; }
+.pm-cluster { background: #FFFFFF; border-color: #141517; color: #141517; }
+.pm-cluster:hover { background: #F2F2F0; }
+.pm-km { background: #FFFFFF; border-color: #CE2B37; color: #141517; }
+.locator-select option { background: #FFFFFF; color: #141517; }
+.locator-select option:disabled { color: #8A8E92; }

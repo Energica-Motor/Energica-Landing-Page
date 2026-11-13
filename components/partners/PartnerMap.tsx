@@ -13,7 +13,7 @@ import { hasServiceDot, pinKind, pinSvg } from "./pins";
 const KEY = process.env.NEXT_PUBLIC_MAP_KEY;
 const STYLE_URL =
   process.env.NEXT_PUBLIC_MAP_STYLE_URL ||
-  (KEY ? `https://api.maptiler.com/maps/dataviz-dark/style.json?key=${KEY}` : "https://tiles.openfreemap.org/styles/dark");
+  (KEY ? `https://api.maptiler.com/maps/dataviz/style.json?key=${KEY}` : "https://tiles.openfreemap.org/styles/positron");
 
 // Must match the installed maplibre-gl version (checked in tests/dealers/partners.test.ts).
 export const MAPLIBRE_VERSION = "5.6.2";
@@ -29,6 +29,12 @@ const SELECT_ZOOM = 9;
 const FIT_PADDING = { top: 90, bottom: 50, left: 60, right: 60 };
 const log = (...a: unknown[]) => console.warn("[map]", ...a);
 
+/** Fit the map to these bounds (region jump links). */
+export interface MapFit {
+  bounds: [[number, number], [number, number]];
+  nonce: number;
+}
+
 export interface MapFocus {
   id: string;
   /** Changes on every request so the same partner can be focused twice. */
@@ -41,12 +47,15 @@ interface Props {
   activeId: string | null;
   hoverId: string | null;
   focus: MapFocus | null;
+  fit?: MapFit | null;
   onSelect: (id: string) => void;
   /** Hide the popup (mobile uses a bottom sheet instead). */
   popups?: boolean;
   /** "Use my location": user position and the 3 nearest partners for the active filter. */
   origin?: LatLng | null;
   nearby?: (Partner & LatLng & { distanceKm: number })[];
+  /** No partner within 500 km: no lines, just fit the user and this partner. */
+  nearestOnly?: (Partner & LatLng & { distanceKm: number }) | null;
 }
 
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
@@ -103,7 +112,7 @@ export default function PartnerMap(props: Props) {
 }
 
 /* ── Interactive map (MapLibre) ─────────────────────────────── */
-function LiveMap({ partners, activeId, hoverId, focus, onSelect, popups = true, origin = null, nearby = [], onFail, onIdle }: Props & { onFail: () => void; onIdle: () => void }) {
+function LiveMap({ partners, activeId, hoverId, focus, fit = null, onSelect, popups = true, origin = null, nearby = [], nearestOnly = null, onFail, onIdle }: Props & { onFail: () => void; onIdle: () => void }) {
   const el = useRef<HTMLDivElement>(null);
   const map = useRef<MLMap | null>(null);
   const popup = useRef<MLPopup | null>(null);
@@ -227,11 +236,19 @@ function LiveMap({ partners, activeId, hoverId, focus, onSelect, popups = true, 
     if (located.length === 1) m.flyTo({ center: [located[0].lng!, located[0].lat!], zoom: 11, duration });
     else m.fitBounds(b, { padding: FIT_PADDING, maxZoom: 11, duration });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ready, fitKey]);
+  }, [ready, fitKey, !!origin]);
+
+  // Region jump links.
+  useEffect(() => {
+    const m = map.current;
+    if (!ready || !m || !fit) return;
+    popup.current?.remove();
+    m.fitBounds(fit.bounds, { padding: FIT_PADDING, maxZoom: 11, duration: 700 });
+  }, [ready, fit]);
 
   // "Use my location": red marker, dashed lines to the 3 nearest with km at the midpoint.
   const youMarkers = useRef<MLMarker[]>([]);
-  const nearbyKey = origin ? `${origin.lat},${origin.lng}|${nearby.map((p) => p.id).join("|")}` : "";
+  const nearbyKey = origin ? `${origin.lat},${origin.lng}|${nearby.map((p) => p.id).join("|")}|${nearestOnly?.id ?? ""}` : "";
   useEffect(() => {
     const m = map.current;
     const ml = lib.current;
@@ -276,8 +293,26 @@ function LiveMap({ partners, activeId, hoverId, focus, onSelect, popups = true, 
       mk.getElement().style.zIndex = "1";
       youMarkers.current.push(mk);
     }
-    const b = boundsOf([{ ...nearby[0], ...origin } as Partner, ...nearby]);
+    const targets = nearby.length ? nearby : nearestOnly ? [nearestOnly] : [];
+    const b = boundsOf([{ ...origin } as Partner, ...targets]);
     if (b) m.fitBounds(b, { padding: { top: 110, bottom: 70, left: 80, right: 80 }, maxZoom: 11, duration: 800 });
+    // Distance labels must not overlap: hide any that collide (the card shows the distance).
+    const declutter = () => {
+      const tags = youMarkers.current.slice(1).map((mk) => mk.getElement());
+      const kept: DOMRect[] = [];
+      for (const t of tags) {
+        t.style.visibility = "visible";
+        const r = t.getBoundingClientRect();
+        const hit = kept.some((k) => !(r.right + 4 < k.left || r.left - 4 > k.right || r.bottom + 2 < k.top || r.top - 2 > k.bottom));
+        if (hit) t.style.visibility = "hidden";
+        else kept.push(r);
+      }
+    };
+    m.on("moveend", declutter);
+    declutter();
+    return () => {
+      m.off("moveend", declutter);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready, nearbyKey]);
 
@@ -373,7 +408,7 @@ function LiveMap({ partners, activeId, hoverId, focus, onSelect, popups = true, 
 
   // MapLibre sets position:relative on its container, so it needs a sized wrapper.
   return (
-    <div className="absolute inset-0 bg-[#0F1012]">
+    <div className="absolute inset-0 bg-[#E9E9E6]">
       <div ref={el} className="w-full h-full" aria-label="Map of Energica partners" role="region" />
     </div>
   );
@@ -425,7 +460,7 @@ function collapseAttribution(root: HTMLElement | null) {
   });
 }
 
-/** Site-matched dark look: #0F1012 land, muted borders/roads, no POI or region labels. */
+/** Light, muted look: light grey land, white roads, no POI or region labels. */
 function tuneStyle(m: MLMap) {
   const style = m.getStyle() as StyleSpecification;
   for (const layer of style.layers) {
@@ -433,26 +468,26 @@ function tuneStyle(m: MLMap) {
     const sl = ("source-layer" in layer ? layer["source-layer"] : "")?.toLowerCase() ?? "";
     const hide = () => m.setLayoutProperty(layer.id, "visibility", "none");
     try {
-      if (layer.type === "background") m.setPaintProperty(layer.id, "background-color", "#0F1012");
+      if (layer.type === "background") m.setPaintProperty(layer.id, "background-color", "#E9E9E6");
       else if (sl === "poi" || id.includes("poi") || sl === "aerodrome_label" || id.includes("housenumber")) hide();
       else if (sl === "building" || id.includes("building")) hide();
-      else if (layer.type === "fill" && (sl === "water" || id.includes("water"))) m.setPaintProperty(layer.id, "fill-color", "#08090B");
+      else if (layer.type === "fill" && (sl === "water" || id.includes("water"))) m.setPaintProperty(layer.id, "fill-color", "#D3D9DD");
       else if (layer.type === "fill" && (sl === "landcover" || sl === "landuse" || sl === "park")) {
-        m.setPaintProperty(layer.id, "fill-color", "#0F1012");
-        m.setPaintProperty(layer.id, "fill-pattern", undefined); // no sprite patterns (e.g. wood)
-      } else if (layer.type === "line" && sl === "transportation") m.setPaintProperty(layer.id, "line-color", "#22252B");
-      else if (layer.type === "line" && sl === "boundary") m.setPaintProperty(layer.id, "line-color", "#2E3238");
-      else if (layer.type === "line" && sl === "waterway") m.setPaintProperty(layer.id, "line-color", "#0B0C0E");
+        m.setPaintProperty(layer.id, "fill-color", "#E9E9E6");
+        m.setPaintProperty(layer.id, "fill-pattern", undefined);
+      } else if (layer.type === "line" && sl === "transportation") m.setPaintProperty(layer.id, "line-color", "#FFFFFF");
+      else if (layer.type === "line" && sl === "boundary") m.setPaintProperty(layer.id, "line-color", "#BFC3C7");
+      else if (layer.type === "line" && sl === "waterway") m.setPaintProperty(layer.id, "line-color", "#D3D9DD");
       else if (layer.type === "symbol" && (sl === "transportation_name" || sl === "mountain_peak" || sl === "water_name")) hide();
       // Region labels: continents, countries, states/provinces, and small places.
       else if (layer.type === "symbol" && sl === "place" && /continent|country|state|province|village|hamlet|suburb|neighbourhood|quarter|island|other/.test(id)) hide();
       else if (layer.type === "symbol") {
         if (sl === "place") {
           m.setLayoutProperty(layer.id, "text-field", ["coalesce", ["get", "name:en"], ["get", "name_en"], ["get", "name:latin"], ["get", "name"]]);
-          m.setLayoutProperty(layer.id, "icon-image", undefined); // city dots need the sprite
+          m.setLayoutProperty(layer.id, "icon-image", undefined);
         }
-        m.setPaintProperty(layer.id, "text-color", "#6E747E");
-        m.setPaintProperty(layer.id, "text-halo-color", "#0F1012");
+        m.setPaintProperty(layer.id, "text-color", "#5E6266");
+        m.setPaintProperty(layer.id, "text-halo-color", "#FFFFFF");
       }
     } catch {
       /* layer may not support this property — leave it */
@@ -469,7 +504,7 @@ function StaticMap({ partners, activeId, hoverId, onSelect }: Props) {
   const [x0, x1, y0, y1] = located.length ? [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)] : [0, 1, 0, 1];
   const norm = (v: number, a: number, b: number) => (b - a < 1e-9 ? 0.5 : (v - a) / (b - a));
   return (
-    <div className="absolute inset-0 bg-[#0F1012] overflow-hidden" role="region" aria-label="Partner locations">
+    <div className="absolute inset-0 bg-[#E9E9E6] overflow-hidden" role="region" aria-label="Partner locations">
       {located
         .slice()
         .sort((a, b) => Number(a.id === activeId || a.id === hoverId) - Number(b.id === activeId || b.id === hoverId))

@@ -3,10 +3,11 @@ import type { Partner } from "@/data/partners";
 
 export type PinKind = "country" | "dealer" | "service";
 
+// Light map: dealer green, country partner near-black, service grey with a wrench.
 const COLORS: Record<PinKind, { fill: string; stroke: string; dot: string }> = {
-  dealer: { fill: "#78BE20", stroke: "#0F1012", dot: "#0F1012" },
-  country: { fill: "#FFFFFF", stroke: "#0F1012", dot: "#0F1012" },
-  service: { fill: "#8A8F98", stroke: "#0F1012", dot: "#0F1012" },
+  country: { fill: "#141517", stroke: "#FFFFFF", dot: "#FFFFFF" },
+  dealer: { fill: "#78BE20", stroke: "#141517", dot: "#141517" },
+  service: { fill: "#8A8E92", stroke: "#FFFFFF", dot: "#FFFFFF" },
 };
 
 // 28 × 36 teardrop pin; tip at bottom centre.
@@ -25,7 +26,7 @@ export function pinSvg(kind: PinKind, scale = 1, withService = false): string {
       : `<circle cx="14" cy="13.3" r="4.2" fill="${c.dot}"/>`;
   const dot =
     withService && kind !== "service"
-      ? `<g transform="translate(17.5 0)"><circle cx="5.5" cy="5.5" r="5.5" fill="#8A8F98" stroke="#0F1012" stroke-width="1.2"/><path d="${WRENCH}" fill="#0F1012" transform="translate(-0.9 -1.1) scale(0.5)"/></g>`
+      ? `<g transform="translate(17.5 0)"><circle cx="5.5" cy="5.5" r="5.5" fill="#8A8E92" stroke="#FFFFFF" stroke-width="1.2"/><path d="${WRENCH}" fill="#FFFFFF" transform="translate(-0.9 -1.1) scale(0.5)"/></g>`
       : "";
   // Extra room on the right/top so the dot isn't clipped.
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 28 36" overflow="visible"><path d="${PIN_PATH}" fill="${c.fill}" stroke="${c.stroke}" stroke-width="1.5"/>${glyph}${dot}</svg>`;

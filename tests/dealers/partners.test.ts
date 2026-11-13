@@ -4,6 +4,8 @@ import { partners, type Partner } from "@/data/partners";
 import {
   boundsOf,
   countByType,
+  countryCounts,
+  findNearby,
   countriesFor,
   directionsUrl,
   distanceKm,
@@ -23,8 +25,8 @@ const all = { type: "all" as const, country: "", q: "" };
 const byId = (id: string) => partners.find((p) => p.id === id)!;
 
 describe("generated partner data (from the signed-partners sheet)", () => {
-  it("expected counts: All 24, Country partners 8, Dealers 8, Service 18, 18 countries", () => {
-    expect(countByType(partners)).toEqual({ all: 24, country: 8, dealer: 8, service: 18 });
+  it("expected counts: All 24, Country partners 8, Dealers 16 (8 + country partners), Service 18, 18 countries", () => {
+    expect(countByType(partners)).toEqual({ all: 24, country: 8, dealer: 16, service: 18 });
     expect(summary(partners).countries).toBe(18);
     expect(countriesFor(partners, "all")).toHaveLength(18);
   });
@@ -118,6 +120,48 @@ describe("roles", () => {
   });
 });
 
+describe("dealers tab and country dropdown", () => {
+  it("country partners count as dealers and keep their badge", () => {
+    const ids = filterPartners(partners, { ...all, type: "dealer" }).map((p) => p.id);
+    for (const id of ["rydu", "electronia", "australian-electric-motor-co"]) expect(ids).toContain(id);
+    expect(byId("rydu").types).toEqual(["country", "service"]);
+  });
+  it("dropdown always lists all 18 countries with per-tab counts (0 kept)", () => {
+    const c = countryCounts(partners, "service");
+    expect(c).toHaveLength(18);
+    expect(c.find((x) => x.country === "Singapore")).toEqual({ country: "Singapore", count: 1 });
+    expect(c.find((x) => x.country === "Australia")).toEqual({ country: "Australia", count: 0 });
+    expect(countryCounts(partners, "dealer").find((x) => x.country === "Hong Kong")?.count).toBe(1);
+  });
+});
+
+describe("use my location", () => {
+  const singapore = { lat: 1.3521, lng: 103.8198 };
+  const munich = { lat: 48.1374, lng: 11.5755 };
+  const reykjavik = { lat: 64.1466, lng: -21.9426 };
+  it("Singapore: IFYNI nearby, no partner beyond 500 km, nothing from the US", () => {
+    const r = findNearby(partners, singapore, "all");
+    expect(r.mode).toBe("nearby");
+    expect(r.partners.map((p) => p.id)).toEqual(["ifyni"]);
+    expect(r.partners.every((p) => p.distanceKm <= 500)).toBe(true);
+  });
+  it("Munich: lines to the 3 nearby partners", () => {
+    const r = findNearby(partners, munich, "all");
+    expect(r.partners.map((p) => p.id)).toEqual(["electric-horses", "ramsperger-automobile", "e-performance"]);
+  });
+  it("Tel Aviv, Dealers tab: no dealer within 500 km, so all types (Lee-Gal)", () => {
+    const r = findNearby(partners, { lat: 32.0853, lng: 34.7818 }, "dealer");
+    expect(r.type).toBe("all");
+    expect(r.partners.map((p) => p.id)).toEqual(["lee-gal-motorbikes"]);
+  });
+  it("Reykjavik: nothing within 500 km → single nearest, no lines", () => {
+    const r = findNearby(partners, reykjavik, "all");
+    expect(r.mode).toBe("nearest");
+    expect(r.partners).toHaveLength(1);
+    expect(r.partners[0].distanceKm).toBeGreaterThan(500);
+  });
+});
+
 describe("order", () => {
   const rank = (p: Partner) => (p.types.includes("country") ? 0 : p.types.includes("dealer") ? 1 : 2);
   it("country partners first, then dealers, then service-only; each by country then name", () => {
@@ -160,8 +204,9 @@ describe("distance", () => {
   it("haversine and formatting", () => {
     expect(distanceKm(munich, munich)).toBe(0);
     expect(Math.round(distanceKm(munich, { lat: 52.52, lng: 13.405 }))).toBe(504);
-    expect(formatKm(4.25)).toBe("4.3 km");
-    expect(formatKm(1234.4)).toBe("1,234 km");
+    expect(formatKm(4.25)).toBe("4.3 km");
+    expect(formatKm(12.2)).toBe("12 km");
+    expect(formatKm(14872)).toBe("14 872 km");
   });
 
   it("nearest 3 from Munich (All)", () => {

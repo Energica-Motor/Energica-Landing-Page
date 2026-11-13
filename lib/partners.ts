@@ -24,11 +24,25 @@ const REGION_ORDER: Region[] = ["Europe", "North America", "Asia", "Africa", "Oc
 export const hasLocation = (p: Partner): p is Partner & LatLng =>
   typeof p.lat === "number" && typeof p.lng === "number";
 
-/** Partners per type; a partner with two types counts in both. */
+/** Country partners also sell: they count as dealers (keeping their own badge). */
+export function matchesType(p: Partner, type: TypeFilter): boolean {
+  if (type === "all") return true;
+  if (type === "dealer") return p.types.includes("dealer") || p.types.includes("country");
+  return p.types.includes(type);
+}
+
+/** Partners per tab; a partner with several roles counts in each. */
 export function countByType(list: Partner[]): Record<TypeFilter, number> {
   const counts: Record<TypeFilter, number> = { all: list.length, country: 0, dealer: 0, service: 0 };
-  for (const p of list) for (const t of p.types) counts[t]++;
+  for (const p of list) for (const t of TYPES) if (matchesType(p, t)) counts[t]++;
   return counts;
+}
+
+/** Every country (A–Z) with its count for the given tab (0 = greyed out, still listed). */
+export function countryCounts(list: Partner[], type: TypeFilter): { country: string; count: number }[] {
+  return [...new Set(list.map((p) => p.country))]
+    .sort((a, b) => a.localeCompare(b))
+    .map((country) => ({ country, count: list.filter((p) => p.country === country && matchesType(p, type)).length }));
 }
 
 /** 0 = country partner, 1 = dealer, 2 = service only. */
@@ -51,7 +65,7 @@ export function summary(list: Partner[]) {
 
 /** Countries (sorted) available for the current type filter. */
 export function countriesFor(list: Partner[], type: TypeFilter): string[] {
-  return [...new Set(list.filter((p) => type === "all" || p.types.includes(type)).map((p) => p.country))].sort((a, b) =>
+  return [...new Set(list.filter((p) => matchesType(p, type)).map((p) => p.country))].sort((a, b) =>
     a.localeCompare(b),
   );
 }
@@ -66,7 +80,7 @@ export function filterPartners(list: Partner[], state: LocatorState): Partner[] 
   const q = norm(state.q.trim());
   return list.filter(
     (p) =>
-      (state.type === "all" || p.types.includes(state.type)) &&
+      matchesType(p, state.type) &&
       (!state.country || p.country === state.country) &&
       (!q || [p.name, p.country, p.city ?? "", p.address ?? ""].some((v) => norm(v).includes(q))),
   );
@@ -99,8 +113,34 @@ export function nearest(list: Partner[], origin: LatLng, n = 3): (Partner & LatL
     .slice(0, n);
 }
 
+/** Lines are only drawn to partners this close; never across continents. */
+export const NEARBY_KM = 500;
+
+export type NearbyResult =
+  | { mode: "nearby"; type: TypeFilter; partners: (Partner & LatLng & { distanceKm: number })[] }
+  | { mode: "nearest"; type: TypeFilter; partners: (Partner & LatLng & { distanceKm: number })[] };
+
+/**
+ * "Use my location": up to 3 partners within NEARBY_KM in the active tab; if the tab
+ * has none that close, any type within NEARBY_KM; if still none, the single nearest
+ * partner (no lines).
+ */
+export function findNearby(list: Partner[], origin: LatLng, type: TypeFilter): NearbyResult {
+  const inTab = list.filter((p) => matchesType(p, type));
+  const close = (l: Partner[]) => nearest(l, origin, 3).filter((p) => p.distanceKm <= NEARBY_KM);
+  const tabClose = close(inTab);
+  if (tabClose.length) return { mode: "nearby", type, partners: tabClose };
+  const anyClose = close(list);
+  if (anyClose.length) return { mode: "nearby", type: "all", partners: anyClose };
+  const one = nearest(inTab.length ? inTab : list, origin, 1);
+  return { mode: "nearest", type: inTab.length ? type : "all", partners: one };
+}
+
+/** "12 km", "4.3 km", "14 872 km" (space-grouped, non-breaking). */
 export function formatKm(km: number): string {
-  return km < 10 ? `${km.toFixed(1)} km` : `${Math.round(km).toLocaleString("en-GB")} km`;
+  const NBSP = " ";
+  if (km < 10) return `${km.toFixed(1)}${NBSP}km`;
+  return `${Math.round(km).toString().replace(/\B(?=(\d{3})+(?!\d))/g, NBSP)}${NBSP}km`;
 }
 
 /** Group in region order, keeping each group's existing order (distance or data). */
