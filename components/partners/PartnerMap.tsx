@@ -25,6 +25,7 @@ const ACTIVE_SIZE = 1.35;
 // If the map hasn't gone idle within IDLE_TIMEOUT, or errors first, the static map takes over.
 const IDLE_TIMEOUT = 8000;
 const CLUSTER_PX = 44;
+const SELECT_ZOOM = 9;
 const FIT_PADDING = { top: 90, bottom: 50, left: 60, right: 60 };
 const log = (...a: unknown[]) => console.warn("[map]", ...a);
 
@@ -247,8 +248,11 @@ function LiveMap({ partners, activeId, hoverId, focus, onSelect, popups = true, 
     const p = byIdRef.current.get(focus.id);
     popup.current?.remove();
     if (!p || !hasLocation(p)) return;
-    if (focus.fly) m.flyTo({ center: [p.lng, p.lat], zoom: Math.max(m.getZoom(), 10), duration: 800 });
-    if (popups) {
+    // Hide the place label under the selected pin (it covers the town name).
+    hidePlaceLabel(m, p.city ?? "");
+    const open = () => {
+      if (!popups) return;
+      popup.current?.remove();
       const above: [number, number] = [0, -(36 * ACTIVE_SIZE + 6)];
       const below: [number, number] = [0, 6];
       popup.current = new ml.Popup({
@@ -261,7 +265,24 @@ function LiveMap({ partners, activeId, hoverId, focus, onSelect, popups = true, 
         .setLngLat([p.lng, p.lat])
         .setHTML(popupHtml(p))
         .addTo(m);
+    };
+    if (focus.fly) {
+      // One level wider than before so surrounding towns stay visible; popup opens when the fly ends.
+      let done = false;
+      const openOnce = () => {
+        if (done) return;
+        done = true;
+        open();
+      };
+      const t = setTimeout(openOnce, 1000); // in case no move happens
+      m.once("moveend", openOnce);
+      m.flyTo({ center: [p.lng, p.lat], zoom: Math.max(m.getZoom(), SELECT_ZOOM), duration: 800 });
+      return () => {
+        clearTimeout(t);
+        m.off("moveend", openOnce);
+      };
     }
+    open();
   }, [ready, focus, popups]);
 
   // MapLibre sets position:relative on its container, so it needs a sized wrapper.
@@ -294,6 +315,20 @@ function clusterByScreen(m: MLMap, list: Partner[], hot: Set<string>): Partner[]
     groups.push(g);
   });
   return groups;
+}
+
+/** Fade out the place label matching the selected partner's town ("" shows all). */
+function hidePlaceLabel(m: MLMap, name: string) {
+  for (const layer of m.getStyle().layers ?? []) {
+    if (layer.type !== "symbol" || !("source-layer" in layer) || layer["source-layer"] !== "place") continue;
+    try {
+      m.setPaintProperty(layer.id, "text-opacity", name
+        ? ["case", ["any", ["==", ["get", "name"], name], ["==", ["get", "name:en"], name], ["==", ["get", "name:latin"], name]], 0, 1]
+        : 1);
+    } catch {
+      /* ignore */
+    }
+  }
 }
 
 /** Collapse the attribution to its (i) button; it opens on click. */

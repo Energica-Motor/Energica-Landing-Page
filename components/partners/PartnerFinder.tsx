@@ -317,7 +317,7 @@ export default function PartnerFinder({ partners, initial }: { partners: Partner
       <div ref={locatorRef} className="locator-grid border-t border-white/[0.06] lg:h-[calc(100dvh-96px)]">
         <div aria-hidden className="hidden lg:block" />
         <div className="px-[var(--container-px)] lg:pl-0 lg:pr-8 lg:flex lg:flex-col lg:min-h-0 lg:border-r border-white/[0.06]">
-          <div className="sticky top-20 md:top-24 z-30 lg:static -mx-[var(--container-px)] px-[var(--container-px)] lg:mx-0 lg:px-0 bg-[#0a0a0a]">{filterBar}</div>
+          <div className="sticky top-20 md:top-24 z-30 -mx-[var(--container-px)] px-[var(--container-px)] lg:mx-0 lg:px-0 bg-[#0a0a0a]">{filterBar}</div>
           <div className={cn("lg:flex-1 lg:min-h-0 lg:overflow-y-auto overscroll-contain lg:-mr-8 lg:pr-8", view === "map" && "hidden lg:block")}>{list}</div>
         </div>
 
