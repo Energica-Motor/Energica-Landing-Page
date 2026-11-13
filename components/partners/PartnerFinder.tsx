@@ -361,7 +361,7 @@ export default function PartnerFinder({ partners, initial }: { partners: Partner
         <div aria-hidden className="hidden lg:block" />
         <div className="px-[var(--container-px)] lg:pl-0 lg:pr-8 lg:flex lg:flex-col lg:min-h-0 lg:border-r border-white/[0.06]">
           <div className="sticky top-20 md:top-24 z-30 -mx-[var(--container-px)] px-[var(--container-px)] lg:mx-0 lg:px-0 bg-[#0a0a0a]">{filterBar}</div>
-          <div className={cn("lg:flex-1 lg:min-h-0 lg:overflow-y-auto overscroll-contain lg:-mr-8 lg:pr-8", view === "map" && "hidden lg:block")}>{list}</div>
+          <div data-lenis-prevent className={cn("lg:flex-1 lg:min-h-0 lg:overflow-y-auto lg:overscroll-contain lg:-mr-8 lg:pr-8", view === "map" && "hidden lg:block")}>{list}</div>
         </div>
 
         <div className={cn("relative lg:block lg:!h-full", view === "map" ? "block" : "hidden")} style={{ height: `calc(100dvh - ${headerH}px - ${barH}px)` }}>
@@ -372,7 +372,7 @@ export default function PartnerFinder({ partners, initial }: { partners: Partner
           {/* Mobile: bottom sheet for a tapped pin */}
           {!isDesktop && sheetPartner && (
             <div className="absolute inset-x-0 bottom-0 z-20 p-3 pb-[max(12px,env(safe-area-inset-bottom))]">
-              <div className="relative max-h-[60vh] overflow-y-auto shadow-[0_-12px_40px_rgba(0,0,0,0.6)]">
+              <div data-lenis-prevent className="relative max-h-[60vh] overflow-y-auto overscroll-contain shadow-[0_-12px_40px_rgba(0,0,0,0.6)]">
                 <button
                   type="button"
                   onClick={() => setSheetId(null)}
@@ -391,7 +391,7 @@ export default function PartnerFinder({ partners, initial }: { partners: Partner
       {/* Mobile: filters bottom sheet. Portalled to <body>: the page-transition
           wrapper is transformed, which would pin position:fixed to the page. */}
       {filtersOpen && createPortal(
-        <div className="lg:hidden fixed inset-0 z-[60]" role="dialog" aria-modal="true" aria-label="Filters">
+        <div data-lenis-prevent className="lg:hidden fixed inset-0 z-[60] overscroll-contain" role="dialog" aria-modal="true" aria-label="Filters">
           <button type="button" aria-label="Close" className="absolute inset-0 bg-black/60 cursor-none" onClick={() => setFiltersOpen(false)} />
           <div className="absolute inset-x-0 bottom-0 bg-[#0d0d0d] border-t border-white/10 px-[var(--container-px)] pt-5 pb-[max(20px,env(safe-area-inset-bottom))] flex flex-col gap-4">
             <div className="flex items-center justify-between">

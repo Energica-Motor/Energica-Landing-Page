@@ -29,21 +29,16 @@ interface Props {
 const PartnerCard = forwardRef<HTMLElement, Props>(function PartnerCard({ partner: p, active, onSelect, onHover }, ref) {
   const dir = directionsUrl(p);
   const host = (u: string) => u.replace(/^https?:\/\//, "").replace(/\/$/, "");
-  const phone = p.phones?.[0];
-  const email = p.emails?.[0];
-  const site = p.websites?.[0];
   // Main value first; any others listed underneath.
   const rows = [
     p.phones?.length && { label: "Phone", items: p.phones.map((v) => ({ value: v, href: telHref(v) })) },
     p.emails?.length && { label: "Email", items: p.emails.map((v) => ({ value: v, href: `mailto:${v}` })) },
     p.websites?.length && { label: "Web", items: p.websites.map((v) => ({ value: host(v), href: v, external: true })) },
   ].filter(Boolean) as { label: string; items: { value: string; href: string; external?: boolean }[] }[];
+  // Directions is the only button (contact details are links in the rows above).
   // First action is the primary one: solid green only on the selected card.
   const actions = [
     dir && { label: "Directions", href: dir, external: true },
-    phone && { label: "Call", href: telHref(phone) },
-    email && { label: "Email", href: `mailto:${email}` },
-    site && { label: "Website", href: site, external: true },
   ].filter(Boolean) as { label: string; href: string; external?: boolean }[];
 
   return (
@@ -64,7 +59,7 @@ const PartnerCard = forwardRef<HTMLElement, Props>(function PartnerCard({ partne
             {TYPE_LABELS[t].badge}
           </span>
         ))}
-        <span className="text-[10px] tracking-[0.2em] uppercase text-white/55" style={mono}>
+        <span className="text-[10px] tracking-[0.2em] uppercase text-white/40" style={mono}>
           {p.country}
         </span>
         {p.distanceKm !== undefined && (
