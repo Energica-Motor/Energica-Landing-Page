@@ -30,7 +30,7 @@ import type { MapFocus, MapFit } from "./PartnerMap";
 // MapLibre is large and browser-only: load it after the list renders.
 const PartnerMap = dynamic(() => import("./PartnerMap"), {
   ssr: false,
-  loading: () => <div className="absolute inset-0 bg-[#E9E9E6]" />,
+  loading: () => <div className="absolute inset-0 bg-[#0F1012]" />,
 });
 
 // Start downloading the map code as soon as the page hydrates (desktop shows the
@@ -42,12 +42,12 @@ const sans = { fontFamily: "var(--font-ibm-sans)" } as const;
 const TYPE_ORDER: TypeFilter[] = ["all", "country", "dealer", "service"];
 const typeLabel = (t: TypeFilter) => (t === "all" ? "All" : TYPE_LABELS[t].plural);
 
-// Light locator theme (site header, title block and footer stay dark).
+// Dark locator theme; text meets WCAG AA (body #A3A7AC, names #F2F2F0).
 const field =
-  "w-full min-h-[44px] bg-white border border-[#D3D5D7] hover:border-[#5E6266] focus:border-[#141517] focus:outline-none text-[#141517] text-sm transition-colors";
+  "w-full min-h-[44px] [color-scheme:dark] bg-[#0f0f0f] border border-white/[0.08] hover:border-white/25 focus:border-[#78BE20]/60 focus:outline-none text-[#F2F2F0] text-sm transition-colors";
 const iconBtn =
   "shrink-0 inline-flex items-center justify-center gap-2 min-h-[44px] min-w-[44px] border transition-colors cursor-none";
-const label = "uppercase text-[#5E6266]";
+const label = "uppercase text-[#A3A7AC]";
 
 export default function PartnerFinder({ partners, initial }: { partners: Partner[]; initial: LocatorState }) {
   const [state, setState] = useState<LocatorState>(initial);
@@ -204,7 +204,7 @@ export default function PartnerFinder({ partners, initial }: { partners: Partner
     <div
       role="group"
       aria-label="Partner type"
-      className={cn("flex border border-[#D3D5D7] bg-white", wrap ? "grid grid-cols-2" : "overflow-x-auto no-scrollbar basis-full min-w-0")}
+      className={cn("flex border border-white/[0.08] bg-[#0f0f0f]", wrap ? "grid grid-cols-2" : "overflow-x-auto no-scrollbar basis-full min-w-0")}
     >
       {TYPE_ORDER.map((t) => (
         <button
@@ -214,14 +214,14 @@ export default function PartnerFinder({ partners, initial }: { partners: Partner
           onClick={() => update({ type: t })}
           className={cn(
             "min-h-[44px] px-2 text-[11px] tracking-[0.06em] uppercase whitespace-nowrap transition-colors cursor-none",
-            wrap ? "border-[#D3D5D7] [&:nth-child(odd)]:border-r [&:nth-child(-n+2)]:border-b" : "flex-auto shrink-0 px-3 border-r border-[#D3D5D7] last:border-r-0",
-            state.type === t ? "bg-[#78BE20] text-[#0F1012]" : "text-[#4A4E52] hover:text-[#141517] hover:bg-[#F2F2F0]",
+            wrap ? "border-white/[0.08] [&:nth-child(odd)]:border-r [&:nth-child(-n+2)]:border-b" : "flex-auto shrink-0 px-3 border-r border-white/[0.08] last:border-r-0",
+            state.type === t ? "bg-[#78BE20] text-[#0F1012]" : "text-[#A3A7AC] hover:text-[#F2F2F0] hover:bg-white/[0.04]",
           )}
           style={mono}
         >
           {typeLabel(t)}
           {/* Only "All" shows a number: a partner with several roles is in several tabs. */}
-          {t === "all" && <span className={state.type === t ? "text-[#0F1012]/75" : "text-[#5E6266]"}> {counts.all}</span>}
+          {t === "all" && <span className={state.type === t ? "text-[#0F1012]/75" : "text-[#A3A7AC]"}> {counts.all}</span>}
         </button>
       ))}
     </div>
@@ -234,12 +234,12 @@ export default function PartnerFinder({ partners, initial }: { partners: Partner
       <select value={state.country} onChange={(e) => update({ country: e.target.value })} className={cn(field, "appearance-none pl-4 pr-10 cursor-none locator-select")} style={sans}>
         <option value="">All countries</option>
         {countryList.map(({ country, count }) => (
-          <option key={country} value={country} disabled={count === 0} className={count === 0 ? "text-[#8A8E92]" : undefined}>
+          <option key={country} value={country} disabled={count === 0} className={count === 0 ? "text-[#6E737A]" : undefined}>
             {country} ({count})
           </option>
         ))}
       </select>
-      <span aria-hidden className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#5E6266] text-xs">▾</span>
+      <span aria-hidden className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#A3A7AC] text-xs">▾</span>
     </label>
   );
 
@@ -252,7 +252,7 @@ export default function PartnerFinder({ partners, initial }: { partners: Partner
   );
 
   const filterBar = (
-    <div ref={barRef} className="bg-[#F2F2F0] border-b border-[#D3D5D7] py-3 lg:py-4 flex flex-col gap-3">
+    <div ref={barRef} className="bg-[#0a0a0a] border-b border-white/[0.08] py-3 lg:py-4 flex flex-col gap-3">
       <div className="flex gap-2">
         <label className="relative flex-1 min-w-0">
           <span className="sr-only">Search city, country or partner</span>
@@ -261,7 +261,7 @@ export default function PartnerFinder({ partners, initial }: { partners: Partner
             value={state.q}
             onChange={(e) => update({ q: e.target.value })}
             placeholder="Search city, country or partner"
-            className={cn(field, "px-3 lg:px-4 placeholder:text-[#5E6266]")}
+            className={cn(field, "px-3 lg:px-4 placeholder:text-[#8A8F96]")}
             style={sans}
           />
         </label>
@@ -273,7 +273,7 @@ export default function PartnerFinder({ partners, initial }: { partners: Partner
           className={cn(
             iconBtn,
             "px-3 lg:px-4 font-display uppercase text-[12px] tracking-[0.12em] disabled:opacity-60",
-            origin ? "border-[#141517] bg-[#141517] text-white" : "border-[#141517] text-[#141517] bg-white hover:bg-[#141517] hover:text-white",
+            origin ? "border-white/25 bg-[#0f0f0f] text-[#0F1012]" : "border-white/25 text-[#F2F2F0] bg-[#0f0f0f] hover:border-white/60",
           )}
         >
           {locationIcon}
@@ -286,7 +286,7 @@ export default function PartnerFinder({ partners, initial }: { partners: Partner
           type="button"
           onClick={() => setFiltersOpen(true)}
           aria-haspopup="dialog"
-          className={cn(iconBtn, "lg:hidden relative px-3 bg-white border-[#141517] text-[#141517]")}
+          className={cn(iconBtn, "lg:hidden relative px-3 bg-[#0f0f0f] border-white/25 text-[#F2F2F0]")}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
             <path d="M4 6h16M7 12h10M10 18h4" />
@@ -298,14 +298,14 @@ export default function PartnerFinder({ partners, initial }: { partners: Partner
             </span>
           )}
         </button>
-        <div className="lg:hidden flex shrink-0 border border-[#141517] bg-white" role="group" aria-label="View">
+        <div className="lg:hidden flex shrink-0 border border-white/25 bg-[#0f0f0f]" role="group" aria-label="View">
           {(["list", "map"] as const).map((v) => (
             <button
               key={v}
               type="button"
               aria-pressed={view === v}
               onClick={() => switchView(v)}
-              className={cn("min-h-[42px] w-11 text-[10px] tracking-[0.12em] uppercase transition-colors cursor-none", view === v ? "bg-[#141517] text-white" : "text-[#4A4E52]")}
+              className={cn("min-h-[42px] w-11 text-[10px] tracking-[0.12em] uppercase transition-colors cursor-none", view === v ? "bg-white text-[#0F1012]" : "text-[#A3A7AC]")}
               style={mono}
             >
               {v === "list" ? "List" : "Map"}
@@ -318,18 +318,18 @@ export default function PartnerFinder({ partners, initial }: { partners: Partner
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 -mt-1 text-[12px]" style={sans}>
           {origin ? (
             <>
-              <span className="inline-flex items-center gap-2 text-[#4A4E52]">
+              <span className="inline-flex items-center gap-2 text-[#A3A7AC]">
                 <span className="w-2 h-2 rounded-full bg-[#CE2B37]" aria-hidden />
                 {near?.nearestOnly
                   ? `Nearest partner: ${near.nearestOnly.name}, ${near.nearestOnly.city} · ${formatKm(near.nearestOnly.distanceKm)}`
                   : "Sorted by distance"}
               </span>
-              <button type="button" onClick={clearLocation} className="min-h-[32px] text-[#141517] underline underline-offset-2 hover:text-[#3F6B10] cursor-none">
+              <button type="button" onClick={clearLocation} className="min-h-[32px] text-[#F2F2F0] underline underline-offset-2 hover:text-[#78BE20] cursor-none">
                 Clear location
               </button>
             </>
           ) : (
-            <span className="text-[#4A4E52]">Location unavailable. Search by city or country instead.</span>
+            <span className="text-[#A3A7AC]">Location unavailable. Search by city or country instead.</span>
           )}
         </div>
       )}
@@ -344,8 +344,8 @@ export default function PartnerFinder({ partners, initial }: { partners: Partner
       {!origin && regionGroups.length > 1 && (
         <nav aria-label="Regions" className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] tracking-[0.12em] uppercase" style={mono}>
           {regionGroups.map((g) => (
-            <button key={g.region} type="button" onClick={() => jumpTo(g.region)} className="min-h-[28px] text-[#4A4E52] hover:text-[#141517] cursor-none">
-              {g.region} <span className="text-[#5E6266]">{g.partners.length}</span>
+            <button key={g.region} type="button" onClick={() => jumpTo(g.region)} className="min-h-[28px] text-[#A3A7AC] hover:text-[#F2F2F0] cursor-none">
+              {g.region} <span className="text-[#A3A7AC]">{g.partners.length}</span>
             </button>
           ))}
         </nav>
@@ -356,8 +356,8 @@ export default function PartnerFinder({ partners, initial }: { partners: Partner
   const list = (
     <div className="py-6">
       {showServiceEmpty ? (
-        <div className="py-14 px-6 border border-dashed border-[#D3D5D7] bg-white text-center">
-          <p className="text-[#4A4E52] mb-6 max-w-[360px] mx-auto leading-relaxed" style={sans}>
+        <div className="py-14 px-6 border border-dashed border-white/[0.08] bg-[#0f0f0f] text-center">
+          <p className="text-[#A3A7AC] mb-6 max-w-[360px] mx-auto leading-relaxed" style={sans}>
             Service locations coming soon. Contact Energica for authorised service.
           </p>
           <Link href="/contact" className="inline-flex items-center justify-center font-display uppercase px-8 py-4 text-sm tracking-[0.2em] bg-[#78BE20] text-[#0F1012] cursor-none">
@@ -365,9 +365,9 @@ export default function PartnerFinder({ partners, initial }: { partners: Partner
           </Link>
         </div>
       ) : results.length === 0 ? (
-        <div className="py-14 px-6 border border-dashed border-[#D3D5D7] bg-white text-center">
-          <p className="font-display text-2xl text-[#141517] mb-2">No partners match.</p>
-          <button type="button" className="min-h-[44px] text-sm text-[#141517] underline cursor-none" onClick={() => update({ q: "", country: "" })} style={sans}>
+        <div className="py-14 px-6 border border-dashed border-white/[0.08] bg-[#0f0f0f] text-center">
+          <p className="font-display text-2xl text-[#F2F2F0] mb-2">No partners match.</p>
+          <button type="button" className="min-h-[44px] text-sm text-[#F2F2F0] underline cursor-none" onClick={() => update({ q: "", country: "" })} style={sans}>
             Clear filters
           </button>
         </div>
@@ -412,11 +412,11 @@ export default function PartnerFinder({ partners, initial }: { partners: Partner
 
   return (
     <>
-      {/* ── Locator (light): fills the viewport below the site header on desktop ── */}
-      <div ref={locatorRef} className="locator-grid bg-[#F2F2F0] lg:h-[calc(100dvh-96px)]">
+      {/* ── Locator: fills the viewport below the site header on desktop ── */}
+      <div ref={locatorRef} className="locator-grid bg-[#0a0a0a] border-t border-white/[0.06] lg:h-[calc(100dvh-96px)]">
         <div aria-hidden className="hidden lg:block" />
-        <div className="px-[var(--container-px)] lg:pl-0 lg:pr-8 lg:flex lg:flex-col lg:min-h-0 lg:border-r border-[#D3D5D7]">
-          <div className="sticky top-20 md:top-24 z-30 -mx-[var(--container-px)] px-[var(--container-px)] lg:mx-0 lg:px-0 bg-[#F2F2F0]">{filterBar}</div>
+        <div className="px-[var(--container-px)] lg:pl-0 lg:pr-8 lg:flex lg:flex-col lg:min-h-0 lg:border-r border-white/[0.08]">
+          <div className="sticky top-20 md:top-24 z-30 -mx-[var(--container-px)] px-[var(--container-px)] lg:mx-0 lg:px-0 bg-[#0a0a0a]">{filterBar}</div>
           <div
             ref={listRef}
             data-lenis-prevent
@@ -445,12 +445,12 @@ export default function PartnerFinder({ partners, initial }: { partners: Partner
           {/* Mobile: bottom sheet for a tapped pin */}
           {!isDesktop && sheetPartner && (
             <div className="absolute inset-x-0 bottom-0 z-20 p-3 pb-[max(12px,env(safe-area-inset-bottom))]">
-              <div data-lenis-prevent className="relative max-h-[60vh] overflow-y-auto overscroll-contain shadow-[0_-12px_40px_rgba(20,21,23,0.25)]">
+              <div data-lenis-prevent className="relative max-h-[60vh] overflow-y-auto overscroll-contain shadow-[0_-12px_40px_rgba(0,0,0,0.6)]">
                 <button
                   type="button"
                   onClick={() => setSheetId(null)}
                   aria-label="Close"
-                  className="absolute right-1 top-1 z-10 w-11 h-11 inline-flex items-center justify-center text-[#4A4E52] hover:text-[#141517] cursor-none"
+                  className="absolute right-1 top-1 z-10 w-11 h-11 inline-flex items-center justify-center text-[#A3A7AC] hover:text-[#F2F2F0] cursor-none"
                 >
                   ✕
                 </button>
@@ -466,12 +466,12 @@ export default function PartnerFinder({ partners, initial }: { partners: Partner
       {filtersOpen && createPortal(
         <div data-lenis-prevent className="lg:hidden fixed inset-0 z-[60] overscroll-contain" role="dialog" aria-modal="true" aria-label="Filters">
           <button type="button" aria-label="Close" className="absolute inset-0 bg-black/50 cursor-none" onClick={() => setFiltersOpen(false)} />
-          <div className="absolute inset-x-0 bottom-0 max-h-[85vh] overflow-y-auto overscroll-contain bg-[#F2F2F0] border-t border-[#D3D5D7] px-[var(--container-px)] pt-5 pb-[max(20px,env(safe-area-inset-bottom))] flex flex-col gap-4">
+          <div className="absolute inset-x-0 bottom-0 max-h-[85vh] overflow-y-auto overscroll-contain bg-[#0a0a0a] border-t border-white/[0.08] px-[var(--container-px)] pt-5 pb-[max(20px,env(safe-area-inset-bottom))] flex flex-col gap-4">
             <div className="flex items-center justify-between">
               <span className={label} style={{ ...mono, fontSize: 10, letterSpacing: "0.35em" }}>
                 Filters
               </span>
-              <button type="button" onClick={() => setFiltersOpen(false)} aria-label="Close" className="w-11 h-11 -mr-3 inline-flex items-center justify-center text-[#4A4E52] cursor-none">
+              <button type="button" onClick={() => setFiltersOpen(false)} aria-label="Close" className="w-11 h-11 -mr-3 inline-flex items-center justify-center text-[#A3A7AC] cursor-none">
                 ✕
               </button>
             </div>
