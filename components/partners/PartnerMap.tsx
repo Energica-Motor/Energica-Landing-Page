@@ -276,7 +276,7 @@ function LiveMap({ partners, activeId, hoverId, focus, onSelect, popups = true, 
       };
       const t = setTimeout(openOnce, 1000); // in case no move happens
       m.once("moveend", openOnce);
-      m.flyTo({ center: [p.lng, p.lat], zoom: Math.max(m.getZoom(), SELECT_ZOOM), duration: 800 });
+      m.flyTo({ center: [p.lng, p.lat], zoom: Math.max(m.getZoom(), SELECT_ZOOM), duration: 800, offset: popups ? [0, 110] : [0, 0] }); // pin sits lower: room for the popup
       return () => {
         clearTimeout(t);
         m.off("moveend", openOnce);
