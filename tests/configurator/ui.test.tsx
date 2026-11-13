@@ -77,7 +77,7 @@ describe("action bar", () => {
     const handlers = { onReset: vi.fn(), onCopy: vi.fn(), onPdf: vi.fn(), onContact: vi.fn() };
     render(<ActionBar countLabel={summary.countLabel} summary={summary.text} copyLabel="COPY LINK" copyIdle pdfLabel="DOWNLOAD PDF" pdfDisabled={false} linkDisabled={false} {...handlers} />);
     expect(screen.getByTestId("selection-count").textContent).toBe("3 SELECTIONS");
-    expect(screen.getByTestId("build-summary").textContent).toBe("Stealth Grey · Factory suspension · Cast aluminium wheels");
+    expect(screen.getByTestId("build-summary").textContent).toBe("Stealth Grey · Standard suspension · Cast aluminium wheels");
     for (const [name, fn] of [["RESET", handlers.onReset], ["COPY LINK", handlers.onCopy], ["DOWNLOAD PDF", handlers.onPdf], ["CONTACT DEALER", handlers.onContact]] as const) {
       fireEvent.click(screen.getByRole("button", { name }));
       expect(fn).toHaveBeenCalledTimes(1);
