@@ -99,8 +99,7 @@ export const partners: Partner[] = [
     ],
     "websites": [
       "https://nordicmotors.dk"
-    ],
-    "mailProvider": "gmail"
+    ]
   },
   {
     "id": "energica-hrvatska",
@@ -143,8 +142,7 @@ export const partners: Partner[] = [
     ],
     "websites": [
       "https://electronia.co.za"
-    ],
-    "mailProvider": "gmail"
+    ]
   },
   {
     "id": "rydu",
@@ -395,8 +393,7 @@ export const partners: Partner[] = [
     ],
     "websites": [
       "https://ocdcustomcycles.com"
-    ],
-    "mailProvider": "gmail"
+    ]
   },
   {
     "id": "ifyni",
@@ -441,8 +438,7 @@ export const partners: Partner[] = [
     ],
     "websites": [
       "https://projekt31.at"
-    ],
-    "mailProvider": "gmail"
+    ]
   },
   {
     "id": "il-motore-del-3000",

@@ -41,13 +41,16 @@ const PartnerCard = forwardRef<HTMLElement, Props>(function PartnerCard({ partne
   // First action is the primary one: solid green only on the selected card.
   const phone = p.phones?.[0];
   const email = p.emails?.[0];
-  // Email opens a new message in the partner's webmail (Gmail or Outlook, from the
-  // domain's mail records) in a new tab; on phones the mail app opens instead.
-  const compose = email
-    ? p.mailProvider === "outlook"
+  // Email: Gmail or Outlook partners (from the domain's mail records) open a new message
+  // there in a new tab; on phones the mail app opens instead.
+  // Other mail hosts: a plain mailto link (the visitor's default email app).
+  const compose = !email
+    ? null
+    : p.mailProvider === "outlook"
       ? `https://outlook.office.com/mail/deeplink/compose?to=${encodeURIComponent(email)}`
-      : `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}`
-    : null;
+      : p.mailProvider === "gmail"
+        ? `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}`
+        : `mailto:${email}`;
   const onMail = (e: React.MouseEvent) => {
     if (email && window.matchMedia("(pointer: coarse)").matches) {
       e.preventDefault();
@@ -57,7 +60,7 @@ const PartnerCard = forwardRef<HTMLElement, Props>(function PartnerCard({ partne
   const actions = [
     dir && { label: "Directions", href: dir, external: true },
     phone && { label: "Call", href: telHref(phone) },
-    compose && { label: "Email", href: compose, external: true },
+    compose && { label: "Email", href: compose, external: !compose.startsWith("mailto:") },
   ].filter(Boolean) as { label: string; href: string; external?: boolean }[];
 
   return (
