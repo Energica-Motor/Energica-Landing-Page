@@ -37,10 +37,14 @@ const PartnerCard = forwardRef<HTMLElement, Props>(function PartnerCard({ partne
     p.emails?.length && { label: "Email", items: p.emails.map((v) => ({ value: v, href: `mailto:${v}` })) },
     p.websites?.length && { label: "Web", items: p.websites.map((v) => ({ value: host(v), href: v, external: true })) },
   ].filter(Boolean) as { label: string; items: { value: string; href: string; external?: boolean }[] }[];
-  // Directions is the only button (contact details are links in the rows above).
+  // Directions, then Call and Email that dial / open mail directly (main number and address).
   // First action is the primary one: solid green only on the selected card.
+  const phone = p.phones?.[0];
+  const email = p.emails?.[0];
   const actions = [
     dir && { label: "Directions", href: dir, external: true },
+    phone && { label: "Call", href: telHref(phone) },
+    email && { label: "Email", href: `mailto:${email}` },
   ].filter(Boolean) as { label: string; href: string; external?: boolean }[];
 
   return (
