@@ -16,6 +16,8 @@ const BADGE: Record<PartnerType, string> = {
 
 const btn =
   "inline-flex items-center justify-center gap-2 min-h-[44px] px-4 font-display uppercase text-[13px] tracking-[0.14em] transition-all duration-200 cursor-none active:scale-[0.97]";
+const secondary = "border border-white/20 text-white hover:border-[#78BE20]";
+const primary = "btn-primary border border-[#78BE20]";
 
 interface Props {
   partner: RankedPartner;
@@ -33,6 +35,13 @@ const PartnerCard = forwardRef<HTMLElement, Props>(function PartnerCard({ partne
     site && { label: "Web", value: site, href: p.website! },
     p.hours && { label: "Hours", value: p.hours },
   ].filter(Boolean) as { label: string; value: string; href?: string }[];
+  // First action is the primary one: solid green only on the selected card.
+  const actions = [
+    dir && { label: "Directions", href: dir, external: true },
+    p.phone && { label: "Call", href: telHref(p.phone) },
+    p.email && { label: "Email", href: `mailto:${p.email}` },
+    p.website && { label: "Website", href: p.website, external: true },
+  ].filter(Boolean) as { label: string; href: string; external?: boolean }[];
 
   return (
     <article
@@ -105,28 +114,19 @@ const PartnerCard = forwardRef<HTMLElement, Props>(function PartnerCard({ partne
         </dl>
       )}
 
-      {(dir || p.phone || p.email || p.website) && (
+      {actions.length > 0 && (
         <div className="flex flex-wrap gap-2 mt-5" onClick={(e) => e.stopPropagation()}>
-          {dir && (
-            <a href={dir} target="_blank" rel="noopener noreferrer" className={cn(btn, "btn-primary")}>
-              Directions <span aria-hidden>↗</span>
+          {actions.map((x, i) => (
+            <a
+              key={x.label}
+              href={x.href}
+              {...(x.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+              className={cn(btn, active && i === 0 ? primary : secondary)}
+            >
+              {x.label}
+              {x.external && <span aria-hidden>↗</span>}
             </a>
-          )}
-          {p.phone && (
-            <a href={telHref(p.phone)} className={cn(btn, "border border-white/20 text-white hover:border-white/50")}>
-              Call
-            </a>
-          )}
-          {p.email && (
-            <a href={`mailto:${p.email}`} className={cn(btn, "border border-white/20 text-white hover:border-white/50")}>
-              Email
-            </a>
-          )}
-          {p.website && (
-            <a href={p.website} target="_blank" rel="noopener noreferrer" className={cn(btn, "border border-white/20 text-white hover:border-white/50")}>
-              Website
-            </a>
-          )}
+          ))}
         </div>
       )}
     </article>

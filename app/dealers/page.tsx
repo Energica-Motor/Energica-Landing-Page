@@ -22,7 +22,7 @@ export default async function DealersPage({
   return (
     <main className="min-h-screen bg-[#0a0a0a] pt-20 md:pt-24">
       {/* ── Compact header ──────────────────────────────────── */}
-      <header className="px-5 md:px-8 lg:px-[clamp(24px,4vw,64px)] pt-10 pb-8 lg:pt-12 lg:pb-10">
+      <header className="ds-container pt-8 pb-7 lg:pt-12 lg:pb-10">
         <p className="inline-flex items-center gap-3 mb-4">
           <span className="w-6 h-px bg-[#CE2B37]" />
           <span className="text-[10px] uppercase tracking-[0.35em] text-white/60">
