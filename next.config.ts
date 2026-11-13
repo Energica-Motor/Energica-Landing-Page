@@ -49,6 +49,14 @@ const nextConfig: NextConfig = {
           { key: "Permissions-Policy",            value: "camera=(), microphone=(), geolocation=()" },
         ],
       },
+      {
+        // Dealer locator: "Use my location" needs geolocation on this page only.
+        // Listed after the catch-all so this value wins.
+        source: "/dealers",
+        headers: [
+          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(self)" },
+        ],
+      },
     ];
   },
 };
