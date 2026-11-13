@@ -11,7 +11,9 @@ import {
   countriesFor,
   filterPartners,
   groupByRegion,
+  nearest,
   sortByDistance,
+  sortPartners,
   stateToQuery,
   type LatLng,
   type LocatorState,
@@ -32,7 +34,7 @@ const preloadMap = () => import("./PartnerMap").then((m) => m.preloadMapLibrary(
 
 const mono = { fontFamily: "var(--font-ibm-mono)" } as const;
 const sans = { fontFamily: "var(--font-ibm-sans)" } as const;
-const TYPE_ORDER: TypeFilter[] = ["all", "dealer", "importer", "service"];
+const TYPE_ORDER: TypeFilter[] = ["all", "country", "dealer", "service"];
 const typeLabel = (t: TypeFilter) => (t === "all" ? "All" : TYPE_LABELS[t].plural);
 const field =
   "w-full min-h-[44px] bg-[#0f0f0f] border border-white/[0.08] hover:border-white/20 focus:border-[#78BE20]/60 focus:outline-none text-white text-sm transition-colors";
@@ -43,6 +45,7 @@ export default function PartnerFinder({ partners, initial }: { partners: Partner
   const [state, setState] = useState<LocatorState>(initial);
   const [origin, setOrigin] = useState<LatLng | null>(null);
   const [locating, setLocating] = useState(false);
+  const [locationFailed, setLocationFailed] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [hoverId, setHoverId] = useState<string | null>(null);
   const [focus, setFocus] = useState<MapFocus | null>(null);
@@ -92,8 +95,14 @@ export default function PartnerFinder({ partners, initial }: { partners: Partner
 
   const counts = useMemo(() => countByType(partners), [partners]);
   const countries = useMemo(() => countriesFor(partners, state.type), [partners, state.type]);
-  const results = useMemo(() => sortByDistance(filterPartners(partners, state), origin), [partners, state, origin]);
-  const groups = useMemo(() => groupByRegion(results), [results]);
+  const results = useMemo(() => sortByDistance(sortPartners(filterPartners(partners, state)), origin), [partners, state, origin]);
+  // With a location the list is one distance-sorted list; otherwise grouped by region.
+  const groups = useMemo(
+    () => (origin ? [{ region: null, partners: results }] : groupByRegion(results)),
+    [results, origin],
+  );
+  // 3 nearest for the active filter: drawn as lines on the map.
+  const nearby = useMemo(() => (origin ? nearest(results, origin, 3) : []), [results, origin]);
   const active = activeId && results.some((p) => p.id === activeId) ? activeId : null;
   const activeFilters = Number(state.type !== "all") + Number(!!state.country);
 
@@ -104,19 +113,29 @@ export default function PartnerFinder({ partners, initial }: { partners: Partner
       return next;
     });
 
+  function clearLocation() {
+    setOrigin(null);
+    setActiveId(null);
+  }
+
   function toggleLocation() {
-    if (origin) {
-      setOrigin(null);
-      return;
-    }
-    if (!navigator.geolocation) return;
+    if (origin) return clearLocation();
+    setLocationFailed(false);
+    if (!navigator.geolocation) return setLocationFailed(true);
     setLocating(true);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        setOrigin({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        const here = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        setOrigin(here);
         setLocating(false);
+        // Highlight the nearest card.
+        const first = nearest(filterPartners(partners, state), here, 1)[0];
+        if (first) setActiveId(first.id);
       },
-      () => setLocating(false), // denied or unavailable: do nothing, show no error
+      () => {
+        setLocating(false);
+        setLocationFailed(true); // short note under the search box; no marker, no banner
+      },
       { enableHighAccuracy: false, timeout: 10000, maximumAge: 600000 },
     );
   }
@@ -153,7 +172,7 @@ export default function PartnerFinder({ partners, initial }: { partners: Partner
     <div
       role="group"
       aria-label="Partner type"
-      className={cn("flex border border-white/[0.08]", wrap ? "grid grid-cols-2" : "overflow-x-auto no-scrollbar flex-[2_1_320px] min-w-0")}
+      className={cn("flex border border-white/[0.08]", wrap ? "grid grid-cols-2" : "overflow-x-auto no-scrollbar basis-full min-w-0")}
     >
       {TYPE_ORDER.map((t) => (
         <button
@@ -163,7 +182,7 @@ export default function PartnerFinder({ partners, initial }: { partners: Partner
           onClick={() => update({ type: t })}
           className={cn(
             "min-h-[44px] px-2 text-[11px] tracking-[0.06em] uppercase whitespace-nowrap transition-colors cursor-none",
-            wrap ? "border-white/[0.08] [&:nth-child(odd)]:border-r [&:nth-child(-n+2)]:border-b" : "flex-1 shrink-0 border-r border-white/[0.08] last:border-r-0",
+            wrap ? "border-white/[0.08] [&:nth-child(odd)]:border-r [&:nth-child(-n+2)]:border-b" : "flex-auto shrink-0 px-3 border-r border-white/[0.08] last:border-r-0",
             state.type === t ? "bg-[#78BE20] text-[#0F1012]" : "text-white/70 hover:text-white hover:bg-white/[0.04]",
           )}
           style={mono}
@@ -260,10 +279,27 @@ export default function PartnerFinder({ partners, initial }: { partners: Partner
         </div>
       </div>
 
+      {(origin || locationFailed) && (
+        <div className="flex items-center gap-3 -mt-1 text-[12px]" style={sans}>
+          {origin ? (
+            <>
+              <span className="inline-flex items-center gap-2 text-white/60">
+                <span className="w-2 h-2 rounded-full bg-[#CE2B37]" aria-hidden /> Sorted by distance
+              </span>
+              <button type="button" onClick={clearLocation} className="min-h-[32px] text-[#78BE20] hover:underline cursor-none">
+                Clear location
+              </button>
+            </>
+          ) : (
+            <span className="text-white/55">Location unavailable. Search by city or country instead.</span>
+          )}
+        </div>
+      )}
+
       {/* Desktop: type tabs + country */}
       <div className="hidden lg:flex flex-wrap gap-2 items-stretch">
         {typeTabs(false)}
-        <div className="flex-[1_1_150px]">{countrySelect}</div>
+        <div className="basis-full">{countrySelect}</div>
       </div>
     </div>
   );
@@ -291,12 +327,12 @@ export default function PartnerFinder({ partners, initial }: { partners: Partner
         </div>
       ) : (
         groups.map((g) => (
-          <section key={g.region} className="mb-8 last:mb-0">
-            <div role="heading" aria-level={2} className="flex items-center gap-3 uppercase text-white/60 mb-3" style={{ ...mono, fontSize: 10, letterSpacing: "0.35em" }}>
+          <section key={g.region ?? "nearest"} className="mb-8 last:mb-0">
+            {g.region && <div role="heading" aria-level={2} className="flex items-center gap-3 uppercase text-white/60 mb-3" style={{ ...mono, fontSize: 10, letterSpacing: "0.35em" }}>
               <span className="w-6 h-px bg-[#CE2B37]" />
               {g.region}
               <span className="text-white/30">{g.partners.length}</span>
-            </div>
+            </div>}
             <div className="flex flex-col gap-2.5">
               {g.partners.map((p) => (
                 <PartnerCard
@@ -330,7 +366,7 @@ export default function PartnerFinder({ partners, initial }: { partners: Partner
 
         <div className={cn("relative lg:block lg:!h-full", view === "map" ? "block" : "hidden")} style={{ height: `calc(100dvh - ${headerH}px - ${barH}px)` }}>
           {(isDesktop || view === "map") && (
-            <PartnerMap partners={results} activeId={active} hoverId={hoverId} focus={focus} onSelect={selectFromMap} popups={isDesktop} />
+            <PartnerMap partners={results} activeId={active} hoverId={hoverId} focus={focus} onSelect={selectFromMap} popups={isDesktop} origin={origin} nearby={nearby} />
           )}
 
           {/* Mobile: bottom sheet for a tapped pin */}

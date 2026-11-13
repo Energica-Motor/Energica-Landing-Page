@@ -5,8 +5,8 @@ import type { Map as MLMap, Marker as MLMarker, Popup as MLPopup, StyleSpecifica
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { Partner } from "@/data/partners";
 import { TYPE_LABELS } from "@/data/partners";
-import { boundsOf, directionsUrl, hasLocation } from "@/lib/partners";
-import { pinKind, pinSvg } from "./pins";
+import { boundsOf, directionsUrl, formatKm, hasLocation, type LatLng } from "@/lib/partners";
+import { hasServiceDot, pinKind, pinSvg } from "./pins";
 
 // Tiles: OpenFreeMap by default (no key, no cookies, loads immediately).
 // MapTiler when NEXT_PUBLIC_MAP_KEY is set; NEXT_PUBLIC_MAP_STYLE_URL overrides both.
@@ -44,6 +44,9 @@ interface Props {
   onSelect: (id: string) => void;
   /** Hide the popup (mobile uses a bottom sheet instead). */
   popups?: boolean;
+  /** "Use my location": user position and the 3 nearest partners for the active filter. */
+  origin?: LatLng | null;
+  nearby?: (Partner & LatLng & { distanceKm: number })[];
 }
 
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
@@ -51,7 +54,7 @@ const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&
 /** Same anatomy as the partner card: badges, name, address, primary action. */
 function popupHtml(p: Partner) {
   const dir = directionsUrl(p);
-  const badges = p.types.map((t) => `<span class="pp-badge pp-${t}">${esc(TYPE_LABELS[t].badge)}</span>`).join("");
+  const badges = p.types.map((t) => `<span class="pp-badge pp-t-${t}">${esc(TYPE_LABELS[t].badge)}</span>`).join("");
   return `<div class="pp">
     <div class="pp-top">${badges}<span class="pp-country">${esc(p.country)}</span></div>
     <p class="pp-name">${esc(p.name)}</p>
@@ -100,7 +103,7 @@ export default function PartnerMap(props: Props) {
 }
 
 /* ── Interactive map (MapLibre) ─────────────────────────────── */
-function LiveMap({ partners, activeId, hoverId, focus, onSelect, popups = true, onFail, onIdle }: Props & { onFail: () => void; onIdle: () => void }) {
+function LiveMap({ partners, activeId, hoverId, focus, onSelect, popups = true, origin = null, nearby = [], onFail, onIdle }: Props & { onFail: () => void; onIdle: () => void }) {
   const el = useRef<HTMLDivElement>(null);
   const map = useRef<MLMap | null>(null);
   const popup = useRef<MLPopup | null>(null);
@@ -201,18 +204,20 @@ function LiveMap({ partners, activeId, hoverId, focus, onSelect, popups = true, 
       popup.current?.remove();
       markers.current.forEach((mk) => mk.remove());
       markers.current = [];
+      youMarkers.current.forEach((mk) => mk.remove());
+      youMarkers.current = [];
       m?.remove();
       map.current = null;
     };
   }, []);
 
-  // Refit when the visible partners change.
+  // Refit when the visible partners change (the location view fits itself).
   const located = useMemo(() => partners.filter(hasLocation), [partners]);
   const fitKey = located.map((p) => p.id).join("|");
   const firstFit = useRef(true);
   useEffect(() => {
     const m = map.current;
-    if (!ready || !m) return;
+    if (!ready || !m || origin) return;
     popup.current?.remove(); // its partner may no longer be in the results
     const b = boundsOf(located);
     if (!b) return;
@@ -223,6 +228,58 @@ function LiveMap({ partners, activeId, hoverId, focus, onSelect, popups = true, 
     else m.fitBounds(b, { padding: FIT_PADDING, maxZoom: 11, duration });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready, fitKey]);
+
+  // "Use my location": red marker, dashed lines to the 3 nearest with km at the midpoint.
+  const youMarkers = useRef<MLMarker[]>([]);
+  const nearbyKey = origin ? `${origin.lat},${origin.lng}|${nearby.map((p) => p.id).join("|")}` : "";
+  useEffect(() => {
+    const m = map.current;
+    const ml = lib.current;
+    if (!ready || !m || !ml) return;
+    youMarkers.current.forEach((mk) => mk.remove());
+    youMarkers.current = [];
+    const lines: GeoJSON.FeatureCollection = {
+      type: "FeatureCollection",
+      features: origin
+        ? nearby.map((p) => ({ type: "Feature", properties: {}, geometry: { type: "LineString", coordinates: [[origin.lng, origin.lat], [p.lng, p.lat]] } }))
+        : [],
+    };
+    const src = m.getSource("nearby-lines") as import("maplibre-gl").GeoJSONSource | undefined;
+    if (src) src.setData(lines);
+    else {
+      m.addSource("nearby-lines", { type: "geojson", data: lines });
+      m.addLayer({
+        id: "nearby-lines",
+        type: "line",
+        source: "nearby-lines",
+        layout: { "line-cap": "round" },
+        paint: { "line-color": "#CE2B37", "line-opacity": 0.6, "line-width": 1.5, "line-dasharray": [3, 3] },
+      });
+    }
+    if (!origin) return;
+    const you = document.createElement("div");
+    you.className = "pm-you";
+    you.setAttribute("role", "img");
+    you.setAttribute("aria-label", "You are here");
+    you.title = "You are here";
+    you.innerHTML = '<span class="pm-you-ring"></span><span class="pm-you-dot"></span>';
+    youMarkers.current.push(new ml.Marker({ element: you, anchor: "center" }).setLngLat([origin.lng, origin.lat]).addTo(m));
+    for (const p of nearby) {
+      // Midpoint of the straight (Mercator) line, so the label sits on it.
+      const a = ml.MercatorCoordinate.fromLngLat([origin.lng, origin.lat]);
+      const b = ml.MercatorCoordinate.fromLngLat([p.lng, p.lat]);
+      const mid = new ml.MercatorCoordinate((a.x + b.x) / 2, (a.y + b.y) / 2).toLngLat();
+      const tag = document.createElement("div");
+      tag.className = "pm-km";
+      tag.textContent = formatKm(p.distanceKm);
+      const mk = new ml.Marker({ element: tag, anchor: "center" }).setLngLat(mid).addTo(m);
+      mk.getElement().style.zIndex = "1";
+      youMarkers.current.push(mk);
+    }
+    const b = boundsOf([{ ...nearby[0], ...origin } as Partner, ...nearby]);
+    if (b) m.fitBounds(b, { padding: { top: 110, bottom: 70, left: 80, right: 80 }, maxZoom: 11, duration: 800 });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready, nearbyKey]);
 
   // Markers: pins plus cluster bubbles, regrouped on every zoom change.
   useEffect(() => {
@@ -241,7 +298,7 @@ function LiveMap({ partners, activeId, hoverId, focus, onSelect, popups = true, 
         btn.className = `pm-pin${hot.has(p.id) ? " is-hot" : ""}${isActive ? " is-active" : ""}`;
         btn.setAttribute("aria-label", p.name);
         btn.title = p.name;
-        btn.innerHTML = `<span class="pm-ring" aria-hidden="true"></span>${pinSvg(pinKind(p))}`;
+        btn.innerHTML = `<span class="pm-ring" aria-hidden="true"></span>${pinSvg(pinKind(p), 1, hasServiceDot(p))}`;
         btn.addEventListener("click", (e) => {
           e.stopPropagation();
           onSelectRef.current(p.id);
@@ -433,7 +490,7 @@ function StaticMap({ partners, activeId, hoverId, onSelect }: Props) {
                 transformOrigin: "bottom center",
                 zIndex: hot ? 2 : 1,
               }}
-              dangerouslySetInnerHTML={{ __html: pinSvg(pinKind(p)) }}
+              dangerouslySetInnerHTML={{ __html: pinSvg(pinKind(p), 1, hasServiceDot(p)) }}
             />
           );
         })}

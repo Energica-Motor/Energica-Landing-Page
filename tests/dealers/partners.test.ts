@@ -1,5 +1,6 @@
+import fs from "node:fs";
 import { describe, expect, it } from "vitest";
-import { partners, samplePartners, visiblePartners, type Partner } from "@/data/partners";
+import { partners, type Partner } from "@/data/partners";
 import {
   boundsOf,
   countByType,
@@ -9,176 +10,186 @@ import {
   filterPartners,
   formatKm,
   groupByRegion,
+  nearest,
   parseState,
   sortByDistance,
+  sortPartners,
   stateToQuery,
   summary,
   telHref,
 } from "@/lib/partners";
 
 const all = { type: "all" as const, country: "", q: "" };
+const byId = (id: string) => partners.find((p) => p.id === id)!;
 
-describe("dealer data", () => {
-  it("real partners: 7 partners, 5 countries, 2 regions", () => {
-    expect(summary(partners)).toEqual({ partners: 7, countries: 5, regions: 2 });
+describe("generated partner data (from the signed-partners sheet)", () => {
+  it("expected counts: All 24, Country partners 8, Dealers 8, Service 18, 18 countries", () => {
+    expect(countByType(partners)).toEqual({ all: 24, country: 8, dealer: 8, service: 18 });
+    expect(summary(partners).countries).toBe(18);
+    expect(countriesFor(partners, "all")).toHaveLength(18);
   });
 
-  it("counts per type from the data", () => {
-    expect(countByType(partners)).toEqual({ all: 7, dealer: 4, importer: 3, service: 0 });
+  it("regions are the five continents", () => {
+    expect(new Set(partners.map((p) => p.region))).toEqual(new Set(["Europe", "North America", "Asia", "Africa", "Oceania"]));
   });
 
-  it("a dealer + service partner appears once and counts in both filters", () => {
-    const list = [...partners, ...samplePartners];
-    const munich = list.filter((p) => p.id === "sample-dealer-service-munich");
-    expect(munich).toHaveLength(1);
-    const c = countByType(list);
-    expect(c.all).toBe(11);
-    expect(c.dealer).toBe(5);
-    expect(c.service).toBe(4);
-    expect(filterPartners(list, { ...all, type: "dealer" }).map((p) => p.id)).toContain("sample-dealer-service-munich");
-    expect(filterPartners(list, { ...all, type: "service" }).map((p) => p.id)).toContain("sample-dealer-service-munich");
+  it("Future Mobility and all sample entries are gone", () => {
+    expect(partners.some((p) => /future mobility|sample/i.test(p.name))).toBe(false);
   });
 
-  it("sample partners never reach production", () => {
-    expect(visiblePartners("production").some((p) => p.sample)).toBe(false);
-    expect(visiblePartners("production")).toHaveLength(7);
-    expect(visiblePartners("preview").some((p) => p.sample)).toBe(true);
-  });
-
-  it("every partner has a unique id; located partners have an address, unlocated have no pin", () => {
-    const list = [...partners, ...samplePartners];
-    expect(new Set(list.map((p) => p.id)).size).toBe(list.length);
-    for (const p of list) {
-      if (p.lat !== undefined || p.lng !== undefined) expect(p.address).toBeTruthy();
+  it("every partner has a unique id, an address and a pin", () => {
+    expect(new Set(partners.map((p) => p.id)).size).toBe(partners.length);
+    for (const p of partners) {
+      expect(p.address).toBeTruthy();
+      expect(typeof p.lat).toBe("number");
+      expect(typeof p.lng).toBe("number");
     }
-    const fm = partners.find((p) => p.id === "future-mobility")!;
-    expect(fm.lat).toBeUndefined();
-    expect(directionsUrl(fm)).toBeNull();
   });
 
-  it("no empty strings in optional fields (cards never show empty rows)", () => {
-    for (const p of [...partners, ...samplePartners]) {
-      for (const k of ["city", "address", "phone", "email", "website", "hours"] as const) {
-        if (k in p) expect((p[k] ?? "").trim()).not.toBe("");
+  it("no empty values in contact lists", () => {
+    for (const p of partners)
+      for (const k of ["phones", "emails", "websites"] as const) {
+        if (p[k]) expect(p[k]!.length).toBeGreaterThan(0);
+        for (const v of p[k] ?? []) expect(v.trim()).toBe(v);
       }
-      if (p.services) expect(p.services.length).toBeGreaterThan(0);
-    }
   });
 
-  it("coordinates fall inside their country's rough bounds", () => {
-    const box: Record<string, [number, number, number, number]> = {
-      Croatia: [42, 47, 13, 20], Germany: [47, 55.5, 5.5, 15.5], France: [41, 51.5, -5.5, 10],
-      "Hong Kong": [22.1, 22.6, 113.8, 114.5], Italy: [36, 47.5, 6, 19], Netherlands: [50.7, 53.7, 3.3, 7.3],
-    };
-    for (const p of [...partners, ...samplePartners]) {
-      if (p.lat === undefined) continue;
-      const [s, n, w, e] = box[p.country];
-      expect(p.lat).toBeGreaterThan(s); expect(p.lat).toBeLessThan(n);
-      expect(p.lng).toBeGreaterThan(w); expect(p.lng).toBeLessThan(e);
+  it("excluded sheet columns never reach the generated file", () => {
+    // Header comment names the source file ("…Signed_Partners…"); check the data only.
+    const src = fs
+      .readFileSync("data/partners.generated.ts", "utf8")
+      .split(/\r?\n/)
+      .filter((l) => !l.startsWith("//"))
+      .join("\n")
+      .toLowerCase();
+    for (const key of ["legal", "agreement", "signed", "signatory", "contacts", "per contract", "notes", "flags", "sources", "reg. no"]) {
+      expect(src).not.toContain(key);
     }
+    const allowed = new Set(["id", "name", "types", "region", "country", "city", "address", "lat", "lng", "geocodePrecision", "directionsQuery", "phones", "emails", "websites"]);
+    for (const p of partners) for (const k of Object.keys(p)) expect(allowed.has(k)).toBe(true);
+  });
+
+  it("phones: bracket notes stripped, area codes kept, 'Not found' skipped", () => {
+    expect(byId("electric-motorcycles-nederland").phones).toEqual(["+31 6 55 711 412", "+31 85 401 6222"]);
+    expect(byId("ramsperger-automobile").phones).toEqual(["+49 7021 50010"]);
+    expect(byId("ocd-custom-cycles").phones).toEqual(["(505) 428-0646"]);
+    expect(byId("nordic-motors").phones).toBeUndefined();
+    expect(telHref("(07) 5645 6820")).toBe("tel:0756456820");
+  });
+
+  it("websites: notes stripped, two sites kept, 'None found' skipped", () => {
+    expect(byId("nordic-motors").websites).toEqual(["https://nordicmotors.dk"]);
+    expect(byId("electric-horses").websites).toEqual(["https://electric-horses.de", "https://richter-zech.de"]);
+    expect(byId("energica-hrvatska").websites).toBeUndefined();
+  });
+
+  it("emails: first is the main address, the rest follow", () => {
+    expect(byId("rydu").emails?.[0]).toBe("Gerald@rydu.com");
+    expect(byId("rydu").emails).toHaveLength(4);
+  });
+
+  it("town-only addresses pin at the town; Directions searches name + town", () => {
+    for (const id of ["projekt31", "e-mc-sweden"]) {
+      const p = byId(id);
+      expect(p.geocodePrecision).toBe("town");
+      expect(decodeURIComponent(directionsUrl(p)!)).toContain(p.name);
+    }
+    expect(decodeURIComponent(directionsUrl(byId("projekt31"))!)).toContain("Strasshof an der Nordbahn");
+    expect(byId("projekt31").address).toBe("Hauptstraße, A-2231 Strasshof (house no. not legible)");
   });
 });
 
-describe("filters", () => {
-  it("type filter", () => {
-    expect(filterPartners(partners, { ...all, type: "dealer" })).toHaveLength(4);
-    expect(filterPartners(partners, { ...all, type: "importer" })).toHaveLength(3);
-    expect(filterPartners(partners, { ...all, type: "service" })).toHaveLength(0);
+describe("roles", () => {
+  it("Importer → Country partner; agreements add Service", () => {
+    expect(byId("electric-motorcycles-nederland").types).toEqual(["country", "service"]);
+    expect(byId("australian-electric-motor-co").types).toEqual(["country"]);
+    expect(byId("otten-kalte-klima-elektro").types).toEqual(["dealer", "service"]);
+    expect(byId("volt-azur").types).toEqual(["dealer"]);
+    expect(byId("calmoto").types).toEqual(["dealer", "service"]); // "Dealer / US service centre"
+    expect(byId("ocd-custom-cycles").types).toEqual(["service"]);
   });
 
-  it("country filter", () => {
-    expect(filterPartners(partners, { ...all, country: "Germany" }).map((p) => p.id)).toEqual(["alwin-otten", "richter-zech", "ramsperger"]);
-  });
-
-  it("search matches name, city, country and address, ignoring case and accents", () => {
-    expect(filterPartners(partners, { ...all, q: "TOULON" }).map((p) => p.id)).toEqual(["mobelec-83"]);
-    expect(filterPartners(partners, { ...all, q: "nurtingen" }).map((p) => p.id)).toEqual(["ramsperger"]);
-    expect(filterPartners(partners, { ...all, q: "hong kong" }).map((p) => p.id)).toEqual(["rydu"]);
-    expect(filterPartners(partners, { ...all, q: "richter" }).map((p) => p.id)).toEqual(["richter-zech"]);
-    expect(filterPartners(partners, { ...all, q: "zzz" })).toHaveLength(0);
-  });
-
-  it("filters combine", () => {
-    expect(filterPartners(partners, { type: "dealer", country: "Germany", q: "meppen" }).map((p) => p.id)).toEqual(["alwin-otten"]);
-    expect(filterPartners(partners, { type: "importer", country: "Germany", q: "" })).toHaveLength(0);
-  });
-
-  it("countries follow the type filter", () => {
-    expect(countriesFor(partners, "all")).toEqual(["Belgium", "Croatia", "France", "Germany", "Hong Kong"]);
-    expect(countriesFor(partners, "importer")).toEqual(["Belgium", "Croatia", "Hong Kong"]);
-  });
-
-  it("groups by region in a fixed order", () => {
-    expect(groupByRegion(partners).map((g) => g.region)).toEqual(["Europe", "Asia Pacific"]);
+  it("Service filter includes country partners and dealers with service", () => {
+    const ids = filterPartners(partners, { ...all, type: "service" }).map((p) => p.id);
+    expect(ids).toHaveLength(18);
+    expect(ids).toContain("rydu");
+    expect(ids).toContain("ramsperger-automobile");
+    expect(ids).not.toContain("volt-azur");
   });
 });
 
-describe("distance", () => {
-  it("haversine is accurate (Paris–London ≈ 344 km)", () => {
-    const d = distanceKm({ lat: 48.8566, lng: 2.3522 }, { lat: 51.5074, lng: -0.1278 });
-    expect(d).toBeGreaterThan(340);
-    expect(d).toBeLessThan(348);
-    expect(distanceKm({ lat: 1, lng: 1 }, { lat: 1, lng: 1 })).toBe(0);
+describe("order", () => {
+  const rank = (p: Partner) => (p.types.includes("country") ? 0 : p.types.includes("dealer") ? 1 : 2);
+  it("country partners first, then dealers, then service-only; each by country then name", () => {
+    const sorted = sortPartners(partners);
+    const ranks = sorted.map(rank);
+    expect(ranks).toEqual([...ranks].sort());
+    expect(sorted[0].types[0]).toBe("country");
+    for (let i = 1; i < sorted.length; i++) {
+      const [a, b] = [sorted[i - 1], sorted[i]];
+      if (rank(a) === rank(b)) expect(a.country.localeCompare(b.country) || a.name.localeCompare(b.name)).toBeLessThanOrEqual(0);
+    }
   });
 
-  it("sorts nearest first and keeps partners without a location at the end", () => {
-    const stuttgart = { lat: 48.7758, lng: 9.1829 };
-    const ranked = sortByDistance(partners, stuttgart);
-    expect(ranked[0].id).toBe("ramsperger");
-    expect(ranked[ranked.length - 1].id).toBe("future-mobility");
-    expect(ranked[ranked.length - 1].distanceKm).toBeUndefined();
-    const d = ranked.filter((p) => p.distanceKm !== undefined).map((p) => p.distanceKm!);
-    expect([...d].sort((a, b) => a - b)).toEqual(d);
-  });
-
-  it("no origin leaves order unchanged", () => {
-    expect(sortByDistance(partners, null)).toBe(partners);
-  });
-
-  it("formats km", () => {
-    expect(formatKm(3.456)).toBe("3.5 km");
-    expect(formatKm(1234.4)).toBe("1,234 km");
+  it("groups by region, only regions with results", () => {
+    const g = groupByRegion(sortPartners(filterPartners(partners, { ...all, country: "Germany" })));
+    expect(g.map((x) => x.region)).toEqual(["Europe"]);
+    expect(g[0].partners).toHaveLength(3);
   });
 });
 
 describe("URL state", () => {
   const countries = countriesFor(partners, "all");
-
-  it("parses and normalises", () => {
-    expect(parseState({ type: "Dealer", country: "germany", q: "meppen" }, countries)).toEqual({ type: "dealer", country: "Germany", q: "meppen" });
-    expect(parseState({ type: "bogus", country: "Narnia" }, countries)).toEqual({ type: "all", country: "", q: "" });
+  it("?type=importer maps to country partners", () => {
+    expect(parseState({ type: "importer" }, countries).type).toBe("country");
+    expect(parseState({ type: "country" }, countries).type).toBe("country");
+    expect(stateToQuery({ ...all, type: "country" })).toBe("?type=country");
   });
-
-  it("round-trips", () => {
-    const s = { type: "importer" as const, country: "Croatia", q: "split" };
-    expect(parseState(Object.fromEntries(new URLSearchParams(stateToQuery(s))), countries)).toEqual(s);
-    expect(stateToQuery(all)).toBe("");
+  it("parses and round-trips", () => {
+    const s = parseState({ type: "dealer", country: "germany", q: "meppen" }, countries);
+    expect(s).toEqual({ type: "dealer", country: "Germany", q: "meppen" });
+    expect(stateToQuery(s)).toBe("?type=dealer&country=Germany&q=meppen");
+    expect(parseState({ type: "bogus" }, countries).type).toBe("all");
   });
 });
 
-describe("links", () => {
-  it("directions use the partner's own name and address", () => {
-    const p = partners.find((x) => x.id === "alwin-otten") as Partner;
-    const url = new URL(directionsUrl(p)!);
-    expect(url.hostname).toBe("www.google.com");
-    expect(url.searchParams.get("query")).toBe("Alwin Otten, Industriestr. 22, 49716 Meppen, Germany");
+describe("distance", () => {
+  const munich = { lat: 48.1374, lng: 11.5755 };
+  const sydney = { lat: -33.8688, lng: 151.2093 };
+
+  it("haversine and formatting", () => {
+    expect(distanceKm(munich, munich)).toBe(0);
+    expect(Math.round(distanceKm(munich, { lat: 52.52, lng: 13.405 }))).toBe(504);
+    expect(formatKm(4.25)).toBe("4.3 km");
+    expect(formatKm(1234.4)).toBe("1,234 km");
   });
 
-  it("tel links strip formatting", () => {
-    expect(telHref("+39 000 000-0000")).toBe("tel:+390000000000");
+  it("nearest 3 from Munich (All)", () => {
+    expect(nearest(partners, munich, 3).map((p) => p.id)).toEqual(["electric-horses", "ramsperger-automobile", "e-performance"]);
   });
 
-  it("bounds cover located partners only", () => {
-    const b = boundsOf(partners)!;
-    expect(b[0][0]).toBeCloseTo(5.97145);
-    expect(b[1][0]).toBeCloseTo(114.10969);
-    expect(boundsOf([partners[0]])).toBeNull();
+  it("nearest 3 respects the active filter", () => {
+    const n = nearest(filterPartners(partners, { ...all, type: "country" }), munich, 3);
+    expect(n).toHaveLength(3);
+    expect(n.every((p) => p.types.includes("country"))).toBe(true);
+    expect(n[0].distanceKm).toBeLessThanOrEqual(n[1].distanceKm);
+  });
+
+  it("nearest from Sydney is AEMC", () => {
+    expect(nearest(partners, sydney, 1)[0].id).toBe("australian-electric-motor-co");
+  });
+
+  it("sortByDistance puts the nearest first", () => {
+    expect(sortByDistance(partners, munich)[0].id).toBe("electric-horses");
+  });
+
+  it("bounds of nothing is null", () => {
+    expect(boundsOf([])).toBeNull();
   });
 });
 
 describe("map worker", () => {
-  it("public worker file matches the installed maplibre-gl version", async () => {
-    const fs = await import("node:fs");
+  it("public worker file matches the installed maplibre-gl version", () => {
     const { version } = JSON.parse(fs.readFileSync("node_modules/maplibre-gl/package.json", "utf8"));
     const src = fs.readFileSync("components/partners/PartnerMap.tsx", "utf8");
     expect(src).toContain(`MAPLIBRE_VERSION = "${version}"`);

@@ -9,8 +9,8 @@ const mono = { fontFamily: "var(--font-ibm-mono)" } as const;
 const sans = { fontFamily: "var(--font-ibm-sans)" } as const;
 
 const BADGE: Record<PartnerType, string> = {
+  country: "border-white/50 text-white",
   dealer: "border-[#78BE20]/60 text-[#78BE20]",
-  importer: "border-white/50 text-white",
   service: "border-white/25 text-white/70",
 };
 
@@ -28,19 +28,22 @@ interface Props {
 
 const PartnerCard = forwardRef<HTMLElement, Props>(function PartnerCard({ partner: p, active, onSelect, onHover }, ref) {
   const dir = directionsUrl(p);
-  const site = p.website ? p.website.replace(/^https?:\/\//, "").replace(/\/$/, "") : null;
+  const host = (u: string) => u.replace(/^https?:\/\//, "").replace(/\/$/, "");
+  const phone = p.phones?.[0];
+  const email = p.emails?.[0];
+  const site = p.websites?.[0];
+  // Main value first; any others listed underneath.
   const rows = [
-    p.phone && { label: "Phone", value: p.phone, href: telHref(p.phone) },
-    p.email && { label: "Email", value: p.email, href: `mailto:${p.email}` },
-    site && { label: "Web", value: site, href: p.website! },
-    p.hours && { label: "Hours", value: p.hours },
-  ].filter(Boolean) as { label: string; value: string; href?: string }[];
+    p.phones?.length && { label: "Phone", items: p.phones.map((v) => ({ value: v, href: telHref(v) })) },
+    p.emails?.length && { label: "Email", items: p.emails.map((v) => ({ value: v, href: `mailto:${v}` })) },
+    p.websites?.length && { label: "Web", items: p.websites.map((v) => ({ value: host(v), href: v, external: true })) },
+  ].filter(Boolean) as { label: string; items: { value: string; href: string; external?: boolean }[] }[];
   // First action is the primary one: solid green only on the selected card.
   const actions = [
     dir && { label: "Directions", href: dir, external: true },
-    p.phone && { label: "Call", href: telHref(p.phone) },
-    p.email && { label: "Email", href: `mailto:${p.email}` },
-    p.website && { label: "Website", href: p.website, external: true },
+    phone && { label: "Call", href: telHref(phone) },
+    email && { label: "Email", href: `mailto:${email}` },
+    site && { label: "Website", href: site, external: true },
   ].filter(Boolean) as { label: string; href: string; external?: boolean }[];
 
   return (
@@ -75,23 +78,8 @@ const PartnerCard = forwardRef<HTMLElement, Props>(function PartnerCard({ partne
         {p.name}
       </h3>
       <p className="text-[13px] text-white/55 leading-relaxed" style={sans}>
-        {p.address ?? "Contact for location"}
+        {p.address || "Contact for location"}
       </p>
-
-      {(p.services?.length || p.servicesOffered?.length) && (
-        <div className="flex flex-wrap gap-1.5 mt-3">
-          {p.services?.map((s) => (
-            <span key={s} className="px-2 py-[3px] bg-white/[0.06] text-[10px] tracking-[0.15em] uppercase text-white/75" style={mono}>
-              {s}
-            </span>
-          ))}
-          {p.servicesOffered?.map((s) => (
-            <span key={s} className="px-2 py-[3px] text-[10px] tracking-[0.1em] text-white/45" style={mono}>
-              {s}
-            </span>
-          ))}
-        </div>
-      )}
 
       {rows.length > 0 && (
         <dl className="mt-4 grid grid-cols-[56px_1fr] gap-x-3 gap-y-1.5 text-[13px]" style={sans}>
@@ -100,14 +88,18 @@ const PartnerCard = forwardRef<HTMLElement, Props>(function PartnerCard({ partne
               <dt className="text-[10px] uppercase tracking-[0.2em] text-white/40 pt-[2px]" style={mono}>
                 {r.label}
               </dt>
-              <dd className="text-white/75 min-w-0 truncate">
-                {r.href ? (
-                  <a href={r.href} onClick={(e) => e.stopPropagation()} className="hover:text-[#78BE20] transition-colors cursor-none" {...(r.label === "Web" ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
-                    {r.value}
+              <dd className="min-w-0">
+                {r.items.map((it, i) => (
+                  <a
+                    key={it.value}
+                    href={it.href}
+                    onClick={(e) => e.stopPropagation()}
+                    className={cn("block truncate hover:text-[#78BE20] transition-colors cursor-none", i === 0 ? "text-white/75" : "text-white/50 text-[12px]")}
+                    {...(it.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                  >
+                    {it.value}
                   </a>
-                ) : (
-                  r.value
-                )}
+                ))}
               </dd>
             </div>
           ))}

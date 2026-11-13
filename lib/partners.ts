@@ -16,17 +16,29 @@ export interface LatLng {
 
 export type RankedPartner = Partner & { distanceKm?: number };
 
-const TYPES: PartnerType[] = ["dealer", "importer", "service"];
-const REGION_ORDER: Region[] = ["Europe", "Asia Pacific", "North America", "Middle East & Africa"];
+const TYPES: PartnerType[] = ["country", "dealer", "service"];
+/** Old URLs used ?type=importer. */
+const TYPE_ALIASES: Record<string, PartnerType> = { importer: "country" };
+const REGION_ORDER: Region[] = ["Europe", "North America", "Asia", "Africa", "Oceania"];
 
 export const hasLocation = (p: Partner): p is Partner & LatLng =>
   typeof p.lat === "number" && typeof p.lng === "number";
 
 /** Partners per type; a partner with two types counts in both. */
 export function countByType(list: Partner[]): Record<TypeFilter, number> {
-  const counts: Record<TypeFilter, number> = { all: list.length, dealer: 0, importer: 0, service: 0 };
+  const counts: Record<TypeFilter, number> = { all: list.length, country: 0, dealer: 0, service: 0 };
   for (const p of list) for (const t of p.types) counts[t]++;
   return counts;
+}
+
+/** 0 = country partner, 1 = dealer, 2 = service only. */
+const roleRank = (p: Partner) => (p.types.includes("country") ? 0 : p.types.includes("dealer") ? 1 : 2);
+
+/** List order: country partners, dealers, service-only; then country A–Z, then name A–Z. */
+export function sortPartners<T extends Partner>(list: T[]): T[] {
+  return [...list].sort(
+    (a, b) => roleRank(a) - roleRank(b) || a.country.localeCompare(b.country) || a.name.localeCompare(b.name),
+  );
 }
 
 export function summary(list: Partner[]) {
@@ -78,6 +90,15 @@ export function sortByDistance(list: Partner[], origin: LatLng | null): RankedPa
   return [...withLoc, ...list.filter((p) => !hasLocation(p))];
 }
 
+/** The n nearest partners with a location, nearest first. */
+export function nearest(list: Partner[], origin: LatLng, n = 3): (Partner & LatLng & { distanceKm: number })[] {
+  return list
+    .filter(hasLocation)
+    .map((p) => ({ ...p, distanceKm: distanceKm(origin, p) }))
+    .sort((a, b) => a.distanceKm - b.distanceKm)
+    .slice(0, n);
+}
+
 export function formatKm(km: number): string {
   return km < 10 ? `${km.toFixed(1)} km` : `${Math.round(km).toLocaleString("en-GB")} km`;
 }
@@ -91,7 +112,8 @@ export function groupByRegion<T extends Partner>(list: T[]): { region: Region; p
 
 export function parseState(params: Record<string, string | string[] | undefined>, countries: string[]): LocatorState {
   const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? "";
-  const t = one(params.type).toLowerCase();
+  const raw = one(params.type).toLowerCase();
+  const t = TYPE_ALIASES[raw] ?? raw;
   const country = one(params.country);
   return {
     type: (TYPES as string[]).includes(t) ? (t as PartnerType) : "all",
@@ -111,7 +133,8 @@ export function stateToQuery(state: LocatorState): string {
 
 export function directionsUrl(p: Partner): string | null {
   if (!p.address) return null;
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${p.name}, ${p.address}, ${p.country}`)}`;
+  const q = p.directionsQuery ?? `${p.name}, ${p.address}, ${p.country}`;
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
 }
 
 export const telHref = (phone: string) => `tel:${phone.replace(/[^\d+]/g, "")}`;
