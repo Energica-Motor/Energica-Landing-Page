@@ -190,3 +190,7 @@ export function boundsOf(list: Partner[]): [[number, number], [number, number]] 
     [Math.max(...lngs), Math.max(...lats)],
   ];
 }
+
+/** Badges to show: a country partner also sells, so it gets the Dealer badge too. */
+export const badgeTypes = (p: Partner): PartnerType[] =>
+  (["country", "dealer", "service"] as PartnerType[]).filter((t) => p.types.includes(t) || (t === "dealer" && p.types.includes("country")));

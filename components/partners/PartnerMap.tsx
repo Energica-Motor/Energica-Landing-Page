@@ -5,7 +5,7 @@ import type { Map as MLMap, Marker as MLMarker, Popup as MLPopup, StyleSpecifica
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { Partner } from "@/data/partners";
 import { TYPE_LABELS } from "@/data/partners";
-import { boundsOf, directionsUrl, formatKm, hasLocation, type LatLng } from "@/lib/partners";
+import { badgeTypes, boundsOf, directionsUrl, formatKm, hasLocation, type LatLng } from "@/lib/partners";
 import { hasServiceDot, pinKind, pinSvg } from "./pins";
 
 // Tiles: OpenFreeMap by default (no key, no cookies, loads immediately).
@@ -63,7 +63,7 @@ const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&
 /** Same anatomy as the partner card: badges, name, address, primary action. */
 function popupHtml(p: Partner) {
   const dir = directionsUrl(p);
-  const badges = p.types.map((t) => `<span class="pp-badge pp-t-${t}">${esc(TYPE_LABELS[t].badge)}</span>`).join("");
+  const badges = badgeTypes(p).map((t) => `<span class="pp-badge pp-t-${t}">${esc(TYPE_LABELS[t].badge)}</span>`).join("");
   return `<div class="pp">
     <div class="pp-top">${badges}</div>
     <p class="pp-country">${esc(p.country)}</p>
