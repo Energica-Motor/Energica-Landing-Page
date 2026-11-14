@@ -493,7 +493,7 @@ export default function PartnerFinder({ partners, initial }: { partners: Partner
               Become an <span className="text-[#78BE20]">Energica</span> partner.
             </h2>
             <p className="text-white/55 mt-4 max-w-[560px]" style={sans}>
-              Interested in representing Energica as a dealer, importer or service partner in your market? Tell us about your business.
+              Find your nearest Energica partner. Test ride the range, get expert advice, and keep your motorcycle serviced by people trained on it.
             </p>
           </div>
           <Link

@@ -30,7 +30,7 @@ export default async function DealersPage({
             <span className="text-[#78BE20]">Energica</span> near you
           </h1>
           <p className="text-[length:var(--text-body)] text-white/70 max-w-[640px] leading-relaxed lg:pb-1.5">
-            Visit an authorised Energica dealer to see, touch, and ride our motorcycles. Our specialists are ready to help you configure your perfect match.
+            Find your nearest Energica partner. Test ride the range, get expert advice, and keep your motorcycle serviced by people trained on it.
           </p>
         </div>
       </header>
