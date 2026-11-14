@@ -67,7 +67,7 @@ describe("generated partner data (from the signed-partners sheet)", () => {
     for (const key of ["legal", "agreement", "signed", "signatory", "contacts", "per contract", "notes", "flags", "sources", "reg. no"]) {
       expect(src).not.toContain(key);
     }
-    const allowed = new Set(["id", "name", "types", "region", "country", "city", "address", "lat", "lng", "geocodePrecision", "directionsQuery", "phones", "emails", "websites"]);
+    const allowed = new Set(["id", "name", "types", "region", "country", "city", "address", "lat", "lng", "geocodePrecision", "directionsQuery", "phones", "emails", "websites", "mailProvider"]);
     for (const p of partners) for (const k of Object.keys(p)) expect(allowed.has(k)).toBe(true);
   });
 

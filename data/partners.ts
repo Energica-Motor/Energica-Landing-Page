@@ -32,6 +32,8 @@ export interface Partner {
   /** First is the main address. */
   emails?: string[];
   websites?: string[];
+  /** Webmail the Email button opens a new message in (from the domain's mail records). */
+  mailProvider?: "gmail" | "outlook";
 }
 
 export const partners: Partner[] = generated;

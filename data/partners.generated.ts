@@ -25,7 +25,8 @@ export const partners: Partner[] = [
     ],
     "websites": [
       "https://electricmotorcycles.nl"
-    ]
+    ],
+    "mailProvider": "gmail"
   },
   {
     "id": "e-performance",
@@ -50,7 +51,8 @@ export const partners: Partner[] = [
     ],
     "websites": [
       "https://e-performance.ch"
-    ]
+    ],
+    "mailProvider": "outlook"
   },
   {
     "id": "australian-electric-motor-co",
@@ -73,7 +75,8 @@ export const partners: Partner[] = [
     ],
     "websites": [
       "https://australianelectricmotorco.com"
-    ]
+    ],
+    "mailProvider": "gmail"
   },
   {
     "id": "nordic-motors",
@@ -114,7 +117,8 @@ export const partners: Partner[] = [
     "geocodePrecision": "address",
     "emails": [
       "energicacroatia@gmail.com"
-    ]
+    ],
+    "mailProvider": "gmail"
   },
   {
     "id": "electronia",
@@ -164,7 +168,8 @@ export const partners: Partner[] = [
     ],
     "websites": [
       "https://rydu.com"
-    ]
+    ],
+    "mailProvider": "gmail"
   },
   {
     "id": "english-electric-motor-co",
@@ -188,7 +193,8 @@ export const partners: Partner[] = [
     ],
     "websites": [
       "https://englishelectricmotorco.com"
-    ]
+    ],
+    "mailProvider": "gmail"
   },
   {
     "id": "volt-azur",
@@ -211,7 +217,8 @@ export const partners: Partner[] = [
     ],
     "websites": [
       "https://voltazur.com"
-    ]
+    ],
+    "mailProvider": "gmail"
   },
   {
     "id": "mob-elec-83",
@@ -234,7 +241,8 @@ export const partners: Partner[] = [
     ],
     "websites": [
       "https://mob-elec.com"
-    ]
+    ],
+    "mailProvider": "gmail"
   },
   {
     "id": "otten-kalte-klima-elektro",
@@ -259,7 +267,8 @@ export const partners: Partner[] = [
     ],
     "websites": [
       "https://otten.de"
-    ]
+    ],
+    "mailProvider": "outlook"
   },
   {
     "id": "ramsperger-automobile",
@@ -283,7 +292,8 @@ export const partners: Partner[] = [
     ],
     "websites": [
       "https://ramsperger-automobile.de"
-    ]
+    ],
+    "mailProvider": "outlook"
   },
   {
     "id": "electric-horses",
@@ -308,7 +318,8 @@ export const partners: Partner[] = [
     "websites": [
       "https://electric-horses.de",
       "https://richter-zech.de"
-    ]
+    ],
+    "mailProvider": "outlook"
   },
   {
     "id": "go-4-electric",
@@ -333,7 +344,8 @@ export const partners: Partner[] = [
     ],
     "websites": [
       "https://go4electric.be"
-    ]
+    ],
+    "mailProvider": "outlook"
   },
   {
     "id": "lee-gal-motorbikes",
@@ -356,7 +368,8 @@ export const partners: Partner[] = [
     ],
     "websites": [
       "https://leegal.co.il"
-    ]
+    ],
+    "mailProvider": "outlook"
   },
   {
     "id": "ocd-custom-cycles",
@@ -400,7 +413,8 @@ export const partners: Partner[] = [
     ],
     "websites": [
       "https://ifyni.com"
-    ]
+    ],
+    "mailProvider": "outlook"
   },
   {
     "id": "projekt31",
@@ -447,7 +461,8 @@ export const partners: Partner[] = [
     ],
     "websites": [
       "https://ilmotoredel3000.com"
-    ]
+    ],
+    "mailProvider": "gmail"
   },
   {
     "id": "e-mc-sweden",
@@ -489,7 +504,8 @@ export const partners: Partner[] = [
     ],
     "websites": [
       "https://pmmotor.no"
-    ]
+    ],
+    "mailProvider": "outlook"
   },
   {
     "id": "calmoto",
@@ -534,7 +550,8 @@ export const partners: Partner[] = [
     ],
     "websites": [
       "https://tytlerscycle.com"
-    ]
+    ],
+    "mailProvider": "outlook"
   },
   {
     "id": "energica-of-new-england",

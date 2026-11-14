@@ -3,7 +3,7 @@
 import { forwardRef } from "react";
 import { cn } from "@/lib/utils";
 import { TYPE_LABELS, type PartnerType } from "@/data/partners";
-import { directionsUrl, formatKm, telHref, type RankedPartner } from "@/lib/partners";
+import { badgeTypes, directionsUrl, formatKm, telHref, type RankedPartner } from "@/lib/partners";
 
 const mono = { fontFamily: "var(--font-ibm-mono)" } as const;
 const sans = { fontFamily: "var(--font-ibm-sans)" } as const;
@@ -37,10 +37,30 @@ const PartnerCard = forwardRef<HTMLElement, Props>(function PartnerCard({ partne
     p.emails?.length && { label: "Email", items: p.emails.map((v) => ({ value: v, href: `mailto:${v}` })) },
     p.websites?.length && { label: "Web", items: p.websites.map((v) => ({ value: host(v), href: v, external: true })) },
   ].filter(Boolean) as { label: string; items: { value: string; href: string; external?: boolean }[] }[];
-  // Directions is the only button (contact details are links in the rows above).
+  // Directions, then Call and Email that dial / open mail directly (main number and address).
   // First action is the primary one: solid green only on the selected card.
+  const phone = p.phones?.[0];
+  const email = p.emails?.[0];
+  // Email: Gmail or Outlook partners (from the domain's mail records) open a new message
+  // there in a new tab; on phones the mail app opens instead.
+  // Other mail hosts: a plain mailto link (the visitor's default email app).
+  const compose = !email
+    ? null
+    : p.mailProvider === "outlook"
+      ? `https://outlook.office.com/mail/deeplink/compose?to=${encodeURIComponent(email)}`
+      : p.mailProvider === "gmail"
+        ? `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}`
+        : `mailto:${email}`;
+  const onMail = (e: React.MouseEvent) => {
+    if (email && window.matchMedia("(pointer: coarse)").matches) {
+      e.preventDefault();
+      window.location.href = `mailto:${email}`;
+    }
+  };
   const actions = [
     dir && { label: "Directions", href: dir, external: true },
+    phone && { label: "Call", href: telHref(phone) },
+    compose && { label: "Email", href: compose, external: !compose.startsWith("mailto:") },
   ].filter(Boolean) as { label: string; href: string; external?: boolean }[];
 
   return (
@@ -56,7 +76,7 @@ const PartnerCard = forwardRef<HTMLElement, Props>(function PartnerCard({ partne
       )}
     >
       <div className="flex flex-wrap items-center gap-2 mb-3">
-        {p.types.map((t) => (
+        {badgeTypes(p).map((t) => (
           <span key={t} className={cn("px-2 py-[3px] border text-[10px] tracking-[0.2em] uppercase", BADGE[t])} style={mono}>
             {TYPE_LABELS[t].badge}
           </span>
@@ -111,6 +131,7 @@ const PartnerCard = forwardRef<HTMLElement, Props>(function PartnerCard({ partne
               key={x.label}
               href={x.href}
               {...(x.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+              onClick={x.label === "Email" ? onMail : undefined}
               className={cn(btn, active && i === 0 ? primary : secondary)}
             >
               {x.label}
@@ -119,6 +140,7 @@ const PartnerCard = forwardRef<HTMLElement, Props>(function PartnerCard({ partne
           ))}
         </div>
       )}
+
     </article>
   );
 });

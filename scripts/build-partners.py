@@ -15,6 +15,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SHEET = ROOT / "data/source/Energica_Signed_Partners_Final.xlsx"
 CACHE = ROOT / "data/source/geocode.json"
+MX_CACHE = ROOT / "data/source/mail-provider.json"
 OUT = ROOT / "data/partners.generated.ts"
 
 # Addresses without a house number (no digits) pin at the town centre; Directions = name + town.
@@ -112,11 +113,25 @@ def geocode(query: str, cache: dict, force: bool):
     return hit
 
 
+def mail_provider(email: str, cache: dict, force: bool) -> str:
+    """'gmail' (Google), 'outlook' (Microsoft 365) or 'other' (any other mail host).
+    Gmail/Outlook: the Email button opens a new message there; other: a plain mailto link."""
+    dom = email.split("@")[1].lower()
+    if dom in cache and not force:
+        return cache[dom]
+    req = urllib.request.Request(f"https://cloudflare-dns.com/dns-query?name={dom}&type=MX", headers={"accept": "application/dns-json"})
+    with urllib.request.urlopen(req, timeout=20) as r:
+        mx = " ".join(a["data"].lower() for a in json.load(r).get("Answer", []))
+    cache[dom] = "outlook" if "outlook.com" in mx else "gmail" if "google" in mx else "other"
+    return cache[dom]
+
+
 def main():
     import openpyxl
 
     force = "--regeocode" in sys.argv
     cache = json.loads(CACHE.read_text("utf-8")) if CACHE.exists() else {}
+    mx_cache = json.loads(MX_CACHE.read_text("utf-8")) if MX_CACHE.exists() else {}
     ws = openpyxl.load_workbook(SHEET, data_only=True)["Partners"]
     rows = [r for r in ws.iter_rows(values_only=True) if any(c is not None for c in r)]
     head = [cell(h) for h in rows[0]]
@@ -162,8 +177,13 @@ def main():
         for key, vals in (("phones", phones(d["Phone"], name)), ("emails", emails(d.get("Email(s)") or d.get("Generic Email (website)", ""))), ("websites", websites(d["Website"]))):
             if vals:
                 p[key] = vals
+        if p.get("emails"):
+            prov = mail_provider(p["emails"][0], mx_cache, force)
+            if prov != "other":
+                p["mailProvider"] = prov
         out.append(p)
 
+    MX_CACHE.write_text(json.dumps(mx_cache, indent=2, sort_keys=True) + "\n", "utf-8")
     CACHE.write_text(json.dumps(cache, indent=2, ensure_ascii=False, sort_keys=True) + "\n", "utf-8")
     body = json.dumps(out, indent=2, ensure_ascii=False)
     OUT.write_text(
