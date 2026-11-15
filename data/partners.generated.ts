@@ -14,6 +14,9 @@ export const partners: Partner[] = [
     "country": "Netherlands",
     "city": "Nijmegen",
     "address": "Keizer Karelplein 32 A, 6511 NH Nijmegen",
+    "alsoCovers": [
+      "Belgium"
+    ],
     "lat": 51.84185,
     "lng": 5.86008,
     "geocodePrecision": "street",

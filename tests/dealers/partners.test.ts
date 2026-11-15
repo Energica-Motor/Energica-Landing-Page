@@ -67,7 +67,7 @@ describe("generated partner data (from the signed-partners sheet)", () => {
     for (const key of ["legal", "agreement", "signed", "signatory", "contacts", "per contract", "notes", "flags", "sources", "reg. no"]) {
       expect(src).not.toContain(key);
     }
-    const allowed = new Set(["id", "name", "types", "region", "country", "city", "address", "lat", "lng", "geocodePrecision", "directionsQuery", "phones", "emails", "websites", "mailProvider"]);
+    const allowed = new Set(["id", "name", "types", "region", "country", "city", "address", "lat", "lng", "geocodePrecision", "directionsQuery", "phones", "emails", "websites", "mailProvider", "alsoCovers"]);
     for (const p of partners) for (const k of Object.keys(p)) expect(allowed.has(k)).toBe(true);
   });
 
@@ -242,5 +242,16 @@ describe("map worker", () => {
     const src = fs.readFileSync("components/partners/PartnerMap.tsx", "utf8");
     expect(src).toContain(`MAPLIBRE_VERSION = "${version}"`);
     expect(fs.existsSync(`public/vendor/maplibre-gl-${version}-csp-worker.js`)).toBe(true);
+  });
+});
+
+import { coveredCountries as _cc, filterPartners as _fp } from "@/lib/partners";
+import { partners as _all } from "@/data/partners.generated";
+describe("multi-country partners", () => {
+  it("Electric Motorcycles Nederland is the country partner for Belgium too", () => {
+    const emn = _all.find((p) => p.name === "Electric Motorcycles Nederland")!;
+    expect(_cc(emn)).toEqual(["Netherlands", "Belgium"]);
+    const be = _fp(_all, { type: "country", country: "Belgium", q: "" }).map((p) => p.name);
+    expect(be).toContain("Electric Motorcycles Nederland");
   });
 });

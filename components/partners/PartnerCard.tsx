@@ -3,7 +3,7 @@
 import { forwardRef } from "react";
 import { cn } from "@/lib/utils";
 import { TYPE_LABELS, type PartnerType } from "@/data/partners";
-import { badgeTypes, directionsUrl, formatKm, telHref, type RankedPartner } from "@/lib/partners";
+import { badgeTypes, coveredCountries, directionsUrl, formatKm, telHref, type RankedPartner } from "@/lib/partners";
 
 const mono = { fontFamily: "var(--font-ibm-mono)" } as const;
 const sans = { fontFamily: "var(--font-ibm-sans)" } as const;
@@ -90,7 +90,7 @@ const PartnerCard = forwardRef<HTMLElement, Props>(function PartnerCard({ partne
 
       {/* Country on its own line under the badges */}
       <p className="-mt-1 mb-2 text-[10px] tracking-[0.2em] uppercase text-[#A3A7AC]" style={mono}>
-        {p.country}
+        {coveredCountries(p).join(" · ")}
       </p>
       <h3 className="font-display uppercase text-[#F2F2F0] mb-1.5" style={{ fontSize: 22, lineHeight: 1.15 }}>
         {p.name}
