@@ -378,6 +378,7 @@ export const partners: Partner[] = [
     "id": "ocd-custom-cycles",
     "name": "OCD Custom Cycles",
     "types": [
+      "dealer",
       "service"
     ],
     "region": "North America",

@@ -25,8 +25,8 @@ const all = { type: "all" as const, country: "", q: "" };
 const byId = (id: string) => partners.find((p) => p.id === id)!;
 
 describe("generated partner data (from the signed-partners sheet)", () => {
-  it("expected counts: All 24, Country partners 8, Dealers 17 (9 + country partners), Service 18, 18 countries", () => {
-    expect(countByType(partners)).toEqual({ all: 24, country: 8, dealer: 17, service: 18 });
+  it("expected counts: All 24, Country partners 8, Dealers 18 (10 + country partners), Service 18, 18 countries", () => {
+    expect(countByType(partners)).toEqual({ all: 24, country: 8, dealer: 18, service: 18 });
     expect(summary(partners).countries).toBe(18);
     expect(countriesFor(partners, "all")).toHaveLength(18);
   });
@@ -111,7 +111,7 @@ describe("roles", () => {
     expect(byId("otten-kalte-klima-elektro").types).toEqual(["dealer", "service"]);
     expect(byId("volt-azur").types).toEqual(["dealer"]);
     expect(byId("calmoto").types).toEqual(["dealer", "service"]); // "Dealer / US service centre"
-    expect(byId("ocd-custom-cycles").types).toEqual(["service"]);
+    expect(byId("ocd-custom-cycles").types).toEqual(["dealer", "service"]);
   });
 
   it("Service filter includes country partners and dealers with service", () => {
