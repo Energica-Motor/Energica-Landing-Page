@@ -25,8 +25,8 @@ const all = { type: "all" as const, country: "", q: "" };
 const byId = (id: string) => partners.find((p) => p.id === id)!;
 
 describe("generated partner data (from the signed-partners sheet)", () => {
-  it("expected counts: All 24, Country partners 8, Dealers 16 (8 + country partners), Service 18, 18 countries", () => {
-    expect(countByType(partners)).toEqual({ all: 24, country: 8, dealer: 16, service: 18 });
+  it("expected counts: All 24, Country partners 8, Dealers 17 (9 + country partners), Service 18, 18 countries", () => {
+    expect(countByType(partners)).toEqual({ all: 24, country: 8, dealer: 17, service: 18 });
     expect(summary(partners).countries).toBe(18);
     expect(countriesFor(partners, "all")).toHaveLength(18);
   });
