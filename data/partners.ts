@@ -18,6 +18,8 @@ export interface Partner {
   types: PartnerType[];
   region: Region;
   country: string;
+  /** Other countries this partner also covers (e.g. Netherlands importer also for Belgium). */
+  alsoCovers?: string[];
   city: string;
   /** Exactly as written in the sheet. */
   address: string;

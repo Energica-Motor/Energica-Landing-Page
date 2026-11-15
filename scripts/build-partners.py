@@ -150,6 +150,12 @@ def main():
         if town_only(shown):  # no street left: "Marieholm, Sweden"
             shown = f"{town}, {country}"
         p = {"id": slug(name.split("(")[0]), "name": name, "types": r, "region": region, "country": country, "city": city, "address": shown}
+        # "Importer (Netherlands & Belgium)": also the country partner for the other countries named.
+        m = re.match(r"importer\s*\(([^)]*)\)", d["Partner Type"], re.I)
+        if m:
+            more = [c.strip() for c in re.split(r"&|,| and ", m.group(1)) if c.strip() and c.strip() not in (country, "UK")]
+            if more:
+                p["alsoCovers"] = more
         if town_only(addr):
             loc, prec = geocode(f"{town}, {country}", cache, force), "town"
             p["directionsQuery"] = f"{name}, {town}, {country}"

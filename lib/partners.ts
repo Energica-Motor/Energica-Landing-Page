@@ -16,6 +16,9 @@ export interface LatLng {
 
 export type RankedPartner = Partner & { distanceKm?: number };
 
+/** Home country first, then any other countries covered. */
+export const coveredCountries = (p: Partner): string[] => [p.country, ...(p.alsoCovers ?? [])];
+
 const TYPES: PartnerType[] = ["country", "dealer", "service"];
 /** Old URLs used ?type=importer. */
 const TYPE_ALIASES: Record<string, PartnerType> = { importer: "country" };
@@ -40,9 +43,9 @@ export function countByType(list: Partner[]): Record<TypeFilter, number> {
 
 /** Every country (A–Z) with its count for the given tab (0 = greyed out, still listed). */
 export function countryCounts(list: Partner[], type: TypeFilter): { country: string; count: number }[] {
-  return [...new Set(list.map((p) => p.country))]
+  return [...new Set(list.flatMap(coveredCountries))]
     .sort((a, b) => a.localeCompare(b))
-    .map((country) => ({ country, count: list.filter((p) => p.country === country && matchesType(p, type)).length }));
+    .map((country) => ({ country, count: list.filter((p) => coveredCountries(p).includes(country) && matchesType(p, type)).length }));
 }
 
 /** 0 = country partner, 1 = dealer, 2 = service only. */
@@ -58,14 +61,14 @@ export function sortPartners<T extends Partner>(list: T[]): T[] {
 export function summary(list: Partner[]) {
   return {
     partners: list.length,
-    countries: new Set(list.map((p) => p.country)).size,
+    countries: new Set(list.flatMap(coveredCountries)).size,
     regions: new Set(list.map((p) => p.region)).size,
   };
 }
 
 /** Countries (sorted) available for the current type filter. */
 export function countriesFor(list: Partner[], type: TypeFilter): string[] {
-  return [...new Set(list.filter((p) => matchesType(p, type)).map((p) => p.country))].sort((a, b) =>
+  return [...new Set(list.filter((p) => matchesType(p, type)).flatMap(coveredCountries))].sort((a, b) =>
     a.localeCompare(b),
   );
 }
@@ -81,8 +84,8 @@ export function filterPartners(list: Partner[], state: LocatorState): Partner[] 
   return list.filter(
     (p) =>
       matchesType(p, state.type) &&
-      (!state.country || p.country === state.country) &&
-      (!q || [p.name, p.country, p.city ?? "", p.address ?? ""].some((v) => norm(v).includes(q))),
+      (!state.country || coveredCountries(p).includes(state.country)) &&
+      (!q || [p.name, ...coveredCountries(p), p.city ?? "", p.address ?? ""].some((v) => norm(v).includes(q))),
   );
 }
 
