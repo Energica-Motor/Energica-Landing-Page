@@ -560,6 +560,7 @@ export const partners: Partner[] = [
     "id": "energica-of-new-england",
     "name": "Energica of New England (Rob's Dyno Service)",
     "types": [
+      "dealer",
       "service"
     ],
     "region": "North America",
