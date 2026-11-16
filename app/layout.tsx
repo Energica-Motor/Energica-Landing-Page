@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Barlow_Condensed, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import SiteChrome from "@/components/layout/SiteChrome";
-import Cursor from "@/components/ui/Cursor";
 import GrainOverlay from "@/components/ui/GrainOverlay";
 import LoadingScreen from "@/components/ui/LoadingScreen";
 import SmoothScroll from "@/components/ui/SmoothScroll";
@@ -137,7 +136,7 @@ export default function RootLayout({
           loadingScreen={<LoadingScreen />}
           smoothScroll={<SmoothScroll />}
           grainOverlay={<GrainOverlay />}
-          cursor={<Cursor />}
+          cursor={null}
         >
           <PageTransition>{children}</PageTransition>
         </SiteChrome>
