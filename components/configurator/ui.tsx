@@ -211,6 +211,7 @@ export function SpecStrip({ stats }: { stats: Stat[] }) {
             <span style={{ fontFamily: FONT.display, fontWeight: 600, fontSize: 34, lineHeight: 1.1, color: COLOR.text }}>{s.value}</span>
             <span style={{ fontFamily: FONT.display, fontSize: 16, color: COLOR.secondary }}>{s.unit}</span>
           </dd>
+          {s.sub && <dd style={{ ...monoLabel(10), margin: 0 }}>{s.sub}</dd>}
         </div>
       ))}
     </dl>

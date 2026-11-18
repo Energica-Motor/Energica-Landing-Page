@@ -51,6 +51,9 @@ export default function SpecsBar({ specs }: SpecsBarProps) {
                   {spec.unit}
                 </span>
               </div>
+              {spec.sub && (
+                <p className="text-[10px] uppercase tracking-[0.3em] text-white/65 mt-1.5">{spec.sub}</p>
+              )}
               <p className="text-[10px] uppercase tracking-[0.3em] text-white/65 mt-2.5">
                 {spec.label}
               </p>

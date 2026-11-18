@@ -510,7 +510,7 @@ function TechSection({
   num, title, sub, body, stats, visual, flip = false, children,
 }: {
   num: string; title: string; sub: string; body: string;
-  stats?: { value: string; unit: string; label: string }[];
+  stats?: { value: string; unit: string; label: string; sub?: string }[];
   visual?: React.ReactNode; flip?: boolean;
   children?: React.ReactNode;
 }) {
@@ -541,6 +541,7 @@ function TechSection({
                 <span className="font-display text-3xl text-white">{s.value}</span>
                 <span className="font-display text-sm text-[#78BE20]">{s.unit}</span>
               </div>
+              {s.sub && <p className="text-[9px] uppercase tracking-widest text-white/60 mt-0.5">{s.sub}</p>}
               <p className="text-[9px] uppercase tracking-widest text-white/60 mt-0.5">{s.label}</p>
             </div>
           ))}
@@ -616,7 +617,7 @@ export default function TechContent() {
         stats={[
           { value: String(LINEUP.maxPeakHp), unit: "HP", label: "Peak Power (up to)" },
           { value: String(LINEUP.minEfficiency), unit: "%", label: "Peak Efficiency" },
-          { value: String(LINEUP.maxTorqueNm), unit: "Nm", label: "Torque" },
+          { value: String(LINEUP.maxTorqueNm), unit: "Nm", sub: `${LINEUP.maxTorqueFtLb} ft lb`, label: "Torque" },
         ]}
         visual={<MotorDiagram />}
       />
@@ -628,7 +629,7 @@ export default function TechContent() {
         body="Custom lithium polymer cells arranged in a structural aluminium pack. Each of the 84 cells is individually monitored by the BMS — optimising charge rate, thermal management, and longevity simultaneously. The pack doubles as a stressed chassis member, reducing weight elsewhere."
         stats={[
           { value: LINEUP.batteries.join(" / "), unit: "kWh", label: "Total Capacity" },
-          { value: String(LINEUP.maxCityKm), unit: "km", label: "City Range" },
+          { value: String(LINEUP.maxCityKm), unit: "km", sub: `${LINEUP.maxCityMi} mi`, label: "City Range" },
         ]}
         visual={<BatteryGrid />}
         flip

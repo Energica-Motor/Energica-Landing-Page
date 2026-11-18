@@ -95,7 +95,8 @@ export const PERF = {
   gridTopY: 226,
   cellH: 108,
   cellLabelDy: 26,
-  cellFigureDy: 86,
+  cellFigureDy: 80,
+  cellSubDy: 98, // imperial value under the figure
   unitGap: 8,
   calloutH: 72, // callout line under the grid
   calloutDy: 46, // baseline within it

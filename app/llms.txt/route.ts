@@ -20,10 +20,10 @@ Energica is part of Ideanomics. Headquarters in Fiorano Modenese (MO), Italy. Co
 ### Energica Experia
 - Type: Electric touring / adventure tourer
 - Battery: ${X.battery.maxKwh} kWh (largest of any production electric motorcycle)
-- Range: Up to ${X.range.city} km city / ${X.range.combined} km combined
+- Range: Up to ${X.range.city} km (${X.imp.range.city} mi) city / ${X.range.combined} km (${X.imp.range.combined} mi) combined
 - Power: Peak ${X.peakKw} kW / ${X.peakHp} HP
 - Torque: ${fmt.torque(X)}
-- Top speed: ${X.topSpeedKmh} km/h (limited)
+- Top speed: ${X.topSpeedKmh} km/h (${X.imp.topSpeedMph} mph) (limited)
 - Fast charge: DC Level 3 CCS
 - Tagline: Further, quieter, faster.
 
@@ -31,9 +31,9 @@ Energica is part of Ideanomics. Headquarters in Fiorano Modenese (MO), Italy. Co
 - Type: Naked / streetfighter
 - Battery: ${S.battery.maxKwh} kWh
 - Power: Peak ${S.peakKw} kW / ${S.peakHp} HP
-- Torque: ${S.torqueNm} Nm (instant, 0 rpm)
-- 0–100 km/h: ${S.accel.toFixed(1)} seconds (RS ${S.accelRs!.toFixed(1)})
-- Top speed: ${S.topSpeedKmh} km/h (limited)
+- Torque: ${S.torqueNm} Nm (${S.imp.torqueFtLb} ft lb) (instant, 0 rpm)
+- 0–100 km/h (0–60 mph): ${S.accel.toFixed(1)} seconds (RS ${S.accelRs!.toFixed(1)})
+- Top speed: ${S.topSpeedKmh} km/h (${S.imp.topSpeedMph} mph) (limited)
 - Tagline: Naked. No apologies.
 
 ### Energica Eva Ribelle

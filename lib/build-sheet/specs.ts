@@ -4,7 +4,9 @@
 //   data/source/specs/Technical_Sheet_Energica_EXPERIA_2026_-_ENG.pdf
 // Model pages, spec tables, meta/Open Graph text, the home showcase, the
 // Technology page, the configurator and the build-sheet PDF all read from here.
-// Metric only. Change a figure here and nowhere else.
+// Metric first, imperial in brackets: imperial values are copied from the English
+// sheets (never converted here) so rounding matches the PDFs. Change a figure here
+// and nowhere else.
 import type { ModelId } from "./catalog";
 import { MODEL_NAMES } from "./catalog";
 
@@ -34,6 +36,18 @@ export interface SheetFigures {
   chain: string;
   frame: string;
   warranty: { vehicleYears: number; batteryYears: number; batteryKm: number };
+  /** Imperial values exactly as printed on the English 2026 sheets. */
+  imp: {
+    torqueFtLb: number;
+    wheelTorqueFtLb?: number;
+    topSpeedMph: number;
+    range: { city: number; combined: number; extraUrban: number; wmtc?: number }; // mi
+    dcMiPerH: number;
+    acMiPerH: number;
+    weightLb: number;
+    batteryWarrantyMi: number;
+    dims: { seat: number; height: number; width: number; wheelbase: number; length: number }; // in
+  };
 }
 
 const PLUS_SHARED = {
@@ -51,6 +65,7 @@ const PLUS_SHARED = {
   frame: "Steel tubular trellis",
   warranty: { vehicleYears: 2, batteryYears: 3, batteryKm: 50000 },
 };
+const PLUS_IMP = { range: { city: 261, combined: 153, extraUrban: 123 }, dcMiPerH: 248, acMiPerH: 39.5, weightLb: 573, batteryWarrantyMi: 31000 };
 
 export const SPECS: Record<ModelId, SheetFigures> = {
   ego: {
@@ -59,6 +74,7 @@ export const SPECS: Record<ModelId, SheetFigures> = {
     peakKw: 126, peakHp: 171, peakRpm: 8500,
     torqueNm: 215, topSpeedKmh: 240, accel: 2.8, accelRs: 2.6,
     dims: { seat: 810, height: 1166, width: 870, wheelbase: 1465, length: 2140 },
+    imp: { ...PLUS_IMP, torqueFtLb: 159, topSpeedMph: 150, dims: { seat: 31.9, height: 45.9, width: 34.3, wheelbase: 57.7, length: 84.2 } },
   },
   eva_ribelle: {
     ...PLUS_SHARED,
@@ -66,6 +82,7 @@ export const SPECS: Record<ModelId, SheetFigures> = {
     peakKw: 126, peakHp: 171, peakRpm: 8500,
     torqueNm: 215, topSpeedKmh: 200, accel: 2.8, accelRs: 2.6,
     dims: { seat: 790, height: 1152, width: 870, wheelbase: 1465, length: 2140 },
+    imp: { ...PLUS_IMP, torqueFtLb: 159, topSpeedMph: 125, dims: { seat: 31.1, height: 45.4, width: 34.3, wheelbase: 57.7, length: 84.2 } },
   },
   essesse9: {
     ...PLUS_SHARED,
@@ -73,6 +90,7 @@ export const SPECS: Record<ModelId, SheetFigures> = {
     peakKw: 80, peakHp: 109, peakRpm: 8500,
     torqueNm: 200, topSpeedKmh: 200, accel: 3.0, accelRs: 2.8,
     dims: { seat: 790, height: 1152, width: 870, wheelbase: 1465, length: 2140 },
+    imp: { ...PLUS_IMP, torqueFtLb: 148, topSpeedMph: 125, dims: { seat: 31.1, height: 45.4, width: 34.3, wheelbase: 57.7, length: 84.2 } },
   },
   experia: {
     motor: "PMASynRM (permanent magnet assisted synchronous reluctance), liquid cooled",
@@ -92,6 +110,12 @@ export const SPECS: Record<ModelId, SheetFigures> = {
     chain: "Regina 16/52 520 O-ring",
     frame: "Front steel tubular trellis / aluminium side plates",
     warranty: { vehicleYears: 2, batteryYears: 3, batteryKm: 50000 },
+    imp: {
+      torqueFtLb: 85, wheelTorqueFtLb: 664, topSpeedMph: 112,
+      range: { city: 261, combined: 160, extraUrban: 130, wmtc: 138 },
+      dcMiPerH: 248, acMiPerH: 39.5, weightLb: 573, batteryWarrantyMi: 31000,
+      dims: { seat: 33.3, height: 57.5, width: 34.1, wheelbase: 59.5, length: 83.9 },
+    },
   },
 };
 
@@ -111,29 +135,34 @@ export const fmt = {
     f.sustainedKw === f.peakKw
       ? `${f.peakKw} kW / ${f.peakHp} HP (sustained and peak) at ${n(f.peakRpm)} rpm`
       : `Sustained ${f.sustainedKw} kW / ${f.sustainedHp} HP at ${n(f.sustainedRpm)} rpm – Peak ${f.peakKw} kW / ${f.peakHp} HP at ${n(f.peakRpm)} rpm`,
-  torque: (f: SheetFigures) => (f.wheelTorqueNm ? `${f.torqueNm} Nm (${f.wheelTorqueNm} Nm at the wheel)` : `${f.torqueNm} Nm`),
-  topSpeed: (f: SheetFigures) => `${f.topSpeedKmh} km/h`,
+  torque: (f: SheetFigures) =>
+    `${f.torqueNm} Nm (${f.imp.torqueFtLb} ft lb)` +
+    (f.wheelTorqueNm ? `, ${f.wheelTorqueNm} Nm (${f.imp.wheelTorqueFtLb} ft lb) at the wheel` : ""),
+  torqueMetric: (f: SheetFigures) => (f.wheelTorqueNm ? `${f.torqueNm} Nm (${f.wheelTorqueNm} Nm at the wheel)` : `${f.torqueNm} Nm`),
+  topSpeed: (f: SheetFigures) => `${f.topSpeedKmh} km/h (${f.imp.topSpeedMph} mph)`,
   accel: (f: SheetFigures) =>
-    f.accelRs ? `0–100 km/h: ${s1(f.accel)} s (RS ${s1(f.accelRs)} s)` : `0–100 km/h: ${s1(f.accel)} s`,
+    f.accelRs ? `0–100 km/h (0–60 mph): ${s1(f.accel)} s (RS ${s1(f.accelRs)} s)` : `0–100 km/h (0–60 mph): ${s1(f.accel)} s`,
   range: (f: SheetFigures) =>
-    `City ${f.range.city} km / Combined ${f.range.combined} km / Extra-urban ${f.range.extraUrban} km` +
-    (f.range.wmtc ? ` / WMTC ${f.range.wmtc} km` : ""),
+    `City ${f.range.city} km (${f.imp.range.city} mi) / Combined ${f.range.combined} km (${f.imp.range.combined} mi) / Extra-urban ${f.range.extraUrban} km (${f.imp.range.extraUrban} mi)` +
+    (f.range.wmtc ? ` / WMTC ${f.range.wmtc} km (${f.imp.range.wmtc} mi)` : ""),
   battery: (f: SheetFigures) => `${f.battery.maxKwh} kWh max / ${f.battery.nominalKwh} kWh nominal – lithium polymer`,
   charging: (f: SheetFigures) =>
-    `DC fast charge (Mode 4): ${f.charging.dcKmPerH} km of range per hour (${f.charging.dcKmPerMin} km/min) / AC (Mode 2 or 3): ${f.charging.acKmPerH} km of range per hour`,
+    `DC fast charge (Mode 4): ${f.charging.dcKmPerH} km (${f.imp.dcMiPerH} mi) of range per hour / AC (Mode 2 or 3): ${f.charging.acKmPerH} km (${f.imp.acMiPerH} mi) of range per hour`,
   warranty: (f: SheetFigures) =>
-    `${f.warranty.vehicleYears} years vehicle, ${f.warranty.batteryYears} years / ${n(f.warranty.batteryKm)} km battery`,
+    `${f.warranty.vehicleYears} years vehicle, ${f.warranty.batteryYears} years / ${n(f.warranty.batteryKm)} km (${n(f.imp.batteryWarrantyMi)} mi) battery`,
   brakes: (f: SheetFigures) => `Brembo ${f.brakes.frontDiscs} x ${f.brakes.frontMm} mm front, ${f.brakes.rearMm} mm rear`,
-  mm: (v: number) => `${n(v)} mm`,
+  mm: (v: number, inches: number) => `${n(v)} mm (${inches} in)`,
+  weight: (f: SheetFigures) => `${f.weightKg} kg (${f.imp.weightLb} lb)`,
 };
 
-/** Figure for the key-stat row: 0–100 km/h, RS value when the model has one (marked "(RS)"). */
-export function accelStat(f: SheetFigures, rs: boolean) {
+/** Figure for the key-stat row: 0–100 km/h (0–60 mph), RS value when the model has one. */
+export function accelStat(f: SheetFigures, rs: boolean): Stat {
   const useRs = rs && f.accelRs !== undefined;
-  return { label: useRs ? "0–100 km/h (RS)" : "0–100 km/h", value: s1(useRs ? f.accelRs! : f.accel), unit: "sec" };
+  return { label: useRs ? "0–100 km/h (0–60 mph) RS" : "0–100 km/h (0–60 mph)", value: s1(useRs ? f.accelRs! : f.accel), unit: "sec" };
 }
 
-export interface Stat { label: string; value: string; unit: string }
+/** sub: the imperial value, shown as a small line under the big metric figure. */
+export interface Stat { label: string; value: string; unit: string; sub?: string }
 
 /** The four headline stats (model page key bar, configurator, PDF). */
 export function keyStats(m: ModelId, opts: { rs: boolean }): [Stat, Stat, Stat, Stat] {
@@ -141,8 +170,8 @@ export function keyStats(m: ModelId, opts: { rs: boolean }): [Stat, Stat, Stat, 
   return [
     { label: "Peak Power", value: String(f.peakHp), unit: "HP" },
     accelStat(f, opts.rs),
-    { label: "City Range", value: String(f.range.city), unit: "km" },
-    { label: "Top Speed", value: String(f.topSpeedKmh), unit: "km/h" },
+    { label: "City Range", value: String(f.range.city), unit: "km", sub: `${f.imp.range.city} mi` },
+    { label: "Top Speed", value: String(f.topSpeedKmh), unit: "km/h", sub: `${f.imp.topSpeedMph} mph` },
   ];
 }
 
@@ -204,12 +233,12 @@ export function specTable(m: ModelId) {
           abs: f.brakes.abs,
         },
     dimensions: {
-      height: `${fmt.mm(f.dims.height)} (mirrors not included)`,
-      seatHeight: fmt.mm(f.dims.seat),
-      width: fmt.mm(f.dims.width),
-      wheelbase: fmt.mm(f.dims.wheelbase),
-      length: fmt.mm(f.dims.length),
-      weight: `${f.weightKg} kg`,
+      height: `${fmt.mm(f.dims.height, f.imp.dims.height)} (mirrors not included)`,
+      seatHeight: fmt.mm(f.dims.seat, f.imp.dims.seat),
+      width: fmt.mm(f.dims.width, f.imp.dims.width),
+      wheelbase: fmt.mm(f.dims.wheelbase, f.imp.dims.wheelbase),
+      length: fmt.mm(f.dims.length, f.imp.dims.length),
+      weight: fmt.weight(f),
     },
     cycleParts: {
       frame: f.frame,
@@ -229,8 +258,8 @@ export function schemaSpecs(m: ModelId) {
   const f = SPECS[m];
   return {
     power: `Peak ${f.peakKw} kW / ${f.peakHp} HP`,
-    torque: fmt.torque(f),
-    topSpeed: fmt.topSpeed(f),
+    torque: fmt.torqueMetric(f),
+    topSpeed: `${f.topSpeedKmh} km/h`,
     range: `${f.range.city} km city / ${f.range.combined} km combined`,
   };
 }
@@ -241,9 +270,11 @@ export const LINEUP = (() => {
   return {
     maxPeakHp: Math.max(...all.map((f) => f.peakHp)),
     maxTorqueNm: Math.max(...all.map((f) => f.torqueNm)),
+    maxTorqueFtLb: Math.max(...all.map((f) => f.imp.torqueFtLb)),
     minEfficiency: Math.min(...all.map((f) => f.efficiency)),
     batteries: [...new Set(all.map((f) => f.battery.maxKwh))].sort((a, b) => a - b),
     maxCityKm: Math.max(...all.map((f) => f.range.city)),
+    maxCityMi: Math.max(...all.map((f) => f.imp.range.city)),
     onboardKw: Math.max(...all.map((f) => f.charging.onboardKw)),
   };
 })();

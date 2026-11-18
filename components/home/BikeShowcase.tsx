@@ -11,10 +11,10 @@ const X = SPECS.experia, S = SPECS.essesse9, E = SPECS.eva_ribelle, G = SPECS.eg
 
 /* ── Data ──────────────────────────────────────────────────────── */
 const bikes = [
-  { id:"experia",    index:"01", name:MODEL_NAMES.experia,    tagline:`${X.range.city} km. One charge.`,              category:"Grand Tourer",   stat:{value:String(X.range.city), unit:"km", label:"City Range"},   accent:"#78BE20", href:"/models/experia",     image:"/images/Pagina Experia/EXPERIA_Bormio Ice.webp"      },
-  { id:"esseesse9",  index:"02", name:MODEL_NAMES.essesse9,  tagline:`${S.torqueNm} Nm. Instant.`,                 category:"Naked Sport",    stat:{value:String(S.torqueNm), unit:"Nm", label:"Torque"}, accent:"#78BE20", href:"/models/esseesse9",   image:"/images/Pagina SS9/EsseEsse9 RS_Sunrise Red.webp"    },
+  { id:"experia",    index:"01", name:MODEL_NAMES.experia,    tagline:`${X.range.city} km. One charge.`,              category:"Grand Tourer",   stat:{value:String(X.range.city), unit:"km", sub:`${X.imp.range.city} mi`, label:"City Range"},   accent:"#78BE20", href:"/models/experia",     image:"/images/Pagina Experia/EXPERIA_Bormio Ice.webp"      },
+  { id:"esseesse9",  index:"02", name:MODEL_NAMES.essesse9,  tagline:`${S.torqueNm} Nm. Instant.`,                 category:"Naked Sport",    stat:{value:String(S.torqueNm), unit:"Nm", sub:`${S.imp.torqueFtLb} ft lb`, label:"Torque"}, accent:"#78BE20", href:"/models/esseesse9",   image:"/images/Pagina SS9/EsseEsse9 RS_Sunrise Red.webp"    },
   { id:"eva-ribelle",index:"03", name:MODEL_NAMES.eva_ribelle,tagline:`${E.peakHp} HP. Italian design.`,          category:"Street Fighter", stat:{value:String(E.peakHp), unit:"HP", label:"Peak Power"},   accent:"#78BE20", href:"/models/eva-ribelle", image:"/images/Pagina Eva/EVA Ribelle RS_Stealth Grey.webp" },
-  { id:"ego",        index:"04", name:MODEL_NAMES.ego,        tagline:`${G.peakHp} HP. MotoE-derived. Road legal.`,category:"Supersport",   stat:{value:G.accelRs!.toFixed(1), unit:"s",  label:"0–100 km/h (RS)"},    accent:"#78BE20", href:"/models/ego",         image:"/images/Pagina EGO/EGO RS_Metal Black.webp"         },
+  { id:"ego",        index:"04", name:MODEL_NAMES.ego,        tagline:`${G.peakHp} HP. MotoE-derived. Road legal.`,category:"Supersport",   stat:{value:G.accelRs!.toFixed(1), unit:"s",  label:"0–100 km/h (0–60 mph) RS"},    accent:"#78BE20", href:"/models/ego",         image:"/images/Pagina EGO/EGO RS_Metal Black.webp"         },
 ];
 
 /* ── Physics — identical to reference HTML ─────────────────────── */
@@ -414,6 +414,7 @@ export default function BikeShowcase() {
                     <span className="font-display text-[clamp(42px,5vw,72px)] leading-none" style={{ color:bike.accent }}>{bike.stat.value}</span>
                     <span className="text-xl text-white/60 font-light">{bike.stat.unit}</span>
                   </div>
+                  {bike.stat.sub && <p className="text-[11px] tracking-[0.4em] text-white/50 uppercase mb-1" style={{ fontFamily:"var(--font-ibm-mono)" }}>{bike.stat.sub}</p>}
                   <p className="text-[11px] tracking-[0.4em] text-white/50 uppercase" style={{ fontFamily:"var(--font-ibm-mono)" }}>{bike.stat.label}</p>
                 </div>
                 <Link href={bike.href} className="inline-flex items-center gap-3">
@@ -553,6 +554,7 @@ export default function BikeShowcase() {
                     <span className="font-display text-[clamp(42px,7vw,92px)] leading-none" style={{ color:bike.accent }}>{bike.stat.value}</span>
                     <span className="text-xl md:text-2xl text-white/60 font-light">{bike.stat.unit}</span>
                   </div>
+                  {bike.stat.sub && <p className="text-[11px] tracking-[0.4em] text-white/50 uppercase mb-1" style={{ fontFamily:"var(--font-ibm-mono)" }}>{bike.stat.sub}</p>}
                   <p className="text-[11px] tracking-[0.4em] text-white/50 uppercase" style={{ fontFamily:"var(--font-ibm-mono)" }}>{bike.stat.label}</p>
                 </div>
                 <Link href={bike.href} className="inline-flex items-center gap-3 group">

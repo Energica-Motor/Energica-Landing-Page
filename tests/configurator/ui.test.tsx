@@ -91,9 +91,9 @@ describe("stage", () => {
     const rs = performanceFor("eva_ribelle", "Eva Ribelle", { rs: true }).grid;
     const { rerender } = render(<><StageHeading model="eva_ribelle" colour="Stealth Grey" version="Standard" /><SpecStrip stats={std} /></>);
     const read = () => screen.getAllByRole("definition").map((d) => d.textContent);
-    expect(read()).toEqual(["171HP", "2.8sec", "420km", "200km/h"]);
+    expect(read()).toEqual(["171HP", "2.8sec", "420km", "261 mi", "200km/h", "125 mph"]);
     rerender(<><StageHeading model="eva_ribelle" colour="Stealth Grey" version="RS" /><SpecStrip stats={rs} /></>);
-    expect(read()).toEqual(["171HP", "2.6sec", "420km", "200km/h"]);
+    expect(read()).toEqual(["171HP", "2.6sec", "420km", "261 mi", "200km/h", "125 mph"]);
     expect(screen.getByText("RS")).toBeTruthy();
   });
 });

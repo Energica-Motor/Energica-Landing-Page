@@ -257,6 +257,7 @@ export function renderBuildSheet(input: SheetInput, assets: SheetAssets) {
     text(cell.label, x, top + PERF.cellLabelDy, TEXT.label);
     const fw = text(cell.value, x, top + PERF.cellFigureDy, TEXT.figure);
     text(cell.unit, x + fw + PERF.unitGap, top + PERF.cellFigureDy, TEXT.unit);
+    if (cell.sub) text(cell.sub.toUpperCase(), x, top + PERF.cellSubDy, TEXT.label);
   });
   const gridRows = Math.ceil(perf.grid.length / 2);
   for (let r = 1; r <= gridRows; r++) hline(PAGE.pad, RIGHT, PERF.gridTopY + r * PERF.cellH, COLOR.rowRule, 0.75);

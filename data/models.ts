@@ -15,6 +15,7 @@ export interface KeySpec {
   label: string;
   value: string;
   unit: string;
+  sub?: string; // imperial, small line under the figure
 }
 
 export interface MotorSpecs {
