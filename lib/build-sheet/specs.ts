@@ -155,10 +155,13 @@ export const fmt = {
   weight: (f: SheetFigures) => `${f.weightKg} kg (${f.imp.weightLb} lb)`,
 };
 
+// Non-breaking spaces keep "0–60 mph" together, so narrow screens break before the bracket.
+const ACCEL_LABEL = "0–100 km/h (0–60 mph)";
+
 /** Figure for the key-stat row: 0–100 km/h (0–60 mph), RS value when the model has one. */
 export function accelStat(f: SheetFigures, rs: boolean): Stat {
   const useRs = rs && f.accelRs !== undefined;
-  return { label: useRs ? "0–100 km/h (0–60 mph) RS" : "0–100 km/h (0–60 mph)", value: s1(useRs ? f.accelRs! : f.accel), unit: "sec" };
+  return { label: useRs ? ACCEL_LABEL + " RS" : ACCEL_LABEL, value: s1(useRs ? f.accelRs! : f.accel), unit: "sec" };
 }
 
 /** sub: the imperial value, shown as a small line under the big metric figure. */
