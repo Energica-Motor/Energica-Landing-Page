@@ -254,7 +254,7 @@ export function renderBuildSheet(input: SheetInput, assets: SheetAssets) {
     const r = Math.floor(i / 2);
     const x = PAGE.pad + col * half + (col ? 24 : 0);
     const top = PERF.gridTopY + r * PERF.cellH;
-    text(cell.label.replace(/ /g, " "), x, top + PERF.cellLabelDy, TEXT.label); // PDF fonts: plain spaces
+    text(cell.label.replace(/ /g, " ").replace(/⁠/g, ""), x, top + PERF.cellLabelDy, TEXT.label); // PDF fonts: plain spaces
     const fw = text(cell.value, x, top + PERF.cellFigureDy, TEXT.figure);
     text(cell.unit, x + fw + PERF.unitGap, top + PERF.cellFigureDy, TEXT.unit);
     if (cell.sub) text(cell.sub.toUpperCase(), x, top + PERF.cellSubDy, TEXT.label);

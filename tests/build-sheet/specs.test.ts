@@ -11,7 +11,7 @@ const SHEET = {
   experia: { peak: "PEAK POWER 102 HP", std: "0–100 KM/H (0–60 MPH) 3.5 sec", rs: "0–100 KM/H (0–60 MPH) 3.5 sec", city: "CITY RANGE 420 km (261 mi)", top: "TOP SPEED 180 km/h (112 mph)" },
 } as const;
 
-const line = (s: { label: string; value: string; unit: string; sub?: string }) => `${s.label.replace(/ /g, " ")} ${s.value} ${s.unit}${s.sub ? ` (${s.sub})` : ""}`;
+const line = (s: { label: string; value: string; unit: string; sub?: string }) => `${s.label.replace(/ /g, " ").replace(/⁠/g, "")} ${s.value} ${s.unit}${s.sub ? ` (${s.sub})` : ""}`;
 
 describe("2026 sheet figures", () => {
   it.each(Object.keys(SHEET) as (keyof typeof SHEET)[])("%s: standard and RS grids (RS changes only 0–100 km/h)", (m) => {
@@ -59,7 +59,7 @@ describe("2026 sheet figures", () => {
   });
 
   it("model page key bar shows the RS 0–100 km/h", () => {
-    expect({ ...keyStats("ego", { rs: true })[1], label: keyStats("ego", { rs: true })[1].label.replace(/ /g, " ") }).toEqual({ label: "0–100 km/h (0–60 mph) RS", value: "2.6", unit: "sec" });
+    expect({ ...keyStats("ego", { rs: true })[1], label: keyStats("ego", { rs: true })[1].label.replace(/ /g, " ").replace(/⁠/g, "") }).toEqual({ label: "0–100 km/h (0–60 mph) RS", value: "2.6", unit: "sec" });
   });
 
   it("throws for an unknown model", () => {

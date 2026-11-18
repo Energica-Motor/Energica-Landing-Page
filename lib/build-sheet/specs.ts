@@ -156,7 +156,7 @@ export const fmt = {
 };
 
 // Non-breaking spaces keep "0–60 mph" together, so narrow screens break before the bracket.
-const ACCEL_LABEL = "0–100 km/h (0–60 mph)";
+const ACCEL_LABEL = "0⁠–⁠100 km/h (0⁠–⁠60 mph)"; // word joiners: no break at the dashes
 
 /** Figure for the key-stat row: 0–100 km/h (0–60 mph), RS value when the model has one. */
 export function accelStat(f: SheetFigures, rs: boolean): Stat {

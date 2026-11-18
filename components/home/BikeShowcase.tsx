@@ -14,7 +14,7 @@ const bikes = [
   { id:"experia",    index:"01", name:MODEL_NAMES.experia,    tagline:`${X.range.city} km. One charge.`,              category:"Grand Tourer",   stat:{value:String(X.range.city), unit:"km", sub:`${X.imp.range.city} mi`, label:"City Range"},   accent:"#78BE20", href:"/models/experia",     image:"/images/Pagina Experia/EXPERIA_Bormio Ice.webp"      },
   { id:"esseesse9",  index:"02", name:MODEL_NAMES.essesse9,  tagline:`${S.torqueNm} Nm. Instant.`,                 category:"Naked Sport",    stat:{value:String(S.torqueNm), unit:"Nm", sub:`${S.imp.torqueFtLb} ft lb`, label:"Torque"}, accent:"#78BE20", href:"/models/esseesse9",   image:"/images/Pagina SS9/EsseEsse9 RS_Sunrise Red.webp"    },
   { id:"eva-ribelle",index:"03", name:MODEL_NAMES.eva_ribelle,tagline:`${E.peakHp} HP. Italian design.`,          category:"Street Fighter", stat:{value:String(E.peakHp), unit:"HP", label:"Peak Power"},   accent:"#78BE20", href:"/models/eva-ribelle", image:"/images/Pagina Eva/EVA Ribelle RS_Stealth Grey.webp" },
-  { id:"ego",        index:"04", name:MODEL_NAMES.ego,        tagline:`${G.peakHp} HP. MotoE-derived. Road legal.`,category:"Supersport",   stat:{value:G.accelRs!.toFixed(1), unit:"s",  label:"0–100 km/h (0–60 mph) RS"},    accent:"#78BE20", href:"/models/ego",         image:"/images/Pagina EGO/EGO RS_Metal Black.webp"         },
+  { id:"ego",        index:"04", name:MODEL_NAMES.ego,        tagline:`${G.peakHp} HP. MotoE-derived. Road legal.`,category:"Supersport",   stat:{value:G.accelRs!.toFixed(1), unit:"s",  label:"0⁠–⁠100 km/h (0⁠–⁠60 mph) RS"},    accent:"#78BE20", href:"/models/ego",         image:"/images/Pagina EGO/EGO RS_Metal Black.webp"         },
 ];
 
 /* ── Physics — identical to reference HTML ─────────────────────── */
