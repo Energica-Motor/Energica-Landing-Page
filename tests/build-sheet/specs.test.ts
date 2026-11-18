@@ -5,9 +5,9 @@ import { models } from "@/data/models";
 // Figures from Energica's 2026 technical sheets (data/source/specs/).
 // If one of these fails, a figure was changed: it must match the sheets.
 const SHEET = {
-  ego: { peak: "PEAK POWER 171 HP", std: "0–100 KM/H (0–60 MPH) 2.8 sec", rs: "0–100 KM/H (0–60 MPH) (0–60 MPH) RS 2.6 sec", city: "CITY RANGE 420 km (261 mi)", top: "TOP SPEED 240 km/h (150 mph)" },
-  eva_ribelle: { peak: "PEAK POWER 171 HP", std: "0–100 KM/H (0–60 MPH) 2.8 sec", rs: "0–100 KM/H (0–60 MPH) (0–60 MPH) RS 2.6 sec", city: "CITY RANGE 420 km (261 mi)", top: "TOP SPEED 200 km/h (125 mph)" },
-  essesse9: { peak: "PEAK POWER 109 HP", std: "0–100 KM/H (0–60 MPH) 3.0 sec", rs: "0–100 KM/H (0–60 MPH) (0–60 MPH) RS 2.8 sec", city: "CITY RANGE 420 km (261 mi)", top: "TOP SPEED 200 km/h (125 mph)" },
+  ego: { peak: "PEAK POWER 171 HP", std: "0–100 KM/H (0–60 MPH) 2.8 sec", rs: "0–100 KM/H (0–60 MPH) RS 2.6 sec", city: "CITY RANGE 420 km (261 mi)", top: "TOP SPEED 240 km/h (150 mph)" },
+  eva_ribelle: { peak: "PEAK POWER 171 HP", std: "0–100 KM/H (0–60 MPH) 2.8 sec", rs: "0–100 KM/H (0–60 MPH) RS 2.6 sec", city: "CITY RANGE 420 km (261 mi)", top: "TOP SPEED 200 km/h (125 mph)" },
+  essesse9: { peak: "PEAK POWER 109 HP", std: "0–100 KM/H (0–60 MPH) 3.0 sec", rs: "0–100 KM/H (0–60 MPH) RS 2.8 sec", city: "CITY RANGE 420 km (261 mi)", top: "TOP SPEED 200 km/h (125 mph)" },
   experia: { peak: "PEAK POWER 102 HP", std: "0–100 KM/H (0–60 MPH) 3.5 sec", rs: "0–100 KM/H (0–60 MPH) 3.5 sec", city: "CITY RANGE 420 km (261 mi)", top: "TOP SPEED 180 km/h (112 mph)" },
 } as const;
 
