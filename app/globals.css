@@ -207,8 +207,13 @@ select option:disabled {
 }
 
 /* Full-bleed split layouts: inner edge lines up with the container's */
+/* Left offset that lines content up with the logo. A custom property is substituted
+   where it is used, so 100% is that element's containing block. */
+:root {
+  --container-offset: max(var(--container-px), calc((100% - var(--container-max)) / 2));
+}
 .ds-container-start {
-  padding-left: max(var(--container-px), calc((100% - var(--container-max)) / 2));
+  padding-left: var(--container-offset);
 }
 
 /* 12-column grid with standard gutter */

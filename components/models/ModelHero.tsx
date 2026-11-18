@@ -79,10 +79,10 @@ export default function ModelHero({ model }: ModelHeroProps) {
         />
       </div>
 
-      {/* ── Gradient overlay — protects text on mobile ───────── */}
+      {/* ── Gradient overlay — protects the text; md+ clears by 45% so the bike stays at full brightness ── */}
       <div
         aria-hidden
-        className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/90 md:via-[#0a0a0a]/60 to-transparent pointer-events-none z-[1]"
+        className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/90 md:via-[#0a0a0a]/60 to-transparent md:bg-[linear-gradient(to_right,#0a0a0a_0%,rgba(10,10,10,0.6)_30%,transparent_45%)] pointer-events-none z-[1]"
       />
       {/* Extra bottom gradient on mobile to protect stats/CTAs */}
       <div
