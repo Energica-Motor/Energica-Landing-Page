@@ -28,7 +28,7 @@ export default function ColorSelector({ colors }: ColorSelectorProps) {
       className="flex flex-col lg:flex-row w-full min-h-[560px] lg:min-h-[calc(100vh-80px)]"
     >
       {/* ── Left — controls ──────────────────────────────────── */}
-      <div className="cs-left flex flex-col justify-center ds-container-start pr-[var(--container-px)] py-16 lg:py-0 lg:w-[340px] xl:w-[400px] shrink-0 border-r border-white/[0.04]">
+      <div className="cs-left flex flex-col justify-center ds-container-start pr-[var(--container-px)] py-16 lg:py-0 lg:w-[calc(var(--container-offset)+340px)] xl:w-[calc(var(--container-offset)+400px)] shrink-0 border-r border-white/[0.04]">
 
         <p className="inline-flex items-center gap-3 mb-5">
           <span className="w-6 h-px bg-[#CE2B37]" />
