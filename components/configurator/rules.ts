@@ -3,7 +3,7 @@
 // incompatibilities and always-visible layers. No React, so it is unit tested.
 import type { ConfigSchema, LayerMeta } from "@/lib/configurator-api";
 import type { PdfOption } from "@/lib/build-sheet";
-import { cleanLayerName, groupConfig, STEP_MAP, type Model, type StepDef } from "./config";
+import { cleanLayerName, groupConfig, STEP_MAP, UNAVAILABLE_LAYERS, type Model, type StepDef } from "./config";
 
 type Layers = Set<string>;
 
@@ -24,6 +24,8 @@ export function defaultLayers(cfg: ConfigSchema): Layers {
 export function initialLayers(cfg: ConfigSchema, restored?: string[] | null): Layers {
   const valid = new Set(cfg.layers.map((l) => l.id));
   const set = restored?.length && restored.every((id) => valid.has(id)) ? new Set(restored) : defaultLayers(cfg);
+  // Saved builds and old shared links can't bring back a part that isn't available
+  UNAVAILABLE_LAYERS.forEach((id) => set.delete(id));
   for (const id of [...set]) deps(cfg, id).forEach((d) => set.add(d));
   let changed = true;
   while (changed) {
@@ -48,6 +50,7 @@ export function initialLayers(cfg: ConfigSchema, restored?: string[] | null): La
  * an optional group clears it. Removing a layer also removes what depends on it.
  */
 export function toggleLayer(cfg: ConfigSchema, prev: Layers, layerId: string, exclusive: boolean, groupPeers?: string[]): Layers {
+  if (UNAVAILABLE_LAYERS.has(layerId)) return prev;
   const always = new Set(cfg.rules.always_visible);
   const next = new Set(prev);
   const dropDependents = (id: string) => {
@@ -109,6 +112,8 @@ export interface OptionView {
   title: string;
   description: string;
   selected: boolean;
+  /** Shown greyed out and not selectable (not available yet). */
+  unavailable?: boolean;
 }
 export interface SectionView {
   key: string;
@@ -161,6 +166,7 @@ export function sectionsFor(cfg: ConfigSchema, visible: Layers): SectionView[] {
       const selected = always.has(layer.id) && exclusive
         ? !peers.some((id) => id !== layer.id && visible.has(id))
         : visible.has(layer.id);
+      if (UNAVAILABLE_LAYERS.has(layer.id)) { options.push({ layer, ...cleanLayerName(layer, key), selected: false, unavailable: true }); continue; }
       options.push({ layer, ...cleanLayerName(layer, key), selected });
     }
     // A group with nothing to show is hidden

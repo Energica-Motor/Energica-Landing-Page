@@ -166,11 +166,12 @@ export function SwatchCard({ option: o, onClick }: { option: OptionView; onClick
 export function OptionCard({ option: o, round, onClick }: { option: OptionView; round: boolean; onClick: () => void }) {
   const radius = round ? "50%" : 0;
   return (
-    <button type="button" aria-pressed={o.selected} onClick={onClick}
-      style={{ ...cardBase(o), padding: "13px 14px", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, textAlign: "left", minHeight: 60 }}>
+    <button type="button" aria-pressed={o.selected} onClick={onClick} disabled={o.unavailable} aria-disabled={o.unavailable || undefined}
+      style={{ ...cardBase(o), ...(o.unavailable ? { opacity: 0.5, background: COLOR.rule + "33" } : null), padding: "13px 14px", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, textAlign: "left", minHeight: 60 }}>
       <span style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0 }}>
         <span style={{ fontFamily: FONT.body, fontSize: 14, fontWeight: 600, color: COLOR.text }}>{o.title}</span>
         {o.description && <span style={{ fontFamily: FONT.body, fontSize: 12, color: COLOR.secondary }}>{o.description}</span>}
+        {o.unavailable && <span style={{ ...monoLabel(10, 0.12), marginTop: 4 }}>NOT AVAILABLE YET</span>}
       </span>
       <span aria-hidden style={{ width: 18, height: 18, borderRadius: radius, border: `1px solid ${COLOR.indicator}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: COLOR.white }}>
         <span style={{ width: 10, height: 10, borderRadius: radius, background: o.selected ? COLOR.text : "transparent" }} />

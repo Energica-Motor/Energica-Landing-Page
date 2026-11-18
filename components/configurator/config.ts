@@ -109,3 +109,6 @@ export function cleanLayerName(layer: { id: string; name: string }, groupKey: st
   if (belly) return { title: `${belly[1]}, ${belly[2]} stripes`, description: row.description };
   return { title: row.title, description: row.description };
 }
+
+/** Shown but not selectable: parts Energica can't supply yet (Experia central stand, Nov 2026). */
+export const UNAVAILABLE_LAYERS = new Set<string>(["ex_74_central_stand"]);

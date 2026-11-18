@@ -249,3 +249,15 @@ describe("summary", () => {
     expect(rules.summarise([{ id: "x", name: "ER-80-WINDSCREEN KIT", groupKey: "optional_upgrades" }], []).countLabel).toBe("1 SELECTION");
   });
 });
+
+describe("Experia central stand (not available yet)", () => {
+  const cfg = CONFIGS.experia;
+  const id = "ex_74_central_stand";
+  it("is shown greyed out, not selectable, and dropped from saved builds", () => {
+    const visible = rules.initialLayers(cfg, null);
+    const opt = rules.sectionsFor(cfg, visible).flatMap((s) => s.options).find((o) => o.layer.id === id);
+    expect(opt).toMatchObject({ unavailable: true, selected: false });
+    expect(rules.toggleLayer(cfg, visible, id, false).has(id)).toBe(false);
+    expect(rules.initialLayers(cfg, [...visible, id]).has(id)).toBe(false);
+  });
+});
