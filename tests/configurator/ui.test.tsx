@@ -86,14 +86,14 @@ describe("action bar", () => {
 });
 
 describe("stage", () => {
-  it("shows the locked figures, unchanged by the RS selection", () => {
-    const stats = performanceFor("eva_ribelle", "Eva Ribelle").grid;
-    const { rerender } = render(<><StageHeading model="eva_ribelle" colour="Stealth Grey" version="Standard" /><SpecStrip stats={stats} /></>);
+  it("shows the 2026 sheet figures; RS changes only 0–100 km/h", () => {
+    const std = performanceFor("eva_ribelle", "Eva Ribelle").grid;
+    const rs = performanceFor("eva_ribelle", "Eva Ribelle", { rs: true }).grid;
+    const { rerender } = render(<><StageHeading model="eva_ribelle" colour="Stealth Grey" version="Standard" /><SpecStrip stats={std} /></>);
     const read = () => screen.getAllByRole("definition").map((d) => d.textContent);
-    const standard = read();
-    expect(standard).toEqual(["147HP", "2.6sec", "420km", "201km/h"]);
-    rerender(<><StageHeading model="eva_ribelle" colour="Stealth Grey" version="RS" /><SpecStrip stats={stats} /></>);
-    expect(read()).toEqual(standard);
+    expect(read()).toEqual(["171HP", "2.8sec", "420km", "200km/h"]);
+    rerender(<><StageHeading model="eva_ribelle" colour="Stealth Grey" version="RS" /><SpecStrip stats={rs} /></>);
+    expect(read()).toEqual(["171HP", "2.6sec", "420km", "200km/h"]);
     expect(screen.getByText("RS")).toBeTruthy();
   });
 });
