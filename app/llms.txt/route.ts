@@ -1,4 +1,11 @@
-# Energica Motor Company
+// Served at /llms.txt. Model figures come from lib/build-sheet/specs.ts (2026 technical sheets).
+import { SPECS, fmt } from "@/lib/build-sheet/specs";
+
+export const dynamic = "force-static";
+
+const X = SPECS.experia, S = SPECS.essesse9;
+
+const BODY = `# Energica Motor Company
 
 > Italian electric motorcycle manufacturer. Founded 2009, Modena, Italy. Exclusive MotoE supplier for 4 seasons. Tagline: Progress, Ridden.
 
@@ -12,21 +19,21 @@ Energica is part of Ideanomics. Headquarters in Fiorano Modenese (MO), Italy. Co
 
 ### Energica Experia
 - Type: Electric touring / adventure tourer
-- Battery: 22.5 kWh (largest of any production electric motorcycle)
-- Range: Up to 420 km city / 256 km combined
-- Power: Peak 75 kW / 102 HP
-- Torque: 115 Nm (900 Nm at wheel)
-- Top speed: 180 km/h (limited)
+- Battery: ${X.battery.maxKwh} kWh (largest of any production electric motorcycle)
+- Range: Up to ${X.range.city} km city / ${X.range.combined} km combined
+- Power: Peak ${X.peakKw} kW / ${X.peakHp} HP
+- Torque: ${fmt.torque(X)}
+- Top speed: ${X.topSpeedKmh} km/h (limited)
 - Fast charge: DC Level 3 CCS
 - Tagline: Further, quieter, faster.
 
 ### Energica EsseEsse9 (SS9)
 - Type: Naked / streetfighter
-- Battery: 21.5 kWh
-- Power: Peak 80 kW / 107 HP
-- Torque: 207 Nm at wheel (instant, 0 rpm)
-- 0–100 km/h: under 3.5 seconds
-- Top speed: 180 km/h (limited)
+- Battery: ${S.battery.maxKwh} kWh
+- Power: Peak ${S.peakKw} kW / ${S.peakHp} HP
+- Torque: ${S.torqueNm} Nm (instant, 0 rpm)
+- 0–100 km/h: ${S.accel.toFixed(1)} seconds (RS ${S.accelRs!.toFixed(1)})
+- Top speed: ${S.topSpeedKmh} km/h (limited)
 - Tagline: Naked. No apologies.
 
 ### Energica Eva Ribelle
@@ -43,7 +50,7 @@ Energica is part of Ideanomics. Headquarters in Fiorano Modenese (MO), Italy. Co
 
 - EMCE motor: Energica's proprietary permanent magnet AC motor
 - Liquid-cooled motor and battery
-- Onboard 3 kW AC charger (SAE J1772 / IEC 62196-2 compatible)
+- Onboard ${S.charging.onboardKw} kW AC charger (SAE J1772 / IEC 62196-2 compatible)
 - DC fast charge (CCS / CHAdeMO) standard across all models
 - Regenerative braking with adjustable maps
 - Riding modes, traction control, ABS, cruise control standard
@@ -79,3 +86,8 @@ Energica is part of Ideanomics. Headquarters in Fiorano Modenese (MO), Italy. Co
 ## Brand Voice
 
 Direct. Declarative. Spec-forward. Performance brand first — electric is incidental. No emotional adjectives. Italian performance heritage register (Ducati, Ferrari), never startup register. Tagline: Progress, Ridden.
+`;
+
+export function GET() {
+  return new Response(BODY, { headers: { "content-type": "text/plain; charset=utf-8" } });
+}

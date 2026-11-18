@@ -1,4 +1,5 @@
 "use client";
+import { LINEUP } from "@/lib/build-sheet/specs";
 
 import { useEffect, useRef, useState } from "react";
 import { gsap, useGSAP } from "@/lib/gsap";
@@ -299,7 +300,7 @@ function MotorDiagram() {
 
         <rect x="88" y="385" width="224" height="13" rx="3" fill="rgba(0,0,0,0.6)" />
         <text x="200" y="394" textAnchor="middle" fill="rgba(120,190,32,0.92)"
-          fontSize="7.5" letterSpacing="2" fontFamily="monospace">PMASynRM · 96% PEAK EFFICIENCY</text>
+          fontSize="7.5" letterSpacing="2" fontFamily="monospace">PMASynRM · {LINEUP.minEfficiency}% PEAK EFFICIENCY</text>
       </svg>
     </div>
   );
@@ -308,7 +309,7 @@ function MotorDiagram() {
 /* ─────────────────────────────────────────────────────────
    SVG: Battery cell grid
 ───────────────────────────────────────────────────────── */
-const BATTERY_KWH = 22.5;
+const BATTERY_KWH = Math.max(...LINEUP.batteries);
 
 function BatteryGrid() {
   const ref = useRef<SVGSVGElement>(null);
@@ -611,11 +612,11 @@ export default function TechContent() {
       <TechSection
         num="01" title="PMASynRM Motor"
         sub="Permanent Magnet Assisted Synchronous Reluctance Motor"
-        body="Energica's proprietary motor combines the efficiency of a permanent magnet design with the reliability of a reluctance motor. Maximum torque from a standstill — no heat throttling, no brushes, no compromise. Peak efficiency exceeds 96%, meaning almost all stored energy reaches the rear wheel."
+        body={`Energica's proprietary motor combines the efficiency of a permanent magnet design with the reliability of a reluctance motor. Maximum torque from a standstill — no heat throttling, no brushes, no compromise. Peak efficiency of ${LINEUP.minEfficiency}% or more, meaning almost all stored energy reaches the rear wheel.`}
         stats={[
-          { value: "145", unit: "HP", label: "Peak Power" },
-          { value: "96", unit: "%", label: "Peak Efficiency" },
-          { value: "215", unit: "Nm", label: "Wheel Torque" },
+          { value: String(LINEUP.maxPeakHp), unit: "HP", label: "Peak Power (up to)" },
+          { value: String(LINEUP.minEfficiency), unit: "%", label: "Peak Efficiency" },
+          { value: String(LINEUP.maxTorqueNm), unit: "Nm", label: "Torque" },
         ]}
         visual={<MotorDiagram />}
       />
@@ -623,11 +624,11 @@ export default function TechContent() {
       {/* ── 02 BATTERY ──────────────────────────────────────── */}
       <TechSection
         num="02" title="Battery System"
-        sub="21.5 / 22.5 kWh lithium polymer — custom-built for Energica platforms"
+        sub={`${LINEUP.batteries.join(" / ")} kWh lithium polymer — custom-built for Energica platforms`}
         body="Custom lithium polymer cells arranged in a structural aluminium pack. Each of the 84 cells is individually monitored by the BMS — optimising charge rate, thermal management, and longevity simultaneously. The pack doubles as a stressed chassis member, reducing weight elsewhere."
         stats={[
-          { value: "21.5 / 22.5", unit: "kWh", label: "Total Capacity" },
-          { value: "420", unit: "km", label: "City Range" },
+          { value: LINEUP.batteries.join(" / "), unit: "kWh", label: "Total Capacity" },
+          { value: String(LINEUP.maxCityKm), unit: "km", label: "City Range" },
         ]}
         visual={<BatteryGrid />}
         flip
@@ -640,7 +641,7 @@ export default function TechContent() {
         body="Electric motorcycle fully compatible with DC fast-charge infrastructure. The chart shows a real CCS charging session — 0 to 80% in under 40 minutes, including the natural taper above 80% that protects cell longevity. On-board AC charger also supports Level 2 home charging."
         stats={[
           { value: "40", unit: "min", label: "0–80% DC Fast" },
-          { value: "3.3", unit: "kW", label: "AC Home Rate" },
+          { value: String(LINEUP.onboardKw), unit: "kW", label: "AC Home Rate" },
         ]}
         visual={<ChargingCurve />}
       />

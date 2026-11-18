@@ -8,6 +8,8 @@ import GalleryGrid from "@/components/models/GalleryGrid";
 import SpecsAccordion from "@/components/models/SpecsAccordion";
 import NextModelCTA from "@/components/models/NextModelCTA";
 import type { Metadata } from "next";
+import { modelMetadata } from "@/lib/model-meta";
+import { specIdFor } from "@/lib/build-sheet/specs";
 import { notFound } from "next/navigation";
 
 interface PageProps {
@@ -23,10 +25,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const model = getModelById(slug);
   if (!model) return { title: "Model Not Found" };
 
-  return {
-    title: `${model.name} | Energica Motor Company`,
-    description: model.description,
-  };
+  return modelMetadata(specIdFor(slug));
 }
 
 export default async function ModelPage({ params }: PageProps) {

@@ -8,13 +8,10 @@ import GalleryGrid from "@/components/models/GalleryGrid";
 import SpecsAccordion from "@/components/models/SpecsAccordion";
 import NextModelCTA from "@/components/models/NextModelCTA";
 import type { Metadata } from "next";
+import { modelMetadata, modelSchema } from "@/lib/model-meta";
 import { notFound } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: "EsseEsse9 | Energica Motor Company",
-  description:
-    "The naked electric champion. 107 HP, 0–100 in 3.2 seconds, 200 km/h top speed.",
-};
+export const metadata: Metadata = modelMetadata("essesse9");
 
 export default function EsseEsse9Page() {
   const model = getModelById("esseesse9");
@@ -27,10 +24,10 @@ export default function EsseEsse9Page() {
     <main className="bg-[#0a0a0a]">
       <ModelSchema
         name="EsseEsse9"
-        description="Naked electric streetfighter. 107 HP, 207 Nm at wheel from 0 rpm, 0–100 km/h in 3.2 seconds. EMCE motor architecture from MotoE. Made in Modena, Italy."
+        description={modelSchema("essesse9").description}
         image="/images/Pagina%20SS9/EsseEsse9%20RS_Bormio%20Ice.webp"
         url="/models/esseesse9"
-        specs={{ power: "Peak 80 kW / 107 HP", torque: "207 Nm at wheel", topSpeed: "200 km/h", range: "180 km city / 120 km combined" }}
+        specs={modelSchema("essesse9").specs}
       />
       <ModelHero model={model} />
       <SpecsBar specs={model.keySpecs} />

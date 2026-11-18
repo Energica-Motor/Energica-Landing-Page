@@ -4,13 +4,17 @@ import { useEffect, useRef, useState } from "react";
 import { Photo } from "@/components/ui/Photo";
 import Link from "next/link";
 import { gsap } from "@/lib/gsap";
+import { MODEL_NAMES } from "@/lib/build-sheet/catalog";
+import { SPECS } from "@/lib/build-sheet/specs";
+
+const X = SPECS.experia, S = SPECS.essesse9, E = SPECS.eva_ribelle, G = SPECS.ego;
 
 /* ── Data ──────────────────────────────────────────────────────── */
 const bikes = [
-  { id:"experia",    index:"01", name:"Experia",    tagline:"420 km. One charge.",              category:"Grand Tourer",   stat:{value:"420", unit:"km", label:"City Range"},   accent:"#78BE20", href:"/models/experia",     image:"/images/Pagina Experia/EXPERIA_Bormio Ice.webp"      },
-  { id:"esseesse9",  index:"02", name:"EsseEsse9",  tagline:"207 Nm. Instant.",                 category:"Naked Sport",    stat:{value:"207", unit:"Nm", label:"Wheel Torque"}, accent:"#78BE20", href:"/models/esseesse9",   image:"/images/Pagina SS9/EsseEsse9 RS_Sunrise Red.webp"    },
-  { id:"eva-ribelle",index:"03", name:"Eva Ribelle",tagline:"147 HP. Italian design.",          category:"Street Fighter", stat:{value:"147", unit:"HP", label:"Peak Power"},   accent:"#78BE20", href:"/models/eva-ribelle", image:"/images/Pagina Eva/EVA Ribelle RS_Stealth Grey.webp" },
-  { id:"ego",        index:"04", name:"Ego",        tagline:"169 HP. MotoE-derived. Road legal.",category:"Supersport",   stat:{value:"2.6", unit:"s",  label:"0–60 mph"},    accent:"#78BE20", href:"/models/ego",         image:"/images/Pagina EGO/EGO RS_Metal Black.webp"         },
+  { id:"experia",    index:"01", name:MODEL_NAMES.experia,    tagline:`${X.range.city} km. One charge.`,              category:"Grand Tourer",   stat:{value:String(X.range.city), unit:"km", label:"City Range"},   accent:"#78BE20", href:"/models/experia",     image:"/images/Pagina Experia/EXPERIA_Bormio Ice.webp"      },
+  { id:"esseesse9",  index:"02", name:MODEL_NAMES.essesse9,  tagline:`${S.torqueNm} Nm. Instant.`,                 category:"Naked Sport",    stat:{value:String(S.torqueNm), unit:"Nm", label:"Torque"}, accent:"#78BE20", href:"/models/esseesse9",   image:"/images/Pagina SS9/EsseEsse9 RS_Sunrise Red.webp"    },
+  { id:"eva-ribelle",index:"03", name:MODEL_NAMES.eva_ribelle,tagline:`${E.peakHp} HP. Italian design.`,          category:"Street Fighter", stat:{value:String(E.peakHp), unit:"HP", label:"Peak Power"},   accent:"#78BE20", href:"/models/eva-ribelle", image:"/images/Pagina Eva/EVA Ribelle RS_Stealth Grey.webp" },
+  { id:"ego",        index:"04", name:MODEL_NAMES.ego,        tagline:`${G.peakHp} HP. MotoE-derived. Road legal.`,category:"Supersport",   stat:{value:G.accelRs!.toFixed(1), unit:"s",  label:"0–100 km/h (RS)"},    accent:"#78BE20", href:"/models/ego",         image:"/images/Pagina EGO/EGO RS_Metal Black.webp"         },
 ];
 
 /* ── Physics — identical to reference HTML ─────────────────────── */

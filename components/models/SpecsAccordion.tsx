@@ -41,6 +41,8 @@ const HUMAN_LABEL_OVERRIDES: Record<string, string> = {
   batteryCharger: "Battery Charger",
   charging: "Recharge",
   maxSpeed: "Max Speed",
+  abs: "ABS",
+  chain: "Final Drive",
 };
 
 function humanLabel(key: string): string {

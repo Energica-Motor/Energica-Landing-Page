@@ -8,13 +8,10 @@ import GalleryGrid from "@/components/models/GalleryGrid";
 import SpecsAccordion from "@/components/models/SpecsAccordion";
 import NextModelCTA from "@/components/models/NextModelCTA";
 import type { Metadata } from "next";
+import { modelMetadata, modelSchema } from "@/lib/model-meta";
 import { notFound } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: "Experia | Energica Motor Company",
-  description:
-    "Europe's first electric green tourer. 420 km city range, 102 HP, CCS DC fast charging. Made in Italy.",
-};
+export const metadata: Metadata = modelMetadata("experia");
 
 export default function ExperiaPage() {
   const model = getModelById("experia");
@@ -26,10 +23,10 @@ export default function ExperiaPage() {
     <main className="bg-[#0a0a0a]">
       <ModelSchema
         name="Experia"
-        description="Europe's first electric touring motorcycle. 22.5 kWh battery, 420 km city range, 102 HP, CCS DC fast charging. Made in Modena, Italy."
+        description={modelSchema("experia").description}
         image="/images/Pagina%20Experia/EXPERIA_Bormio%20Ice.webp"
         url="/models/experia"
-        specs={{ power: "Peak 75 kW / 102 HP", torque: "115 Nm (900 Nm at wheel)", topSpeed: "180 km/h", range: "420 km city / 256 km combined" }}
+        specs={modelSchema("experia").specs}
       />
       {/* § 1 — Hero */}
       <ModelHero model={model} />

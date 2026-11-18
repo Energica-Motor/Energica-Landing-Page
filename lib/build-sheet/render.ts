@@ -246,7 +246,7 @@ export function renderBuildSheet(input: SheetInput, assets: SheetAssets) {
   darkHeader();
   sectionTitle("02 / PERFORMANCE", "WHAT IT DELIVERS", SECTION.kickerY, SECTION.headingBaseline, SECTION.accentY);
 
-  const perf = performanceFor(content.model, content.modelName);
+  const perf = performanceFor(content.model, content.modelName, { rs: content.version === "RS" });
   hline(PAGE.pad, RIGHT, PERF.gridTopY, COLOR.sectionRule, 1);
   const half = CONTENT_W / 2;
   perf.grid.forEach((cell, i) => {

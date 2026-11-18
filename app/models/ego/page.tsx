@@ -8,13 +8,10 @@ import GalleryGrid from "@/components/models/GalleryGrid";
 import SpecsAccordion from "@/components/models/SpecsAccordion";
 import NextModelCTA from "@/components/models/NextModelCTA";
 import type { Metadata } from "next";
+import { modelMetadata, modelSchema } from "@/lib/model-meta";
 import { notFound } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: "Ego | Energica Motor Company",
-  description:
-    "Track tested. Street legal. MotoE-derived 147 HP in a road-legal superbike.",
-};
+export const metadata: Metadata = modelMetadata("ego");
 
 export default function EgoPage() {
   const model = getModelById("ego");
@@ -27,10 +24,10 @@ export default function EgoPage() {
     <main className="bg-[#0a0a0a]">
       <ModelSchema
         name="Ego+"
-        description="MotoE-derived electric superbike. Track tested, street legal. 147 HP, 0–100 km/h in under 3 seconds. Made in Modena, Italy."
+        description={modelSchema("ego").description}
         image={model.heroImage}
         url="/models/ego"
-        specs={{ power: "Peak 107 kW / 145 HP", torque: "215 Nm at wheel", topSpeed: "200 km/h", range: "180 km city / 120 km combined" }}
+        specs={modelSchema("ego").specs}
       />
       <ModelHero model={model} />
       <SpecsBar specs={model.keySpecs} />

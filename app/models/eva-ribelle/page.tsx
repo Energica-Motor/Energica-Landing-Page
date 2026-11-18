@@ -8,13 +8,10 @@ import GalleryGrid from "@/components/models/GalleryGrid";
 import SpecsAccordion from "@/components/models/SpecsAccordion";
 import NextModelCTA from "@/components/models/NextModelCTA";
 import type { Metadata } from "next";
+import { modelMetadata, modelSchema } from "@/lib/model-meta";
 import { notFound } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: "Eva Ribelle | Energica Motor Company",
-  description:
-    "The rebel electric motorcycle. Italian design, 107 HP, and 200 km/h of attitude.",
-};
+export const metadata: Metadata = modelMetadata("eva_ribelle");
 
 export default function EvaRibellePage() {
   const model = getModelById("eva-ribelle");
@@ -27,10 +24,10 @@ export default function EvaRibellePage() {
     <main className="bg-[#0a0a0a]">
       <ModelSchema
         name="Eva Ribelle"
-        description="Electric naked motorcycle with Italian design. 107 HP, 200 km/h top speed. EMCE motor from MotoE. Made in Modena, Italy."
+        description={modelSchema("eva_ribelle").description}
         image={model.heroImage}
         url="/models/eva-ribelle"
-        specs={{ power: "Peak 80 kW / 107 HP", torque: "200 Nm at wheel", topSpeed: "200 km/h", range: "180 km city / 120 km combined" }}
+        specs={modelSchema("eva_ribelle").specs}
       />
       <ModelHero model={model} />
       <SpecsBar specs={model.keySpecs} />

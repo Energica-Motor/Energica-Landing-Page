@@ -743,7 +743,7 @@ export default function EnergiccaConfigurator({
   const isRs = !!config?.layers.some((l) => /rs version/i.test(l.name) && visibleLayers.has(l.id));
   // Only RS is named; the standard version shows just the colour.
   const version = hasRsOption && isRs ? "RS" : null;
-  const stats = performanceFor(model, MODEL_INFO[model].name).grid;
+  const stats = performanceFor(model, MODEL_INFO[model].name, { rs: version === "RS" }).grid;
 
   const isLast = step >= steps.length - 1;
   const copyLabel = copied ? "LINK COPIED" : busy === "link" ? "CREATING LINK…" : "COPY LINK";
