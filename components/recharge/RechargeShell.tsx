@@ -754,7 +754,7 @@ export default function RechargeShell() {
                   Confirmation sent to <strong className="text-white font-medium">{email}</strong>. What happens next:
                 </p>
                 <div className="text-left border border-white/[0.07] rounded-sm overflow-hidden">
-                  <NextStep num={1} title="Within 60 minutes" text="Formal offer letter and collection slot options sent by email." />
+                  <NextStep num={1} title="Within 3 working days" text="Formal offer letter and collection slot options sent by email." />
                   <NextStep num={2} title="Within 5 days" text="We collect the bike from your address and transport it to Fiorano. No cost to you." />
                   <NextStep num={3} title="At evaluation" text="Full inspection on our premises. Payment released the same day you accept." />
                 </div>

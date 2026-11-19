@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { ENQUIRY_TO, ENQUIRY_CC, enquirySubject } from "@/lib/email-routing";
 import { verifyVerifiedToken } from "@/lib/recharge-verify";
 import { calculateValuation, RechargeCondition, RechargeModel } from "@/lib/recharge-pricing";
+import { RECHARGE_FROM, RECHARGE_REPLY_TO, rechargeCustomerHtml, rechargeCustomerSubject } from "@/lib/recharge-customer-email";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM = "Energica Motor <hello@energicamotor.com>";
@@ -110,27 +111,17 @@ export async function POST(req: NextRequest) {
     if (err1) throw new Error(err1.message);
 
     const { error: err2 } = await resend.emails.send({
-      from: FROM,
+      from: RECHARGE_FROM,
       to: email,
-      subject: `Your Energica ReCharge offer — Ref ${ref}`,
-      html: `
-        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; color: #111;">
-          <div style="background: #0A0A0A; padding: 24px 32px; border-bottom: 3px solid #78BE20;">
-            <img src="${LOGO_URL}" alt="Energica Motor" height="32" />
-          </div>
-          <div style="padding: 32px; background: #f9f9f9;">
-            <h2 style="margin: 0 0 12px; font-size: 20px;">Thanks, ${fullName.split(" ")[0]}.</h2>
-            <p style="margin: 0 0 24px; color: #444; line-height: 1.6;">
-              Your indicative offer for the ${year} ${valuation.modelLabel} is <strong>${fmtEUR(valuation.price)}</strong> (Ref ${ref}).
-              Our team will send a formal offer letter and collection slot options within 60 minutes.
-            </p>
-            <p style="margin: 0; color: #888; font-size: 13px;">Progress, Ridden.</p>
-          </div>
-          <div style="padding: 16px 32px; background: #0A0A0A; color: #555; font-size: 12px;">
-            ENERGICA PTE. LTD. · energicamotor.com
-          </div>
-        </div>
-      `,
+      replyTo: RECHARGE_REPLY_TO,
+      subject: rechargeCustomerSubject(ref),
+      html: rechargeCustomerHtml({
+        firstName: fullName.split(" ")[0],
+        year,
+        modelLabel: valuation.modelLabel,
+        amount: fmtEUR(valuation.price),
+        ref,
+      }),
     });
     if (err2) throw new Error(err2.message);
 
