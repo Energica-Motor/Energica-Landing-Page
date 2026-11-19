@@ -122,7 +122,7 @@ export async function POST(req: NextRequest) {
             <h2 style="margin: 0 0 12px; font-size: 20px;">Thanks, ${fullName.split(" ")[0]}.</h2>
             <p style="margin: 0 0 24px; color: #444; line-height: 1.6;">
               Your indicative offer for the ${year} ${valuation.modelLabel} is <strong>${fmtEUR(valuation.price)}</strong> (Ref ${ref}).
-              Our team will send a formal offer letter and collection slot options within 60 minutes.
+              Our team will send a formal offer letter and collection slot options within 3 working days.
             </p>
             <p style="margin: 0; color: #888; font-size: 13px;">Progress, Ridden.</p>
           </div>
